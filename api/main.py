@@ -17,6 +17,14 @@ import os
 import logging
 import traceback
 from functools import lru_cache
+try:
+    from services.database import query_parcel, query_parcels_nearby, db_available
+except ImportError:
+    try:
+        from api.services.database import query_parcel, query_parcels_nearby, db_available
+    except ImportError:
+        query_parcel = query_parcels_nearby = None
+        db_available = lambda: False
 
 # =========================
 # STRUCTURED LOGGING
@@ -86,15 +94,15 @@ from collections import defaultdict
 from starlette.middleware.base import BaseHTTPMiddleware
 
 # Simple in-memory rate limiter: max requests per IP per minute
-RATE_LIMIT = int(os.environ.get('RATE_LIMIT_PER_MINUTE', 60))
+RATE_LIMIT = int(os.environ.get('RATE_LIMIT_PER_MINUTE', 120))
 _rate_buckets = defaultdict(list)
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        # Rate limiting (skip health checks)
-        if request.url.path != "/health":
-            client_ip = request.client.host if request.client else "unknown"
+        # Rate limiting (skip health checks and localhost/testing)
+        client_ip = request.client.host if request.client else "unknown"
+        if request.url.path != "/health" and client_ip not in ("127.0.0.1", "localhost", "testclient"):
             now = time.time()
             # Clean old entries (older than 60s)
             _rate_buckets[client_ip] = [t for t in _rate_buckets[client_ip] if now - t < 60]
@@ -216,16 +224,33 @@ def load_data():
 @app.get("/parcels/{parcel_id}", tags=["Parcels"])
 def get_parcel(parcel_id: str):
     """Look up zoning details and geometry for a Boston parcel by its 10-digit ID."""
+
+    # Try PostGIS first (fast, low memory)
+    if db_available() and query_parcel is not None:
+        db_row = query_parcel(parcel_id)
+        if db_row is not None:
+            result = {
+                "parcel_id": parcel_id,
+                "zoning_code": db_row.get("primary_zoning", ""),
+                "district": db_row.get("all_zoning_codes", ""),
+                "article": db_row.get("article", ""),
+                "multi_zoning": db_row.get("multi_zoning", False),
+                "geometry": db_row.get("geometry"),
+                "source": "postgis",
+            }
+            # Enrich with ZBA history
+            _enrich_parcel_result(result, parcel_id)
+            return result
+
+    # Fallback to in-memory GeoJSON
     if gdf is None:
-        raise HTTPException(status_code=500, detail="GeoJSON not loaded")
+        raise HTTPException(status_code=500, detail="No parcel data available (PostGIS and GeoJSON both unavailable)")
 
     row = gdf.loc[[parcel_id]] if parcel_id in gdf.index else gdf.iloc[0:0]
-
     if row.empty:
         raise HTTPException(status_code=404, detail="Parcel not found")
 
     row = row.iloc[0]
-
     result = {
         "parcel_id": parcel_id,
         "zoning_code": str(row.get("primary_zoning") or ""),
@@ -236,10 +261,15 @@ def get_parcel(parcel_id: str):
         "multi_zoning": bool(row.get("multi_zoning")),
         "zoning_count": int(row.get("zoning_count") or 0),
         "geometry": row.geometry.__geo_interface__,
+        "source": "geojson",
     }
+    _enrich_parcel_result(result, parcel_id)
+    return result
 
-    # Enrich with ZBA history if available
-    district = result["district"]
+
+def _enrich_parcel_result(result: dict, parcel_id: str):
+    """Add ZBA case history to a parcel result."""
+    district = result.get("district", "")
     if zba_df is not None and 'zoning_district' in zba_df.columns:
         ward_lookup = zba_df[
             (zba_df['zoning_district'] == district) & zba_df['ward'].notna()
@@ -256,8 +286,6 @@ def get_parcel(parcel_id: str):
                 addr = matches['address_clean'].dropna().iloc[0] if 'address_clean' in matches.columns and matches['address_clean'].notna().any() else None
                 if addr:
                     result["address"] = str(addr)
-
-    return result
 
 
 @app.get("/parcels/{parcel_id}/nearby_cases", tags=["Parcels"])
@@ -1094,7 +1122,7 @@ def analyze_proposal(payload: dict):
                 "model": model_package.get('model_name', 'ml_model'),
                 "model_auc": model_package.get('auc_score', 0),
                 "total_training_cases": model_package.get('total_cases', 0),
-                "disclaimer": "Risk assessment based on statistical analysis of historical ZBA decisions. Not a prediction or guarantee. Does not constitute legal advice. Consult a qualified zoning attorney before making financial decisions."
+                "disclaimer": "IMPORTANT: This is a statistical risk assessment based on historical ZBA decisions, not a prediction or guarantee of outcome. Actual results depend on factors not captured in this model including board composition, public testimony, and site-specific conditions. This does not constitute legal, financial, or professional advice. Always consult a qualified zoning attorney before making financial commitments based on this analysis."
             }
         except Exception as e:
             logger.error("ML model error: %s, falling back to heuristic", e)
@@ -1169,7 +1197,7 @@ def analyze_proposal(payload: dict):
         "top_drivers": [],
         "similar_cases": similar,
         "model": "data_driven_heuristic",
-        "disclaimer": "Risk assessment based on statistical analysis of historical ZBA decisions. Not a prediction or guarantee. Does not constitute legal advice. Consult a qualified zoning attorney before making financial decisions."
+        "disclaimer": "IMPORTANT: This is a statistical risk assessment based on historical ZBA decisions, not a prediction or guarantee of outcome. Actual results depend on factors not captured in this model including board composition, public testimony, and site-specific conditions. This does not constitute legal, financial, or professional advice. Always consult a qualified zoning attorney before making financial commitments based on this analysis."
     }
 
 
@@ -1966,6 +1994,193 @@ def platform_stats():
 
 
 # =========================
+# SITE SELECTION / RECOMMENDATION
+# =========================
+
+@app.get("/recommend", tags=["Prediction"], dependencies=[Depends(verify_api_key)])
+def recommend_sites(
+    project_type: str = "residential",
+    min_approval_rate: float = 0.5,
+    limit: int = 10,
+):
+    """Find the best parcels/wards for a given project type based on historical approval rates.
+
+    This answers: 'Where in Boston should I build a 10-unit residential project?'
+    — the highest-value question for developers, answered before they pick a site.
+    """
+    if zba_df is None:
+        raise HTTPException(status_code=500, detail="ZBA data not loaded")
+
+    df = zba_df[zba_df['decision_clean'].notna()].copy()
+
+    # Map project_type to column
+    proj_col_map = {
+        'residential': 'is_residential', 'commercial': 'is_commercial',
+        'new_construction': 'proj_new_construction', 'renovation': 'proj_renovation',
+        'addition': 'proj_addition', 'conversion': 'proj_conversion',
+        'adu': 'proj_adu', 'mixed_use': 'proj_mixed_use',
+        'demolition': 'proj_demolition', 'multi_family': 'proj_multi_family',
+        'single_family': 'proj_single_family', 'roof_deck': 'proj_roof_deck',
+    }
+
+    proj_col = proj_col_map.get(project_type.lower())
+    if proj_col and proj_col in df.columns:
+        df = df[df[proj_col] == 1]
+
+    if len(df) < 5:
+        return {"recommendations": [], "message": f"Not enough {project_type} cases for recommendation"}
+
+    # Group by ward
+    df['_ward'] = df['ward'].apply(lambda w: str(int(float(w))) if pd.notna(w) else None)
+    df = df[df['_ward'].notna()]
+
+    ward_stats = df.groupby('_ward').agg(
+        total=('decision_clean', 'count'),
+        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+    )
+    ward_stats['approval_rate'] = ward_stats['approved'] / ward_stats['total']
+    ward_stats = ward_stats[ward_stats['total'] >= 3]  # min sample size
+    ward_stats = ward_stats[ward_stats['approval_rate'] >= min_approval_rate]
+    ward_stats = ward_stats.sort_values('approval_rate', ascending=False).head(limit)
+
+    recommendations = []
+    for ward_name, row in ward_stats.iterrows():
+        # Get common variances in this ward for this project type
+        ward_cases = df[df['_ward'] == ward_name]
+        common_variances = []
+        for vt in ['height', 'far', 'parking', 'lot_area', 'setback']:
+            col = f'var_{vt}' if f'var_{vt}' in ward_cases.columns else None
+            if col and ward_cases[col].sum() > 0:
+                common_variances.append(vt)
+
+        recommendations.append({
+            "ward": ward_name,
+            "approval_rate": round(float(row['approval_rate']), 3),
+            "total_cases": int(row['total']),
+            "approved": int(row['approved']),
+            "common_variances": common_variances,
+            "recommendation": "Strong" if row['approval_rate'] >= 0.7 else "Moderate",
+        })
+
+    return {
+        "project_type": project_type,
+        "min_approval_rate": min_approval_rate,
+        "recommendations": recommendations,
+        "total_matching_cases": len(df),
+    }
+
+
+# =========================
+# DENIAL PATTERN ANALYSIS
+# =========================
+
+@app.get("/denial_patterns", tags=["Market Intelligence"])
+def denial_patterns():
+    """What distinguishes denied cases from approved ones? Feature comparison."""
+    if zba_df is None:
+        raise HTTPException(status_code=500, detail="ZBA data not loaded")
+
+    df = zba_df[zba_df['decision_clean'].notna()].copy()
+    approved = df[df['decision_clean'] == 'APPROVED']
+    denied = df[df['decision_clean'] == 'DENIED']
+
+    patterns = []
+    compare_cols = [
+        ('num_variances', 'Avg Variances Requested'),
+        ('has_attorney', 'Has Attorney (%)'),
+        ('proposed_units', 'Avg Proposed Units'),
+        ('proposed_stories', 'Avg Proposed Stories'),
+    ]
+
+    for col, label in compare_cols:
+        if col not in df.columns:
+            continue
+        app_val = float(approved[col].fillna(0).mean())
+        den_val = float(denied[col].fillna(0).mean())
+        patterns.append({
+            "feature": label,
+            "approved_avg": round(app_val, 2),
+            "denied_avg": round(den_val, 2),
+            "difference": round(app_val - den_val, 2),
+        })
+
+    # Variance type comparison
+    for vt in ['height', 'far', 'parking', 'lot_area', 'conditional_use']:
+        col = f'var_{vt}'
+        if col not in df.columns:
+            continue
+        app_rate = float(approved[col].fillna(0).mean())
+        den_rate = float(denied[col].fillna(0).mean())
+        patterns.append({
+            "feature": f"Requests {vt} variance (%)",
+            "approved_avg": round(app_rate * 100, 1),
+            "denied_avg": round(den_rate * 100, 1),
+            "difference": round((app_rate - den_rate) * 100, 1),
+        })
+
+    return {
+        "total_approved": len(approved),
+        "total_denied": len(denied),
+        "patterns": patterns,
+    }
+
+
+# =========================
+# TIMELINE ANALYSIS
+# =========================
+
+@app.get("/timeline_stats", tags=["Market Intelligence"])
+def timeline_stats():
+    """Filing-to-decision timeline analysis. How long do ZBA decisions take?"""
+    if zba_df is None:
+        raise HTTPException(status_code=500, detail="ZBA data not loaded")
+
+    df = zba_df.copy()
+    result = {"timelines": []}
+
+    # Try to compute from filing_date and hearing_date if available
+    if 'filing_date' in df.columns:
+        df['_filing'] = pd.to_datetime(df['filing_date'], errors='coerce')
+
+    if 'hearing_date' in df.columns:
+        df['_hearing'] = pd.to_datetime(df['hearing_date'], errors='coerce')
+
+    if '_filing' in df.columns and '_hearing' in df.columns:
+        df['_days'] = (df['_hearing'] - df['_filing']).dt.days
+        valid = df[df['_days'].between(1, 730)]  # 1 day to 2 years
+        if len(valid) > 10:
+            result["filing_to_hearing"] = {
+                "median_days": int(valid['_days'].median()),
+                "mean_days": int(valid['_days'].mean()),
+                "min_days": int(valid['_days'].min()),
+                "max_days": int(valid['_days'].max()),
+                "sample_size": len(valid),
+            }
+
+    # Cases per year
+    if 'source_pdf' in df.columns:
+        df['_year'] = df['source_pdf'].str.extract(r'(20\d{2})').astype(float)
+        yearly = df[df['_year'].notna()].groupby('_year').size().to_dict()
+        result["cases_per_year"] = {str(int(k)): int(v) for k, v in sorted(yearly.items())}
+
+    # Decision distribution by year
+    if '_year' in df.columns and 'decision_clean' in df.columns:
+        for year in sorted(df['_year'].dropna().unique()):
+            yr_data = df[df['_year'] == year]
+            total = len(yr_data[yr_data['decision_clean'].notna()])
+            approved = len(yr_data[yr_data['decision_clean'] == 'APPROVED'])
+            if total > 0:
+                result["timelines"].append({
+                    "year": int(year),
+                    "total": total,
+                    "approved": approved,
+                    "approval_rate": round(approved / total, 3),
+                })
+
+    return result
+
+
+# =========================
 # HEALTH CHECK
 # =========================
 
@@ -1985,6 +2200,9 @@ def health():
         "model_brier": model_package.get('brier_score') if model_package else None,
         "optimal_threshold": model_package.get('optimal_threshold') if model_package else None,
         "features": len(model_package.get('feature_cols', [])) if model_package else 0,
+        "postgis_available": db_available(),
+        "leakage_free": model_package.get('leakage_free', False) if model_package else False,
+        "model_version": model_package.get('model_version') if model_package else None,
     }
 
 

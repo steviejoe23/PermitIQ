@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: permitiq
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-permitiq123}
+    ports:
+      - "5433:5432"  # 5433 to avoid conflict with local postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   api:
     build: .
     command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --workers 2
@@ -13,8 +30,12 @@ services:
       - ./api/zba_model.pkl:/app/api/zba_model.pkl:ro
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-permitiq123}@db:5432/permitiq
       - PERMITIQ_API_KEY=${PERMITIQ_API_KEY:-}
       - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-60}
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -35,3 +56,6 @@ services:
       api:
         condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  pgdata:
