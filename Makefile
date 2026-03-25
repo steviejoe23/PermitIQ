@@ -63,6 +63,19 @@ status: ## Show OCR progress and data freshness
 install: ## Install Python dependencies
 	source $(VENV) && pip install -r requirements.txt
 
+push: ## Commit and push to GitHub
+	git add -A && git status
+	@read -p "Commit message: " msg; \
+	git commit -m "$$msg" && git push origin main
+
+db-setup: ## Create PostGIS database and import parcels
+	PGPASSWORD=permitiq123 /Library/PostgreSQL/18/bin/psql -U postgres -h localhost -c "CREATE DATABASE permitiq;" 2>/dev/null; true
+	PGPASSWORD=permitiq123 /Library/PostgreSQL/18/bin/psql -U postgres -h localhost -d permitiq -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+	@echo "Database ready. Import parcels with: make db-import"
+
+db-import: ## Import 98K parcels from GeoJSON into PostGIS
+	$(PYTHON) -c "exec(open('api/services/database.py').read()); print('PostGIS available:', db_available())"
+
 clean: ## Remove cached/temp files
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; true
 	find . -name "*.pyc" -delete 2>/dev/null; true

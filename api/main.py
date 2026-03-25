@@ -216,6 +216,11 @@ def load_data():
     except Exception as e:
         logger.warning("Could not load property assessment for geocoding: %s", e)
 
+    # Initialize market intel router with loaded data
+    if market_init is not None and zba_df is not None:
+        market_init(zba_df, VARIANCE_TYPES, PROJECT_TYPES)
+        logger.info("Market intel router initialized with %d cases", len(zba_df))
+
 
 # =========================
 # PARCEL LOOKUP
@@ -1386,798 +1391,95 @@ def compare_scenarios(payload: dict):
 
 
 # =========================
-# WARD STATISTICS
+# MARKET INTELLIGENCE — see routes/market_intel.py
+# Router is included at import time, data is injected in the startup event.
+try:
+    from routes.market_intel import router as market_router, init as market_init
+    app.include_router(market_router)
+    logger.info("Market intel router included")
+except Exception as e:
+    market_init = None
+    logger.warning(f"Market intel router not loaded: {e}")
+
+
+# PLATFORM STATS
 # =========================
 
-@app.get("/wards/all", tags=["Market Intelligence"])
-def all_ward_stats():
-    """All ward statistics in a single call (avoids N+1 queries)."""
+@app.get("/stats", tags=["Platform"])
+def overall_stats():
+    """Overall platform statistics for the dashboard."""
     if zba_df is None:
         raise HTTPException(status_code=500, detail="ZBA data not loaded")
 
     df = zba_df[zba_df['decision_clean'].notna()].copy()
-    df['_ward_clean'] = df['ward'].apply(lambda w: str(int(float(w))) if pd.notna(w) else None)
-    df = df[df['_ward_clean'].notna()]
+    total = len(df)
+    approved = int((df['decision_clean'] == 'APPROVED').sum())
+    denied = total - approved
 
-    grouped = df.groupby('_ward_clean').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+    # Ward stats
+    df['_ward'] = df['ward'].apply(lambda w: str(int(float(w))) if pd.notna(w) else None)
+    ward_rates = df[df['_ward'].notna()].groupby('_ward')['decision_clean'].apply(
+        lambda x: (x == 'APPROVED').mean()
     )
 
-    wards = []
-    for ward_name, row in grouped.iterrows():
-        total = int(row['total'])
-        approved = int(row['approved'])
-        wards.append({
-            "ward": ward_name,
-            "total_cases": total,
-            "approved": approved,
-            "denied": total - approved,
-            "approval_rate": round(float(approved / total), 3) if total > 0 else 0,
-        })
-
-    wards.sort(key=lambda x: -x['approval_rate'])
-    return {"wards": wards}
-
-
-@app.get("/wards/{ward_id}/stats", tags=["Market Intelligence"])
-def ward_stats(ward_id: str):
-    """Get historical ZBA statistics for a specific ward."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    # Normalize ward comparison — data has "1.0", user sends "1"
-    try:
-        ward_num = float(ward_id)
-    except (ValueError, TypeError):
-        raise HTTPException(status_code=400, detail=f"Invalid ward: {ward_id}")
-
-    ward_cases = zba_df[
-        (zba_df['ward'] == ward_num) &
-        (zba_df['decision_clean'].notna())
-    ]
-
-    if len(ward_cases) == 0:
-        raise HTTPException(status_code=404, detail=f"No cases found for Ward {ward_id}")
-
-    approved = int((ward_cases['decision_clean'] == 'APPROVED').sum())
-    denied = int((ward_cases['decision_clean'] == 'DENIED').sum())
-    total = approved + denied
-
     return {
-        "ward": ward_id,
-        "total_cases": int(total),
-        "approved": approved,
-        "denied": denied,
-        "approval_rate": round(float(approved / total), 3) if total > 0 else 0,
+        "total_cases": total,
+        "total_approved": approved,
+        "total_denied": denied,
+        "overall_approval_rate": round(approved / total, 3) if total > 0 else 0,
+        "total_wards": int(ward_rates.count()),
+        "best_ward": str(ward_rates.idxmax()) if len(ward_rates) > 0 else None,
+        "best_ward_rate": round(float(ward_rates.max()), 3) if len(ward_rates) > 0 else None,
+        "worst_ward": str(ward_rates.idxmin()) if len(ward_rates) > 0 else None,
+        "worst_ward_rate": round(float(ward_rates.min()), 3) if len(ward_rates) > 0 else None,
+        "total_parcels": len(gdf) if gdf is not None else 0,
     }
 
-
-# =========================
-# PROJECT TYPE STATS
-# =========================
-
-@app.get("/project_type_stats", tags=["Market Intelligence"])
-def project_type_stats():
-    """Return approval rates by project type."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-    results = []
-
-    for pt in PROJECT_TYPES:
-        col = f'proj_{pt}'
-        if col in df.columns:
-            matched = df[df[col] == 1]
-            if len(matched) > 5:
-                approved = (matched['decision_clean'] == 'APPROVED').sum()
-                total = len(matched)
-                results.append({
-                    "project_type": pt.replace('_', ' ').title(),
-                    "total_cases": int(total),
-                    "approved": int(approved),
-                    "approval_rate": round(approved / total, 3),
-                })
-
-    results.sort(key=lambda x: -x['approval_rate'])
-    return {"project_type_stats": results}
-
-
-# =========================
-# VARIANCE STATS
-# =========================
-
-@app.get("/variance_stats", tags=["Market Intelligence"])
-def variance_stats():
-    """Return approval rates by variance type — which variances get approved most?"""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-    results = []
-
-    for vt in VARIANCE_TYPES:
-        mask = df['variance_types'].fillna('').str.contains(vt, na=False)
-        matched = df[mask]
-        if len(matched) > 5:
-            approved = (matched['decision_clean'] == 'APPROVED').sum()
-            total = len(matched)
-            results.append({
-                "variance_type": vt,
-                "total_cases": int(total),
-                "approved": int(approved),
-                "approval_rate": round(approved / total, 3),
-            })
-
-    results.sort(key=lambda x: -x['approval_rate'])
-    return {"variance_stats": results}
-
-
-# =========================
-# NEIGHBORHOOD COMPARISON
-# =========================
-
-@app.get("/neighborhoods", tags=["Market Intelligence"])
-def neighborhood_stats():
-    """Approval rates by zoning district/neighborhood, ranked."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-
-    # Use zoning_district (from tracker) or fall back to OCR zoning
-    z_col = 'zoning_district' if 'zoning_district' in df.columns else (
-        'zoning_clean' if 'zoning_clean' in df.columns else 'zoning')
-    if z_col not in df.columns:
-        return {"neighborhoods": []}
-
-    df['_neighborhood'] = df[z_col].fillna('Unknown').astype(str)
-    grouped = df.groupby('_neighborhood').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
-    )
-    grouped['approval_rate'] = grouped['approved'] / grouped['total']
-    qualified = grouped[grouped['total'] >= 10].sort_values('approval_rate', ascending=False)
-
-    results = []
-    for name, row in qualified.iterrows():
-        results.append({
-            "neighborhood": str(name),
-            "total_cases": int(row['total']),
-            "approved": int(row['approved']),
-            "denied": int(row['total'] - row['approved']),
-            "approval_rate": round(float(row['approval_rate']), 3),
-        })
-
-    return {"neighborhoods": results}
-
-
-# =========================
-# ATTORNEY LEADERBOARD
-# =========================
-
-@app.get("/attorneys/leaderboard", tags=["Market Intelligence"])
-def attorney_leaderboard(min_cases: int = 5, limit: int = 20):
-    """Top attorneys by ZBA approval rate. Only includes those with min_cases decided."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[
-        (zba_df['decision_clean'].notna()) &
-        (zba_df['applicant_name'].notna()) &
-        (zba_df['applicant_name'].str.len() > 3)
-    ].copy()
-
-    grouped = df.groupby('applicant_name').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
-    )
-    grouped['approval_rate'] = grouped['approved'] / grouped['total']
-    qualified = grouped[grouped['total'] >= min_cases].sort_values(
-        ['approval_rate', 'total'], ascending=[False, False]
-    ).head(limit)
-
-    results = []
-    for name, row in qualified.iterrows():
-        results.append({
-            "name": str(name),
-            "total_cases": int(row['total']),
-            "approved": int(row['approved']),
-            "denied": int(row['total'] - row['approved']),
-            "approval_rate": round(float(row['approval_rate']), 3),
-        })
-
-    # Overall stats for context
-    has_attorney = df[df.get('has_attorney', pd.Series(dtype=int)) == 1] if 'has_attorney' in df.columns else pd.DataFrame()
-    no_attorney = df[df.get('has_attorney', pd.Series(dtype=int)) == 0] if 'has_attorney' in df.columns else pd.DataFrame()
-
-    return {
-        "attorneys": results,
-        "total_unique_applicants": int(df['applicant_name'].nunique()),
-        "attorney_approval_rate": round(float((has_attorney['decision_clean'] == 'APPROVED').mean()), 3) if len(has_attorney) > 0 else None,
-        "no_attorney_approval_rate": round(float((no_attorney['decision_clean'] == 'APPROVED').mean()), 3) if len(no_attorney) > 0 else None,
-    }
-
-
-# =========================
-# APPROVAL TRENDS TIMELINE
-# =========================
-
-@app.get("/trends", tags=["Market Intelligence"])
-def approval_trends():
-    """Approval rate trends over time, by year."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-
-    # Extract year from source_pdf or filing_date
-    if 'source_pdf' in df.columns:
-        df['_year'] = df['source_pdf'].str.extract(r'(20\d{2})').astype(float)
-    elif 'filing_date' in df.columns:
-        df['_year'] = pd.to_datetime(df['filing_date'], errors='coerce').dt.year
-    else:
-        return {"years": []}
-
-    df = df[df['_year'].notna()]
-    grouped = df.groupby('_year').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
-    )
-    grouped['approval_rate'] = grouped['approved'] / grouped['total']
-
-    years = []
-    for year, row in grouped.sort_index().iterrows():
-        years.append({
-            "year": int(year),
-            "total_cases": int(row['total']),
-            "approved": int(row['approved']),
-            "denied": int(row['total'] - row['approved']),
-            "approval_rate": round(float(row['approval_rate']), 3),
-        })
-
-    return {"years": years}
-
-
-# =========================
-# DENIAL REASON ANALYSIS
-# =========================
-
-@app.get("/denial_patterns", tags=["Market Intelligence"])
-def denial_patterns():
-    """Analyze common patterns in denied cases vs approved — what distinguishes denials?"""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-    approved = df[df['decision_clean'] == 'APPROVED']
-    denied = df[df['decision_clean'] == 'DENIED']
-
-    if len(denied) == 0 or len(approved) == 0:
-        return {"patterns": []}
-
-    patterns = []
-
-    # Compare PRE-HEARING features only (no leaked post-hearing features)
-    binary_features = {
-        'has_attorney': 'Legal Representation',
-        'bpda_involved': 'BPDA Involved',
-        'is_residential': 'Residential Use',
-        'is_commercial': 'Commercial Use',
-        'is_variance': 'Variance Request',
-        'is_conditional_use': 'Conditional Use',
-        'proj_new_construction': 'New Construction',
-        'proj_addition': 'Addition/Extension',
-        'proj_conversion': 'Use Conversion',
-        'proj_renovation': 'Renovation',
-    }
-
-    for col, label in binary_features.items():
-        if col in df.columns:
-            app_rate = float(approved[col].fillna(0).mean())
-            den_rate = float(denied[col].fillna(0).mean())
-            diff = app_rate - den_rate
-            if abs(diff) > 0.03:  # Only include meaningful differences
-                patterns.append({
-                    "factor": label,
-                    "approved_rate": round(app_rate, 3),
-                    "denied_rate": round(den_rate, 3),
-                    "difference": round(diff, 3),
-                    "direction": "favors_approval" if diff > 0 else "favors_denial",
-                })
-
-    # Variance count comparison
-    if 'num_variances' in df.columns:
-        avg_app = float(approved['num_variances'].fillna(0).mean())
-        avg_den = float(denied['num_variances'].fillna(0).mean())
-        patterns.append({
-            "factor": "Average Variance Count",
-            "approved_rate": round(avg_app, 2),
-            "denied_rate": round(avg_den, 2),
-            "difference": round(avg_app - avg_den, 2),
-            "direction": "more_variances_denied" if avg_den > avg_app else "fewer_variances_denied",
-        })
-
-    patterns.sort(key=lambda x: -abs(x['difference']))
-
-    return {
-        "total_approved": int(len(approved)),
-        "total_denied": int(len(denied)),
-        "patterns": patterns,
-    }
-
-
-# =========================
-# VOTING PATTERNS
-# =========================
-
-@app.get("/voting_patterns", tags=["Market Intelligence"])
-def voting_patterns():
-    """Analyze vote distributions across ZBA decisions."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-    result = {}
-
-    if 'votes_in_favor' in df.columns and 'votes_opposed' in df.columns:
-        df['votes_in_favor'] = pd.to_numeric(df['votes_in_favor'], errors='coerce').fillna(0)
-        df['votes_opposed'] = pd.to_numeric(df['votes_opposed'], errors='coerce').fillna(0)
-
-        approved = df[df['decision_clean'] == 'APPROVED']
-        denied = df[df['decision_clean'] == 'DENIED']
-
-        result["avg_votes_favor_approved"] = round(float(approved['votes_in_favor'].mean()), 2)
-        result["avg_votes_favor_denied"] = round(float(denied['votes_in_favor'].mean()), 2)
-        result["avg_votes_opposed_approved"] = round(float(approved['votes_opposed'].mean()), 2)
-        result["avg_votes_opposed_denied"] = round(float(denied['votes_opposed'].mean()), 2)
-
-        # Unanimous decisions
-        df['is_unanimous'] = (df['votes_opposed'] == 0) & (df['votes_in_favor'] > 0)
-        unanimous = df[df['is_unanimous']]
-        result["unanimous_total"] = int(len(unanimous))
-        result["unanimous_approved"] = int((unanimous['decision_clean'] == 'APPROVED').sum())
-        result["unanimous_approval_rate"] = round(float((unanimous['decision_clean'] == 'APPROVED').mean()), 3) if len(unanimous) > 0 else 0
-
-        # Split decisions (any opposed votes)
-        split = df[(df['votes_opposed'] > 0)]
-        result["split_total"] = int(len(split))
-        result["split_approved"] = int((split['decision_clean'] == 'APPROVED').sum())
-        result["split_approval_rate"] = round(float((split['decision_clean'] == 'APPROVED').mean()), 3) if len(split) > 0 else 0
-
-    return result
-
-
-# =========================
-# PROVISO / CONDITIONS ANALYSIS
-# =========================
-
-@app.get("/proviso_stats", tags=["Market Intelligence"])
-def proviso_stats():
-    """Analyze common conditions/provisos attached to ZBA approvals."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'] == 'APPROVED'].copy()
-
-    proviso_cols = {
-        'proviso_abutter_notice': 'Abutter Notice Required',
-        'proviso_time_limit': 'Time Limit on Approval',
-        'proviso_community': 'Community Process Condition',
-        'proviso_design_review': 'Design Review Required',
-        'proviso_bpda_review': 'BPDA Review Required',
-        'proviso_traffic': 'Traffic Mitigation',
-        'proviso_environmental': 'Environmental Conditions',
-        'proviso_other': 'Other Conditions',
-    }
-
-    results = []
-    for col, label in proviso_cols.items():
-        if col in df.columns:
-            count = int(df[col].fillna(0).sum())
-            rate = round(float(df[col].fillna(0).mean()), 3) if len(df) > 0 else 0
-            if count > 0:
-                results.append({
-                    "condition": label,
-                    "count": count,
-                    "rate": rate,
-                })
-
-    results.sort(key=lambda x: -x['count'])
-
-    return {
-        "total_approvals": int(len(df)),
-        "conditions": results,
-    }
-
-
-# =========================
-# DECISION TIMELINE ANALYSIS
-# =========================
-
-@app.get("/timeline_stats", tags=["Market Intelligence"])
-def timeline_stats():
-    """Analyze how long ZBA decisions take — filing to decision date."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-
-    # Parse filing_date
-    if 'filing_date' not in df.columns:
-        return {"message": "No filing date data available", "stats": {}}
-
-    df['_filing_dt'] = pd.to_datetime(df['filing_date'], errors='coerce')
-
-    # Extract decision date from source_pdf filename
-    if 'source_pdf' in df.columns:
-        df['_decision_dt'] = pd.to_datetime(
-            df['source_pdf'].str.extract(r'Filed (.+?)\.pdf')[0],
-            errors='coerce'
-        )
-    else:
-        df['_decision_dt'] = pd.NaT
-
-    has_both = df[df['_filing_dt'].notna() & df['_decision_dt'].notna()].copy()
-    if len(has_both) == 0:
-        return {"message": "Insufficient date data for timeline analysis", "stats": {}}
-
-    has_both['_days'] = (has_both['_decision_dt'] - has_both['_filing_dt']).dt.days
-    # Filter reasonable ranges (1 day to 3 years)
-    has_both = has_both[(has_both['_days'] > 0) & (has_both['_days'] < 1100)]
-
-    if len(has_both) == 0:
-        return {"message": "No valid timelines computed", "stats": {}}
-
-    overall = {
-        "cases_with_timeline": int(len(has_both)),
-        "median_days": int(has_both['_days'].median()),
-        "mean_days": int(has_both['_days'].mean()),
-        "p25_days": int(has_both['_days'].quantile(0.25)),
-        "p75_days": int(has_both['_days'].quantile(0.75)),
-        "min_days": int(has_both['_days'].min()),
-        "max_days": int(has_both['_days'].max()),
-    }
-
-    # By decision type
-    by_decision = {}
-    for dec in ['APPROVED', 'DENIED']:
-        subset = has_both[has_both['decision_clean'] == dec]
-        if len(subset) >= 5:
-            by_decision[dec.lower()] = {
-                "count": int(len(subset)),
-                "median_days": int(subset['_days'].median()),
-                "mean_days": int(subset['_days'].mean()),
-            }
-
-    # By ward
-    by_ward = []
-    if 'ward' in has_both.columns:
-        ward_grp = has_both.groupby('ward')['_days'].agg(['median', 'count'])
-        for w, row in ward_grp[ward_grp['count'] >= 5].iterrows():
-            try:
-                by_ward.append({
-                    "ward": str(int(float(w))),
-                    "median_days": int(row['median']),
-                    "cases": int(row['count']),
-                })
-            except (ValueError, TypeError):
-                pass
-        by_ward.sort(key=lambda x: x['median_days'])
-
-    return {
-        "overall": overall,
-        "by_decision": by_decision,
-        "by_ward": by_ward,
-    }
-
-
-# =========================
-# ADDRESS AUTOCOMPLETE
-# =========================
 
 @app.get("/autocomplete", tags=["Search"])
-def autocomplete(q: str, limit: int = 8):
-    """Fast address autocomplete from 175K property assessment records."""
-    if parcel_addr_df is None:
+def autocomplete(q: str = "", limit: int = 10):
+    """Address autocomplete from 175K property records."""
+    if not q or len(q) < 3:
         return {"suggestions": []}
-    if len(q) < 2:
+    if parcel_addr_df is None:
         return {"suggestions": []}
 
     q_norm = normalize_address(q)
+    matches = parcel_addr_df[parcel_addr_df['_addr_norm'].str.contains(q_norm, na=False)].head(limit)
 
-    # For speed, use startswith on the number portion + contains on street
-    words = q_norm.split()
-    mask = pd.Series(True, index=parcel_addr_df.index)
-    for word in words:
-        if len(word) > 1:
-            if word.isdigit():
-                mask = mask & parcel_addr_df['_addr_norm'].str.contains(r'(?:^|\s)' + re.escape(word) + r'(?:\s|$)', na=False, regex=True)
-            else:
-                mask = mask & parcel_addr_df['_addr_norm'].str.contains(word, na=False, regex=False)
+    return {
+        "suggestions": [
+            {"address": row['address'], "parcel_id": row['parcel_id']}
+            for _, row in matches.iterrows()
+        ]
+    }
 
-    matches = parcel_addr_df[mask].head(limit)
-    suggestions = []
-    for _, row in matches.iterrows():
-        entry = {"address": row['address'], "parcel_id": row['parcel_id']}
-        # Enrich with district
-        pid = row['parcel_id']
-        if pid in gdf.index:
-            geo_row = gdf.loc[pid]
-            if isinstance(geo_row, pd.DataFrame):
-                geo_row = geo_row.iloc[0]
-            entry["district"] = str(geo_row.get("districts") or "")
-        suggestions.append(entry)
-
-    return {"suggestions": suggestions}
-
-
-# =========================
-# MODEL VERSION INFO
-# =========================
 
 @app.get("/model_info", tags=["Platform"])
 def model_info():
-    """Detailed model metadata — version, training stats, feature list."""
+    """Full model metadata and version info."""
     if model_package is None:
         raise HTTPException(status_code=503, detail="No model loaded")
 
-    import datetime
-
-    model_file = os.path.abspath(MODEL_PATH)
-    mtime = os.path.getmtime(model_file) if os.path.exists(model_file) else 0
-    trained_at = datetime.datetime.fromtimestamp(mtime).isoformat() if mtime else None
-
     return {
         "model_name": model_package.get('model_name'),
+        "model_version": model_package.get('model_version'),
         "auc_score": model_package.get('auc_score'),
         "brier_score": model_package.get('brier_score'),
         "optimal_threshold": model_package.get('optimal_threshold'),
         "cv_auc_mean": model_package.get('cv_auc_mean'),
         "cv_auc_std": model_package.get('cv_auc_std'),
         "total_cases": model_package.get('total_cases'),
-        "overall_approval_rate": model_package.get('overall_approval_rate'),
+        "train_size": model_package.get('train_size'),
+        "test_size": model_package.get('test_size'),
         "feature_count": len(model_package.get('feature_cols', [])),
-        "feature_list": model_package.get('feature_cols', []),
-        "variance_types": model_package.get('variance_types', []),
-        "project_types": model_package.get('project_types', []),
-        "trained_at": trained_at,
-        "model_file": model_file,
+        "feature_cols": model_package.get('feature_cols', []),
+        "is_calibrated": model_package.get('is_calibrated', False),
+        "leakage_free": model_package.get('leakage_free', False),
+        "removed_features": model_package.get('removed_features', []),
+        "trained_at": model_package.get('trained_at'),
+        "dataset_hash": model_package.get('dataset_hash'),
     }
-
-
-# =========================
-# PLATFORM STATS
-# =========================
-
-@app.get("/stats", tags=["Platform"])
-def platform_stats():
-    """Return overall platform statistics — useful for dashboard display."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()]
-    approved = (df['decision_clean'] == 'APPROVED').sum()
-    denied = (df['decision_clean'] == 'DENIED').sum()
-    total = approved + denied
-
-    # Ward with highest/lowest approval rate (min 10 cases)
-    ward_stats_df = df.groupby('ward').agg(
-        count=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum())
-    )
-    ward_stats_df['rate'] = ward_stats_df['approved'] / ward_stats_df['count']
-    ward_qualified = ward_stats_df[ward_stats_df['count'] >= 10]
-
-    best_ward = None
-    worst_ward = None
-    if not ward_qualified.empty:
-        best_ward = {"ward": str(ward_qualified['rate'].idxmax()), "rate": round(float(ward_qualified['rate'].max()), 3)}
-        worst_ward = {"ward": str(ward_qualified['rate'].idxmin()), "rate": round(float(ward_qualified['rate'].min()), 3)}
-
-    return {
-        "total_cases": int(len(zba_df)),
-        "cases_with_decisions": int(total),
-        "approved": int(approved),
-        "denied": int(denied),
-        "overall_approval_rate": round(approved / total, 3) if total > 0 else 0,
-        "total_parcels": len(gdf) if gdf is not None else 0,
-        "total_wards": int(df['ward'].nunique()),
-        "best_ward": best_ward,
-        "worst_ward": worst_ward,
-        "model_loaded": model_package is not None,
-        "model_name": model_package.get('model_name') if model_package else None,
-        "model_auc": model_package.get('auc_score') if model_package else None,
-        "features": len(model_package.get('feature_cols', [])) if model_package else 0,
-    }
-
-
-# =========================
-# SITE SELECTION / RECOMMENDATION
-# =========================
-
-@app.get("/recommend", tags=["Prediction"], dependencies=[Depends(verify_api_key)])
-def recommend_sites(
-    project_type: str = "residential",
-    min_approval_rate: float = 0.5,
-    limit: int = 10,
-):
-    """Find the best parcels/wards for a given project type based on historical approval rates.
-
-    This answers: 'Where in Boston should I build a 10-unit residential project?'
-    — the highest-value question for developers, answered before they pick a site.
-    """
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-
-    # Map project_type to column
-    proj_col_map = {
-        'residential': 'is_residential', 'commercial': 'is_commercial',
-        'new_construction': 'proj_new_construction', 'renovation': 'proj_renovation',
-        'addition': 'proj_addition', 'conversion': 'proj_conversion',
-        'adu': 'proj_adu', 'mixed_use': 'proj_mixed_use',
-        'demolition': 'proj_demolition', 'multi_family': 'proj_multi_family',
-        'single_family': 'proj_single_family', 'roof_deck': 'proj_roof_deck',
-    }
-
-    proj_col = proj_col_map.get(project_type.lower())
-    if proj_col and proj_col in df.columns:
-        df = df[df[proj_col] == 1]
-
-    if len(df) < 5:
-        return {"recommendations": [], "message": f"Not enough {project_type} cases for recommendation"}
-
-    # Group by ward
-    df['_ward'] = df['ward'].apply(lambda w: str(int(float(w))) if pd.notna(w) else None)
-    df = df[df['_ward'].notna()]
-
-    ward_stats = df.groupby('_ward').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
-    )
-    ward_stats['approval_rate'] = ward_stats['approved'] / ward_stats['total']
-    ward_stats = ward_stats[ward_stats['total'] >= 3]  # min sample size
-    ward_stats = ward_stats[ward_stats['approval_rate'] >= min_approval_rate]
-    ward_stats = ward_stats.sort_values('approval_rate', ascending=False).head(limit)
-
-    recommendations = []
-    for ward_name, row in ward_stats.iterrows():
-        # Get common variances in this ward for this project type
-        ward_cases = df[df['_ward'] == ward_name]
-        common_variances = []
-        for vt in ['height', 'far', 'parking', 'lot_area', 'setback']:
-            col = f'var_{vt}' if f'var_{vt}' in ward_cases.columns else None
-            if col and ward_cases[col].sum() > 0:
-                common_variances.append(vt)
-
-        recommendations.append({
-            "ward": ward_name,
-            "approval_rate": round(float(row['approval_rate']), 3),
-            "total_cases": int(row['total']),
-            "approved": int(row['approved']),
-            "common_variances": common_variances,
-            "recommendation": "Strong" if row['approval_rate'] >= 0.7 else "Moderate",
-        })
-
-    return {
-        "project_type": project_type,
-        "min_approval_rate": min_approval_rate,
-        "recommendations": recommendations,
-        "total_matching_cases": len(df),
-    }
-
-
-# =========================
-# DENIAL PATTERN ANALYSIS
-# =========================
-
-@app.get("/denial_patterns", tags=["Market Intelligence"])
-def denial_patterns():
-    """What distinguishes denied cases from approved ones? Feature comparison."""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df[zba_df['decision_clean'].notna()].copy()
-    approved = df[df['decision_clean'] == 'APPROVED']
-    denied = df[df['decision_clean'] == 'DENIED']
-
-    patterns = []
-    compare_cols = [
-        ('num_variances', 'Avg Variances Requested'),
-        ('has_attorney', 'Has Attorney (%)'),
-        ('proposed_units', 'Avg Proposed Units'),
-        ('proposed_stories', 'Avg Proposed Stories'),
-    ]
-
-    for col, label in compare_cols:
-        if col not in df.columns:
-            continue
-        app_val = float(approved[col].fillna(0).mean())
-        den_val = float(denied[col].fillna(0).mean())
-        patterns.append({
-            "feature": label,
-            "approved_avg": round(app_val, 2),
-            "denied_avg": round(den_val, 2),
-            "difference": round(app_val - den_val, 2),
-        })
-
-    # Variance type comparison
-    for vt in ['height', 'far', 'parking', 'lot_area', 'conditional_use']:
-        col = f'var_{vt}'
-        if col not in df.columns:
-            continue
-        app_rate = float(approved[col].fillna(0).mean())
-        den_rate = float(denied[col].fillna(0).mean())
-        patterns.append({
-            "feature": f"Requests {vt} variance (%)",
-            "approved_avg": round(app_rate * 100, 1),
-            "denied_avg": round(den_rate * 100, 1),
-            "difference": round((app_rate - den_rate) * 100, 1),
-        })
-
-    return {
-        "total_approved": len(approved),
-        "total_denied": len(denied),
-        "patterns": patterns,
-    }
-
-
-# =========================
-# TIMELINE ANALYSIS
-# =========================
-
-@app.get("/timeline_stats", tags=["Market Intelligence"])
-def timeline_stats():
-    """Filing-to-decision timeline analysis. How long do ZBA decisions take?"""
-    if zba_df is None:
-        raise HTTPException(status_code=500, detail="ZBA data not loaded")
-
-    df = zba_df.copy()
-    result = {"timelines": []}
-
-    # Try to compute from filing_date and hearing_date if available
-    if 'filing_date' in df.columns:
-        df['_filing'] = pd.to_datetime(df['filing_date'], errors='coerce')
-
-    if 'hearing_date' in df.columns:
-        df['_hearing'] = pd.to_datetime(df['hearing_date'], errors='coerce')
-
-    if '_filing' in df.columns and '_hearing' in df.columns:
-        df['_days'] = (df['_hearing'] - df['_filing']).dt.days
-        valid = df[df['_days'].between(1, 730)]  # 1 day to 2 years
-        if len(valid) > 10:
-            result["filing_to_hearing"] = {
-                "median_days": int(valid['_days'].median()),
-                "mean_days": int(valid['_days'].mean()),
-                "min_days": int(valid['_days'].min()),
-                "max_days": int(valid['_days'].max()),
-                "sample_size": len(valid),
-            }
-
-    # Cases per year
-    if 'source_pdf' in df.columns:
-        df['_year'] = df['source_pdf'].str.extract(r'(20\d{2})').astype(float)
-        yearly = df[df['_year'].notna()].groupby('_year').size().to_dict()
-        result["cases_per_year"] = {str(int(k)): int(v) for k, v in sorted(yearly.items())}
-
-    # Decision distribution by year
-    if '_year' in df.columns and 'decision_clean' in df.columns:
-        for year in sorted(df['_year'].dropna().unique()):
-            yr_data = df[df['_year'] == year]
-            total = len(yr_data[yr_data['decision_clean'].notna()])
-            approved = len(yr_data[yr_data['decision_clean'] == 'APPROVED'])
-            if total > 0:
-                result["timelines"].append({
-                    "year": int(year),
-                    "total": total,
-                    "approved": approved,
-                    "approval_rate": round(approved / total, 3),
-                })
-
-    return result
 
 
 # =========================
