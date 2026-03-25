@@ -12,6 +12,9 @@ import pandas as pd
 import numpy as np
 import re
 import hashlib
+import os
+import shutil
+import json
 import datetime
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
@@ -260,9 +263,15 @@ if 'source_pdf' in df.columns:
 
         # Split test into test (50%) and calibration (50%)
         test_cal_indices = df.index[test_cal_idx]
+        # Use stratification only if both classes have enough samples
+        test_cal_labels = df.loc[test_cal_indices, 'approved']
+        min_class_count = test_cal_labels.value_counts().min()
+        use_stratify = test_cal_labels if min_class_count >= 4 else None
+        if use_stratify is None:
+            print(f"   WARNING: Too few minority samples ({min_class_count}) for stratified split — using random split")
         test_indices, cal_indices = train_test_split(
             test_cal_indices, test_size=0.5, random_state=42,
-            stratify=df.loc[test_cal_indices, 'approved']
+            stratify=use_stratify
         )
         test_idx = pd.Series(False, index=df.index)
         cal_idx = pd.Series(False, index=df.index)
@@ -272,16 +281,22 @@ if 'source_pdf' in df.columns:
         print(f"   Train: {train_idx.sum()} | Test: {test_idx.sum()} | Calibration: {cal_idx.sum()}")
     else:
         print(f"\nOnly {n_recent} recent cases — random 3-way split")
-        _train_i, _rest_i = train_test_split(df.index, test_size=0.3, random_state=42, stratify=df['approved'])
-        _test_i, _cal_i = train_test_split(_rest_i, test_size=0.5, random_state=42, stratify=df.loc[_rest_i, 'approved'])
+        _min_class = df['approved'].value_counts().min()
+        _strat = df['approved'] if _min_class >= 4 else None
+        _train_i, _rest_i = train_test_split(df.index, test_size=0.3, random_state=42, stratify=_strat)
+        _rest_strat = df.loc[_rest_i, 'approved'] if df.loc[_rest_i, 'approved'].value_counts().min() >= 4 else None
+        _test_i, _cal_i = train_test_split(_rest_i, test_size=0.5, random_state=42, stratify=_rest_strat)
         train_idx = pd.Series(False, index=df.index); train_idx.loc[_train_i] = True
         test_idx = pd.Series(False, index=df.index); test_idx.loc[_test_i] = True
         cal_idx = pd.Series(False, index=df.index); cal_idx.loc[_cal_i] = True
         print(f"   Train: {train_idx.sum()} | Test: {test_idx.sum()} | Calibration: {cal_idx.sum()}")
     df = df.drop(columns=['_year'], errors='ignore')
 else:
-    _train_i, _rest_i = train_test_split(df.index, test_size=0.3, random_state=42, stratify=df['approved'])
-    _test_i, _cal_i = train_test_split(_rest_i, test_size=0.5, random_state=42, stratify=df.loc[_rest_i, 'approved'])
+    _min_class = df['approved'].value_counts().min()
+    _strat = df['approved'] if _min_class >= 4 else None
+    _train_i, _rest_i = train_test_split(df.index, test_size=0.3, random_state=42, stratify=_strat)
+    _rest_strat = df.loc[_rest_i, 'approved'] if df.loc[_rest_i, 'approved'].value_counts().min() >= 4 else None
+    _test_i, _cal_i = train_test_split(_rest_i, test_size=0.5, random_state=42, stratify=_rest_strat)
     train_idx = pd.Series(False, index=df.index); train_idx.loc[_train_i] = True
     test_idx = pd.Series(False, index=df.index); test_idx.loc[_test_i] = True
     cal_idx = pd.Series(False, index=df.index); cal_idx.loc[_cal_i] = True
@@ -711,8 +726,6 @@ joblib.dump(model_package, 'zba_model_v2.pkl')
 joblib.dump(model_package, 'api/zba_model.pkl')
 
 # --- Model versioning: save to history ---
-import json
-import shutil
 
 history_dir = 'model_history'
 os.makedirs(history_dir, exist_ok=True)
