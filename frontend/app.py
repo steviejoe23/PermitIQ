@@ -1625,6 +1625,76 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
 
 
 # =========================
+# SITE SELECTION
+# =========================
+
+with st.expander("Site Selection — Where Should I Build?", expanded=False):
+    st.markdown(
+        "Instead of *'What are my odds on this parcel?'*, this answers "
+        "*'Which areas of Boston are best for my project type?'*"
+    )
+
+    ss_col1, ss_col2, ss_col3 = st.columns(3)
+    with ss_col1:
+        ss_project = st.selectbox(
+            "Project Type", [
+                "residential", "commercial", "new_construction", "renovation",
+                "addition", "conversion", "adu", "mixed_use", "multi_family"
+            ], key="ss_project"
+        )
+    with ss_col2:
+        ss_min_rate = st.slider("Min Approval Rate", 0.3, 0.9, 0.5, 0.05, key="ss_rate")
+    with ss_col3:
+        ss_limit = st.number_input("Results", 5, 20, 10, key="ss_limit")
+
+    if st.button("Find Best Locations", key="ss_go", type="primary"):
+        try:
+            ss_res = requests.get(f"{API_URL}/recommend", params={
+                "project_type": ss_project,
+                "min_approval_rate": ss_min_rate,
+                "limit": ss_limit,
+            }, timeout=30)
+
+            if ss_res.status_code == 200:
+                ss_data = ss_res.json()
+                parcels = ss_data.get("parcels", [])
+
+                if parcels:
+                    st.success(f"Found {len(parcels)} recommended parcels from "
+                               f"{ss_data.get('total_candidates', 0):,} candidates")
+
+                    for i, p in enumerate(parcels[:ss_limit]):
+                        prob = p.get("predicted_probability", 0)
+                        pid = esc(str(p.get("parcel_id", "")))
+                        zoning = esc(str(p.get("zoning", "")))
+
+                        if prob >= 0.7:
+                            color = "#00cc66"
+                        elif prob >= 0.5:
+                            color = "#ffaa00"
+                        else:
+                            color = "#ff4444"
+
+                        st.markdown(
+                            f'<div style="background:#1a1a2e;border:1px solid {color};'
+                            f'border-radius:8px;padding:12px;margin:6px 0;">'
+                            f'<span style="font-size:18px;font-weight:700;color:{color};">'
+                            f'{prob:.0%}</span> &nbsp; '
+                            f'Parcel <code>{pid}</code> &nbsp; Zoning: {zoning}'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                else:
+                    st.info("No parcels match your criteria. Try lowering the minimum approval rate.")
+            elif ss_res.status_code == 503:
+                st.warning("Model not loaded. Start the API with a trained model.")
+            else:
+                st.error(f"API error: {ss_res.status_code}")
+        except Exception as e:
+            st.error(f"Site selection unavailable: {e}")
+
+
+# =========================
 # FOOTER
 # =========================
 

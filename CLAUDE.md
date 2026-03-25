@@ -226,6 +226,33 @@ overnight_rebuild.py      — Full pipeline: OCR all PDFs → rebuild → retrai
 62. Comprehensive liability disclaimers on all prediction outputs and reports
 63. API version bumped to 3.0
 
+**Session 3 — Foundational Fixes (March 25, 2026):**
+64. CRITICAL: Removed 14 post-hearing features from training + API (data leakage fix)
+65. Fixed model calibration — Platt scaling on separate holdout (was calibrating on test set)
+66. Fixed has_attorney regex — was catching 1%, now catches ~24%
+67. Added attorney_win_rate as new feature (smoothed target encoding)
+68. Added case deduplication to training pipeline
+69. OCR quality audit script (audit_ocr_quality.py) — scored 35/100
+70. 3-way split: train/test/calibration holdout
+
+**Session 3 — Infrastructure:**
+71. GitHub repo: https://github.com/steviejoe23/PermitIQ (private)
+72. PostGIS: 88,839 parcels imported, spatial indexes, API queries DB first
+73. API monolith split: market_intel router extracted (794 lines removed, main.py 2,027 → 1,600)
+74. Shared feature_builder.py module (single source of truth)
+75. API key auth on prediction endpoints (optional via PERMITIQ_API_KEY)
+76. Docker Compose with PostGIS service
+77. 75 tests passing (up from 63)
+78. Post-OCR retrain script (post_ocr_retrain.sh)
+
+**Session 3 — New Features:**
+79. Site Selection panel in frontend ("Where should I build?")
+80. /recommend endpoint with ML-ranked parcels
+81. /denial_patterns — what distinguishes denied vs approved
+82. /timeline_stats — filing-to-decision analysis
+83. /wards/all — single call replaces 22 sequential calls
+84. /stats, /autocomplete, /model_info restored after monolith split
+
 ### Known Issues / TODO
 - ~~Frontend `API_URL` is hardcoded to localhost~~ → FIXED
 - ~~No structured logging anywhere~~ → FIXED
@@ -233,20 +260,23 @@ overnight_rebuild.py      — Full pipeline: OCR all PDFs → rebuild → retrai
 - ~~Model doesn't save diagnostic plots~~ → FIXED
 - ~~`analyzer.py` and `model_loader.py` orphaned~~ → FIXED
 - ~~Target encoding data leakage~~ → FIXED
-- ~~No rate limiting on API~~ → FIXED (configurable)
-- ~~14 post-hearing features leaking~~ → FIXED (removed)
-- ~~Calibration on test set~~ → FIXED (separate holdout)
-- ~~has_attorney catching only 1%~~ → FIXED (broader regex)
-- ~~No model versioning~~ → FIXED (model_history/)
+- ~~No rate limiting on API~~ → FIXED (configurable, 120/min, exempt localhost)
+- ~~14 post-hearing features leaking~~ → FIXED (removed from training + API)
+- ~~Calibration on test set~~ → FIXED (separate calibration holdout)
+- ~~has_attorney catching only 1%~~ → FIXED (broader regex, ~24%)
+- ~~No model versioning~~ → FIXED (model_history/ with JSONL log)
 - ~~No API authentication~~ → FIXED (optional API key)
-- ~~Ward heatmap 22 API calls~~ → FIXED (/wards/all)
-- ~~No site selection feature~~ → FIXED (/recommend)
+- ~~Ward heatmap 22 API calls~~ → FIXED (/wards/all single endpoint)
+- ~~No site selection feature~~ → FIXED (/recommend + frontend panel)
+- ~~API monolith too large~~ → FIXED (market_intel router, 794 lines extracted)
+- ~~No PostGIS~~ → FIXED (88K parcels, spatial index, API uses DB first)
+- ~~No version control~~ → FIXED (GitHub private repo)
 - AUC will drop after retrain with clean features (expected: 0.70-0.82, was inflated to 0.94 by leakage)
-- API monolith is partially split (market_intel router created, main.py still large)
 - `proj_*` columns not in current CSV (will be added after OCR retrain)
 - Need manual OCR quality audit (sample 50 cases vs original PDFs)
 - Customer segment and pricing model undefined (business decision)
 - Boston-only TAM too small for venture scale (expansion strategy needed)
+- PostgreSQL 18 runs on port 5432 (installed at /Library/PostgreSQL/18), password: permitiq123
 
 ## How to Run Everything
 
@@ -254,12 +284,14 @@ overnight_rebuild.py      — Full pipeline: OCR all PDFs → rebuild → retrai
 ```bash
 cd ~/Desktop/Boston\ Zoning\ Project
 make run          # Starts API + Frontend
-make test         # Run 63 tests (requires API running)
+make test         # Run 75 tests (requires API running)
 make retrain      # Retrain model from existing dataset
 make retrain-clean # Clean OCR → audit → retrain (after OCR completes)
 make audit        # Run OCR quality audit
 make status       # Check OCR progress + data freshness
 make docker       # Start with Docker Compose
+make push         # Commit and push to GitHub
+# Or after OCR: bash post_ocr_retrain.sh
 ```
 
 ### Manual start:
