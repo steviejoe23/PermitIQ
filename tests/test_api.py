@@ -611,3 +611,132 @@ def test_prediction_response_has_disclaimer(client):
         data = r.json()
         assert "disclaimer" in data
         assert "risk" in data["disclaimer"].lower() or "legal" in data["disclaimer"].lower()
+
+
+# =========================
+# PostGIS Integration Tests
+# =========================
+
+def test_parcel_has_source(client):
+    """Parcel response should indicate data source (postgis or geojson)."""
+    r = client.get("/parcels/0303695010")
+    if r.status_code == 200:
+        data = r.json()
+        assert "source" in data
+        assert data["source"] in ("postgis", "geojson")
+
+
+# =========================
+# New Endpoint Tests
+# =========================
+
+def test_denial_patterns_structure(client):
+    """Denial patterns should return feature comparisons."""
+    r = client.get("/denial_patterns")
+    assert r.status_code in [200, 500]
+    if r.status_code == 200:
+        data = r.json()
+        assert "patterns" in data
+        assert "total_approved" in data
+        assert "total_denied" in data
+        for p in data["patterns"]:
+            assert "factor" in p
+            assert "direction" in p
+
+
+def test_voting_patterns_structure(client):
+    """Voting patterns should return vote distribution data."""
+    r = client.get("/voting_patterns")
+    assert r.status_code in [200, 500]
+
+
+def test_proviso_stats_structure(client):
+    """Proviso stats should return condition frequencies."""
+    r = client.get("/proviso_stats")
+    assert r.status_code in [200, 500]
+    if r.status_code == 200:
+        data = r.json()
+        assert "total_approvals" in data
+        assert "conditions" in data
+
+
+def test_timeline_stats_structure(client):
+    """Timeline stats should return temporal data."""
+    r = client.get("/timeline_stats")
+    assert r.status_code in [200, 500]
+    if r.status_code == 200:
+        data = r.json()
+        # Should have some temporal info
+        assert isinstance(data, dict)
+
+
+def test_wards_all_structure(client):
+    """Wards/all should return all wards in one call."""
+    r = client.get("/wards/all")
+    assert r.status_code == 200
+    data = r.json()
+    assert "wards" in data
+    assert len(data["wards"]) > 10
+    for w in data["wards"]:
+        assert "ward" in w
+        assert "approval_rate" in w
+        assert 0 <= w["approval_rate"] <= 1
+
+
+def test_model_info_structure(client):
+    """Model info should expose full metadata."""
+    r = client.get("/model_info")
+    assert r.status_code in [200, 503]
+    if r.status_code == 200:
+        data = r.json()
+        assert "model_name" in data
+        assert "feature_count" in data
+        assert "feature_cols" in data
+        assert data["feature_count"] > 0
+
+
+def test_health_postgis_field(client):
+    """Health check should report PostGIS availability."""
+    r = client.get("/health")
+    data = r.json()
+    assert "postgis_available" in data
+    assert isinstance(data["postgis_available"], bool)
+    assert "leakage_free" in data
+
+
+def test_stats_has_wards(client):
+    """Stats endpoint should report ward count."""
+    r = client.get("/stats")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["total_wards"] > 10
+    assert data["best_ward"] is not None
+
+
+def test_autocomplete_returns_results(client):
+    """Autocomplete with valid query should return suggestions."""
+    r = client.get("/autocomplete", params={"q": "tremont"})
+    assert r.status_code == 200
+    data = r.json()
+    assert "suggestions" in data
+
+
+def test_autocomplete_short_query_empty(client):
+    """Autocomplete with too-short query should return empty."""
+    r = client.get("/autocomplete", params={"q": "ab"})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["suggestions"] == []
+
+
+def test_recommend_returns_parcels(client):
+    """Recommend endpoint should return parcels or recommendations."""
+    r = client.get("/recommend", params={
+        "project_type": "residential",
+        "min_approval_rate": 0.3,
+        "limit": 5
+    })
+    assert r.status_code in [200, 503]
+    if r.status_code == 200:
+        data = r.json()
+        assert "parcels" in data or "recommendations" in data

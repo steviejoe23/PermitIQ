@@ -1631,8 +1631,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
 st.markdown("---")
 st.markdown(
     '<div style="text-align: center; color: #555; font-size: 12px;">'
-    'PermitIQ v2.0 — Boston Zoning Intelligence<br>'
-    'Built with 7,500+ real ZBA decisions from 2020-2026 &middot; 69 engineered features &middot; No data leakage'
+    'PermitIQ v3.0 — Boston Zoning Risk Assessment Platform<br>'
+    'Built with 7,500+ real ZBA decisions &middot; 57 leakage-free features &middot; PostGIS spatial data<br>'
+    '<em>Statistical risk assessment only. Not legal advice. Consult a zoning attorney.</em>'
     '</div>',
     unsafe_allow_html=True
 )
