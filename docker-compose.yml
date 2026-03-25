@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --workers 2
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./zba_cases_cleaned.csv:/app/zba_cases_cleaned.csv:ro
+      - ./boston_parcels_zoning.geojson:/app/boston_parcels_zoning.geojson:ro
+      - ./property_assessment_fy2026.csv:/app/property_assessment_fy2026.csv:ro
+      - ./api/zba_model.pkl:/app/api/zba_model.pkl:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PERMITIQ_API_KEY=${PERMITIQ_API_KEY:-}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-60}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build: .
+    command: streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./frontend:/app/frontend
+    environment:
+      - PERMITIQ_API_URL=http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

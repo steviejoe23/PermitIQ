@@ -1,0 +1,80 @@
+# PermitIQ .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+zoning-env/
+
+# Data files (too large for git — store separately)
+*.csv
+*.geojson
+*.pkl
+*.json
+!.claude/launch.json
+!package.json
+!.env.example
+pdfs/
+ocr_output/
+ocr_checkpoint.json
+
+# Zip archives (raw data downloads)
+*.zip
+
+# GIS shapefiles and data directories
+*.shp
+*.shx
+*.dbf
+*.prj
+*.sbn
+*.sbx
+*.cpg
+*.shp.xml
+Boston Zoning GCOD Clean/
+Coastal Flood Resilience Overlay District Clean/
+boston_zoning_district_clean/
+
+# Jupyter checkpoints and notebooks (exploratory, not production)
+.ipynb_checkpoints/
+.virtual_documents/
+*.ipynb
+
+# Model artifacts
+model_history/
+model_diagnostics.png
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+overnight_log.txt
+
+# Test
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Docker
+docker-compose.override.yml
+
+# Claude settings (local only)
+.claude/settings.local.json
