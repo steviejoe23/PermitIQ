@@ -469,7 +469,7 @@ def _do_search(q_norm: str) -> list:
     if zoning_col:
         agg_dict['zoning'] = (zoning_col, 'first')
     if date_col:
-        agg_dict['latest_date'] = (date_col, 'max')
+        agg_dict['latest_date'] = (date_col, 'last')  # 'max' fails on mixed-type date strings
 
     grouped = matches.groupby('_addr_norm').agg(**agg_dict).sort_values('total_cases', ascending=False).head(10)
 
