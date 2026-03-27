@@ -327,9 +327,14 @@ def nearby_cases(parcel_id: str, radius_m: int = 500, limit: int = 10):
 
     cases = []
     for _, c in nearby.iterrows():
+        addr = str(c.get('address_clean', ''))
+        if len(addr) > 60 or '\n' in addr or 'record' in addr.lower() or 'conformity' in addr.lower():
+            addr = 'Address not available'
+        if addr.replace(' ', '').isdigit() and len(addr) > 8:
+            addr = 'Address not available'
         cases.append({
             "case_number": str(c.get('case_number', '')),
-            "address": str(c.get('address_clean', '')),
+            "address": addr,
             "decision": str(c.get('decision_clean', '')),
             "ward": str(c.get('ward', '')),
             "date": str(c.get('hearing_date', c.get('filing_date', '')))[:10],
@@ -1124,9 +1129,17 @@ def get_similar_cases(ward, variances, project_type=None, limit=5):
     sample = relevant.head(limit)
     cases = []
     for _, row in sample.iterrows():
+        addr = str(row.get('address_clean') or 'Unknown')
+        # Clean OCR garbage from addresses
+        # Skip addresses that are clearly not real street addresses
+        if len(addr) > 60 or '\n' in addr or 'record' in addr.lower() or 'conformity' in addr.lower():
+            addr = 'Address not available'
+        # Skip addresses that are just numbers (parcel IDs leaking in)
+        if addr.replace(' ', '').isdigit() and len(addr) > 8:
+            addr = 'Address not available'
         cases.append({
             "case_number": str(row.get('case_number') or ''),
-            "address": str(row.get('address_clean') or 'Unknown'),
+            "address": addr,
             "decision": str(row.get('decision_clean') or ''),
             "ward": str(row.get('ward') or ''),
             "date": str(row.get('hearing_date') or row.get('filing_date') or '')[:10],
@@ -1148,10 +1161,18 @@ def _estimate_timeline(ward=None):
     )
     has_both = df[df['_filing_dt'].notna() & df['_decision_dt'].notna()].copy()
     has_both['_days'] = (has_both['_decision_dt'] - has_both['_filing_dt']).dt.days
-    has_both = has_both[(has_both['_days'] > 0) & (has_both['_days'] < 1100)]
+    # Filter to reasonable range: 14 days minimum (nothing is decided same week),
+    # 730 days maximum (2 years — anything longer is likely a data error)
+    has_both = has_both[(has_both['_days'] >= 14) & (has_both['_days'] < 730)]
 
     if len(has_both) < 10:
-        return None
+        # Not enough reliable data — return Boston ZBA average from public records
+        return {
+            "median_days": 120,
+            "note": "Estimated based on typical Boston ZBA timeline (3-6 months)",
+            "ward_specific": False,
+            "cases_used": 0,
+        }
 
     # Try ward-specific first
     if ward:

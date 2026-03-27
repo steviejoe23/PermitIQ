@@ -577,6 +577,46 @@ if st.session_state.parcel_data:
     if data.get("multi_zoning"):
         st.warning(f"⚠️ Multi-zoning parcel — {data.get('zoning_count', 0)} zones overlap")
 
+    # Zoning Requirements — from zoning analysis endpoint
+    try:
+        _zoning_res = requests.get(f"{API_URL}/zoning/{data.get('parcel_id', '')}", timeout=5)
+        if _zoning_res.status_code == 200:
+            zdata = _zoning_res.json()
+            dreqs = zdata.get("dimensional_requirements", {})
+            if dreqs.get("max_far"):
+                with st.expander("📐 Zoning Dimensional Requirements", expanded=False):
+                    st.markdown(f"**District:** {esc(zdata.get('district_name', ''))} — {esc(zdata.get('description', ''))}")
+                    r1, r2, r3, r4 = st.columns(4)
+                    with r1:
+                        st.metric("Max FAR", dreqs.get("max_far", "N/A"))
+                    with r2:
+                        st.metric("Max Height", f"{dreqs.get('max_height_ft', 'N/A')} ft")
+                    with r3:
+                        st.metric("Max Stories", dreqs.get("max_stories", "N/A"))
+                    with r4:
+                        st.metric("Parking/Unit", dreqs.get("parking_per_unit", "N/A"))
+
+                    r5, r6, r7, r8 = st.columns(4)
+                    with r5:
+                        st.metric("Min Lot Size", f"{dreqs.get('min_lot_sf', 'N/A'):,} sf" if isinstance(dreqs.get('min_lot_sf'), (int, float)) else "N/A")
+                    with r6:
+                        st.metric("Min Frontage", f"{dreqs.get('min_frontage_ft', 'N/A')} ft")
+                    with r7:
+                        st.metric("Front Setback", f"{dreqs.get('min_front_yard_ft', 'N/A')} ft")
+                    with r8:
+                        st.metric("Max Coverage", f"{dreqs.get('max_lot_coverage_pct', 'N/A')}%")
+
+                    uses = zdata.get("allowed_uses", [])
+                    if uses:
+                        st.markdown(f"**Allowed Uses:** {', '.join(esc(u) for u in uses)}")
+
+                    area_rate = zdata.get("area_approval_rate", 0)
+                    area_cases = zdata.get("area_zba_cases", 0)
+                    if area_cases > 0:
+                        st.markdown(f"**Area ZBA History:** {area_rate:.0%} approval rate across {area_cases:,} cases")
+    except Exception:
+        pass
+
     # MAP
     if "geometry" in data:
         try:
@@ -1081,11 +1121,21 @@ if st.session_state.prediction_result:
     # --- Timeline Estimate ---
     timeline = result.get("estimated_timeline_days")
     if timeline and timeline.get("median_days"):
-        months = timeline["median_days"] / 30
-        ward_note = f" (Ward-specific, {timeline['cases_used']} cases)" if timeline.get("ward_specific") else f" (city-wide avg, {timeline['cases_used']} cases)"
+        days = timeline["median_days"]
+        months = days / 30
+        cases_used = timeline.get('cases_used', 0)
+        note = timeline.get('note', '')
+        if note:
+            ward_note = f" ({esc(note)})"
+        elif timeline.get("ward_specific"):
+            ward_note = f" (Ward-specific, {cases_used} cases)"
+        elif cases_used > 0:
+            ward_note = f" (city-wide avg, {cases_used} cases)"
+        else:
+            ward_note = ""
         st.markdown(
             f'<div style="color:#888; font-size:13px; margin-top:5px;">'
-            f'Estimated timeline: ~{months:.1f} months ({timeline["median_days"]} days){ward_note}'
+            f'Estimated timeline: ~{months:.0f} months ({days} days){ward_note}'
             f'</div>',
             unsafe_allow_html=True
         )
