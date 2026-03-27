@@ -746,6 +746,167 @@ def list_zoning_districts():
     return {"districts": districts, "total": len(districts)}
 
 
+@app.post("/variance_analysis", tags=["Zoning Analysis"])
+def variance_analysis(payload: dict):
+    """
+    THE KEY QUESTION: "Based on recent ZBA decisions, how likely will my
+    proposal requiring X, Y, Z zoning variances pass?"
+
+    Returns a data-driven answer using actual historical outcomes —
+    not a model prediction, but real approval rates for the exact
+    variance combination requested, broken down by ward, attorney
+    representation, and number of variances.
+    """
+    if zba_df is None:
+        raise HTTPException(status_code=500, detail="ZBA data not loaded")
+
+    variances = payload.get('variances', [])
+    ward = payload.get('ward')
+    has_attorney = payload.get('has_attorney', False)
+    num_proposed_variances = len(variances) if variances else payload.get('num_variances', 0)
+
+    df = zba_df[zba_df['decision_clean'].notna()].copy()
+    vt = df['variance_types'].fillna('')
+
+    # --- 1. Overall approval rate ---
+    overall_rate = float((df['decision_clean'] == 'APPROVED').mean())
+    overall_count = len(df)
+
+    # --- 2. Approval rate for EXACT variance combination ---
+    if variances:
+        mask = pd.Series(True, index=df.index)
+        for v in variances:
+            mask = mask & vt.str.contains(v.lower(), na=False)
+        combo_cases = df[mask]
+    else:
+        combo_cases = df
+
+    combo_count = len(combo_cases)
+    combo_approved = int((combo_cases['decision_clean'] == 'APPROVED').sum())
+    combo_denied = combo_count - combo_approved
+    combo_rate = float(combo_approved / combo_count) if combo_count > 0 else overall_rate
+
+    # --- 3. Approval rate by ward for this combo ---
+    ward_rate = None
+    ward_count = 0
+    ward_note = ""
+    if ward and combo_count > 0:
+        try:
+            ward_float = float(ward)
+            ward_cases = combo_cases[combo_cases['ward'] == ward_float]
+            ward_count = len(ward_cases)
+            if ward_count >= 3:
+                ward_rate = float((ward_cases['decision_clean'] == 'APPROVED').mean())
+                ward_note = f"In Ward {int(ward_float)}, {ward_count} cases with this variance combination had a {ward_rate:.0%} approval rate"
+            else:
+                ward_note = f"Only {ward_count} case(s) with this combination in Ward {int(ward_float)} — insufficient data for ward-specific rate"
+        except (ValueError, TypeError):
+            pass
+
+    # --- 4. Attorney effect for this combo ---
+    attorney_effect = {}
+    if combo_count > 0 and 'has_attorney' in combo_cases.columns:
+        with_atty = combo_cases[combo_cases['has_attorney'] == 1]
+        without_atty = combo_cases[combo_cases['has_attorney'] == 0]
+        if len(with_atty) >= 3 and len(without_atty) >= 3:
+            rate_with = float((with_atty['decision_clean'] == 'APPROVED').mean())
+            rate_without = float((without_atty['decision_clean'] == 'APPROVED').mean())
+            attorney_effect = {
+                "with_attorney": {"rate": round(rate_with, 3), "cases": len(with_atty)},
+                "without_attorney": {"rate": round(rate_without, 3), "cases": len(without_atty)},
+                "difference": round(rate_with - rate_without, 3),
+            }
+
+    # --- 5. Approval rate by number of variances ---
+    variance_count_rates = []
+    if 'num_variances' in df.columns:
+        for nv in range(1, 8):
+            nv_cases = df[df['num_variances'] == nv]
+            if len(nv_cases) >= 10:
+                rate = float((nv_cases['decision_clean'] == 'APPROVED').mean())
+                variance_count_rates.append({
+                    "num_variances": nv,
+                    "approval_rate": round(rate, 3),
+                    "cases": len(nv_cases),
+                })
+
+    # --- 6. Per-variance approval rates ---
+    per_variance_rates = {}
+    if variances:
+        for v in variances:
+            v_cases = df[vt.str.contains(v.lower(), na=False)]
+            if len(v_cases) > 0:
+                rate = float((v_cases['decision_clean'] == 'APPROVED').mean())
+                per_variance_rates[v] = {
+                    "approval_rate": round(rate, 3),
+                    "cases": len(v_cases),
+                }
+
+    # --- 7. What distinguishes denied cases in this combo? ---
+    denial_factors = []
+    if combo_count > 0 and combo_denied > 0:
+        denied = combo_cases[combo_cases['decision_clean'] == 'DENIED']
+        approved = combo_cases[combo_cases['decision_clean'] == 'APPROVED']
+
+        # Compare averages
+        if 'num_variances' in df.columns and len(denied) >= 3:
+            d_avg = denied['num_variances'].mean()
+            a_avg = approved['num_variances'].mean()
+            if d_avg > a_avg + 0.5:
+                denial_factors.append(f"Denied cases averaged {d_avg:.1f} variances vs {a_avg:.1f} for approved — more variances = higher risk")
+
+        if 'has_attorney' in df.columns and len(denied) >= 3:
+            d_atty = denied['has_attorney'].mean()
+            a_atty = approved['has_attorney'].mean()
+            if a_atty > d_atty + 0.1:
+                denial_factors.append(f"Only {d_atty:.0%} of denied cases had attorney representation vs {a_atty:.0%} of approved cases")
+
+    # --- 8. Build the narrative answer ---
+    variance_list = ', '.join(variances) if variances else 'unspecified variances'
+
+    if combo_count >= 10:
+        headline = f"Based on {combo_count} recent ZBA cases requesting {variance_list}, the approval rate is {combo_rate:.0%}."
+    elif combo_count >= 3:
+        headline = f"Based on {combo_count} cases with {variance_list} (limited data), the approval rate is {combo_rate:.0%}."
+    else:
+        headline = f"Very few cases ({combo_count}) match your exact combination of {variance_list}. Using the overall rate of {overall_rate:.0%} across {overall_count} cases."
+
+    details = []
+    if ward_note:
+        details.append(ward_note)
+    if attorney_effect:
+        diff = attorney_effect['difference']
+        if diff > 0.05:
+            atty_word = "increases" if has_attorney else "would increase"
+            details.append(f"Attorney representation {atty_word} approval odds by {diff:.0%} for this variance combination ({attorney_effect['with_attorney']['rate']:.0%} with vs {attorney_effect['without_attorney']['rate']:.0%} without)")
+    if num_proposed_variances > 0:
+        matching_nv = [r for r in variance_count_rates if r['num_variances'] == num_proposed_variances]
+        if matching_nv:
+            details.append(f"Cases with exactly {num_proposed_variances} variance(s) have a {matching_nv[0]['approval_rate']:.0%} approval rate ({matching_nv[0]['cases']} cases)")
+    for factor in denial_factors:
+        details.append(factor)
+
+    return {
+        "question": f"How likely will a proposal requiring {variance_list} pass?",
+        "headline": headline,
+        "details": details,
+        "data": {
+            "overall": {"rate": round(overall_rate, 3), "cases": overall_count},
+            "your_combination": {"rate": round(combo_rate, 3), "cases": combo_count, "approved": combo_approved, "denied": combo_denied},
+            "ward_specific": {"rate": round(ward_rate, 3) if ward_rate is not None else None, "cases": ward_count, "ward": ward} if ward else None,
+            "attorney_effect": attorney_effect or None,
+            "per_variance": per_variance_rates,
+            "by_variance_count": variance_count_rates,
+        },
+        "recommendation": (
+            "Strong historical precedent for approval." if combo_rate >= 0.85 else
+            "Moderate risk — consider strengthening your application." if combo_rate >= 0.65 else
+            "Higher risk — consult an experienced zoning attorney before filing."
+        ),
+        "disclaimer": "Based on historical ZBA decisions 2020-2026. Past decisions do not guarantee future outcomes. Consult a qualified zoning attorney.",
+    }
+
+
 @app.get("/search", tags=["Search"])
 def search_address(q: str):
     """Search for addresses with ZBA history. Returns aggregated results per address."""

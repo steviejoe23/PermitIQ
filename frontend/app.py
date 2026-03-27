@@ -955,6 +955,19 @@ if predict_clicked:
                 st.error(f"API Error: {res.status_code} — {res.text}")
             else:
                 st.session_state.prediction_result = res.json()
+                # Also fetch the variance analysis — the direct data answer
+                try:
+                    va_payload = {
+                        "variances": payload.get("variances", []),
+                        "ward": payload.get("ward"),
+                        "has_attorney": payload.get("has_attorney", False),
+                        "num_variances": len(payload.get("variances", [])),
+                    }
+                    va_res = requests.post(f"{API_URL}/variance_analysis", json=va_payload, timeout=10)
+                    if va_res.status_code == 200:
+                        st.session_state.variance_analysis = va_res.json()
+                except Exception:
+                    st.session_state.variance_analysis = None
 
         except requests.exceptions.ConnectionError:
             st.error("Cannot connect to API. Start it with: `cd api && uvicorn main:app --reload --port 8000`")
@@ -1050,6 +1063,43 @@ if st.session_state.prediction_result:
         unsafe_allow_html=True
     )
     st.markdown("")
+
+    # --- Variance Analysis (the direct data answer) ---
+    va = st.session_state.get('variance_analysis')
+    if va and va.get('headline'):
+        st.markdown("### Based on Real ZBA Decisions")
+        st.markdown(
+            f'<div style="background:#0a2a0a;border:1px solid #00cc66;border-radius:10px;padding:16px 20px;margin:8px 0;">'
+            f'<div style="font-size:16px;font-weight:700;color:#00cc66;margin-bottom:8px;">{esc(va["headline"])}</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+        for detail in va.get('details', []):
+            st.markdown(
+                f'<div style="background:#1a1a2e;border-left:3px solid #4a9eff;padding:10px 14px;margin:4px 0;border-radius:4px;font-size:14px;color:#ccc;">'
+                f'{esc(detail)}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+
+        # Per-variance rates
+        per_var = va.get('data', {}).get('per_variance', {})
+        if per_var:
+            pv_cols = st.columns(len(per_var))
+            for i, (vtype, vdata) in enumerate(per_var.items()):
+                with pv_cols[i]:
+                    rate = vdata['approval_rate']
+                    color = "#00cc66" if rate >= 0.85 else "#ffaa00" if rate >= 0.65 else "#ff4444"
+                    st.markdown(
+                        f'<div style="text-align:center;background:#1a1a2e;padding:12px;border-radius:8px;border:1px solid #2a2a4e;">'
+                        f'<div style="font-size:24px;font-weight:800;color:{color};">{rate:.0%}</div>'
+                        f'<div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">{esc(vtype)} variance</div>'
+                        f'<div style="font-size:11px;color:#666;">{vdata["cases"]} cases</div>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+
+        st.markdown("")
 
     # --- Proposal Summary ---
     s1, s2, s3, s4 = st.columns(4)
