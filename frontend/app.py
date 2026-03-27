@@ -341,6 +341,7 @@ with st.sidebar:
                 res = requests.get(f"{API_URL}/search", params={"q": addr}, timeout=15)
                 if res.status_code == 200:
                     st.session_state.search_results = res.json().get("results", [])
+                    st.session_state.parcel_data = None  # Clear old parcel when searching new address
                     st.rerun()
             except Exception:
                 pass
@@ -573,11 +574,16 @@ if st.session_state.search_results:
                     if cases_list:
                         for case in cases_list:
                             emoji = "✅" if case.get('decision') == 'APPROVED' else "❌" if case.get('decision') == 'DENIED' else "⏳"
+                            variances_raw = case.get('variances', '')
+                            variances_str = str(variances_raw) if variances_raw and str(variances_raw).lower() not in ('nan', 'none', '') else 'none listed'
+                            date_raw = case.get('date', '')
+                            date_str = str(date_raw) if date_raw and str(date_raw).lower() not in ('nan', 'none', '') else ''
+                            date_part = f"{esc(date_str)} — " if date_str else ""
                             st.markdown(
                                 f"{emoji} **{esc(case.get('case_number', 'N/A'))}** — "
                                 f"{esc(case.get('decision', 'N/A'))} — "
-                                f"{esc(case.get('date', ''))} — "
-                                f"Variances: {esc(case.get('variances', 'none'))}"
+                                f"{date_part}"
+                                f"Variances: {esc(variances_str)}"
                             )
                     else:
                         st.caption("No detailed case records available.")
