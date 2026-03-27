@@ -328,12 +328,12 @@ with st.sidebar:
     st.markdown("### Quick Lookup")
     st.markdown("**Try a sample address:**")
     demo_addresses = {
-        "75 Tremont St": "14 cases, 62%",
-        "1081 River St": "13 cases, 73%",
-        "370 Vermont St": "11 cases, 78%",
-        "58 Burbank St": "10 cases, 44%",
-        "354 E St": "11 cases, 70%",
-        "900 Beacon St": "10 cases, 70%",
+        "1001 Boylston St": "3 cases, 0%",
+        "437 Frankfort St": "3 cases, 33%",
+        "753 East Broadway": "3 cases, 67%",
+        "60 Oakridge St": "3 cases, 67%",
+        "124 Glendower Rd": "3 cases, 33%",
+        "36 Gaston St": "3 cases, 100%",
     }
     for addr, desc in demo_addresses.items():
         if st.button(f"{addr} ({desc})", key=f"demo_{addr}", use_container_width=True):
