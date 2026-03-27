@@ -405,11 +405,10 @@ if 'bookmarks' not in st.session_state:
 
 
 # =========================
-# MAIN LAYOUT: SEARCH + PREDICT
+# UNIFIED FLOW: Address → Zoning → Project → Analysis
 # =========================
 
-# --- TOP SEARCH BAR ---
-st.markdown("### 🔍 Look Up Any Boston Address")
+st.markdown("### Step 1: Enter Your Address")
 
 search_col1, search_col2 = st.columns([3, 1])
 
@@ -447,7 +446,7 @@ if address_query and len(address_query) >= 3 and not search_clicked:
         pass
 
 # Parcel lookup — by ID or find from address
-with st.expander("Parcel Lookup (by ID or address)"):
+with st.expander("Or enter a Parcel ID directly"):
     pid_col1, pid_col2, pid_col3 = st.columns([2, 1, 1])
     with pid_col1:
         parcel_id_input = st.text_input(
@@ -542,24 +541,34 @@ if st.session_state.search_results:
         </div>
         """, unsafe_allow_html=True)
 
-        # Quick action buttons
-        btn_col1, btn_col2 = st.columns([1, 1])
-        with btn_col1:
-            if st.button(f"Find Parcel for {result['address']}", key=f"find_{i}", use_container_width=True):
-                try:
-                    geo_res = requests.get(f"{API_URL}/geocode", params={"q": result['address']}, timeout=10)
-                    if geo_res.status_code == 200:
-                        geo_results = geo_res.json().get("results", [])
-                        if geo_results:
-                            pid = geo_results[0]["parcel_id"]
-                            p_res = requests.get(f"{API_URL}/parcels/{pid}", timeout=15)
-                            if p_res.status_code == 200:
-                                st.session_state.parcel_data = p_res.json()
-                                st.rerun()
-                except Exception:
-                    pass
-        with btn_col2:
-            pass  # Reserve for future actions
+        # Auto-find parcel for first result if we don't have one yet
+        if i == 0 and not st.session_state.parcel_data:
+            try:
+                _auto_geo = requests.get(f"{API_URL}/geocode", params={"q": result['address']}, timeout=10)
+                if _auto_geo.status_code == 200:
+                    _auto_results = _auto_geo.json().get("results", [])
+                    if _auto_results:
+                        _auto_pid = _auto_results[0]["parcel_id"]
+                        _auto_p = requests.get(f"{API_URL}/parcels/{_auto_pid}", timeout=15)
+                        if _auto_p.status_code == 200:
+                            st.session_state.parcel_data = _auto_p.json()
+            except Exception:
+                pass
+
+        # Manual find button as backup
+        if st.button(f"Find Parcel for {result['address']}", key=f"find_{i}", use_container_width=True):
+            try:
+                geo_res = requests.get(f"{API_URL}/geocode", params={"q": result['address']}, timeout=10)
+                if geo_res.status_code == 200:
+                    geo_results = geo_res.json().get("results", [])
+                    if geo_results:
+                        pid = geo_results[0]["parcel_id"]
+                        p_res = requests.get(f"{API_URL}/parcels/{pid}", timeout=15)
+                        if p_res.status_code == 200:
+                            st.session_state.parcel_data = p_res.json()
+                            st.rerun()
+            except Exception:
+                pass
 
         # Expandable case history
         with st.expander(f"View case history for {result['address']}", expanded=False):
@@ -613,9 +622,12 @@ if parcel_clicked and parcel_id_input:
 
 if st.session_state.parcel_data:
     data = st.session_state.parcel_data
-    parcel_title = f"### 📍 Parcel {data.get('parcel_id', 'N/A')}"
+    st.markdown("---")
+    st.markdown("### Step 2: Your Parcel's Zoning")
+    parcel_title = f"**📍 Parcel {data.get('parcel_id', 'N/A')}"
     if data.get("address"):
         parcel_title += f" — {data['address']}"
+    parcel_title += "**"
     st.markdown(parcel_title)
 
     # Show ward and ZBA history if available
@@ -649,7 +661,7 @@ if st.session_state.parcel_data:
             zdata = _zoning_res.json()
             dreqs = zdata.get("dimensional_requirements", {})
             if dreqs.get("max_far"):
-                with st.expander("📐 Zoning Dimensional Requirements", expanded=False):
+                with st.expander("📐 Zoning Dimensional Requirements", expanded=True):
                     st.markdown(f"**District:** {esc(zdata.get('district_name', ''))} — {esc(zdata.get('description', ''))}")
                     r1, r2, r3, r4 = st.columns(4)
                     with r1:
@@ -683,7 +695,7 @@ if st.session_state.parcel_data:
         pass
 
     # --- Zoning Compliance Checker ---
-    with st.expander("🔍 Check: Does My Project Need a Variance?", expanded=False):
+    with st.expander("🔍 Step 3: Does My Project Need a Variance?", expanded=True):
         st.markdown("Enter your proposed project details to see if you need zoning relief.")
         with st.form("compliance_check_form"):
             cc1, cc2, cc3 = st.columns(3)
@@ -826,14 +838,20 @@ if st.session_state.parcel_data:
 # PREDICTION PANEL
 # =========================
 
-st.markdown("### 🧠 ZBA Approval Risk Assessment")
-st.markdown("*Configure your proposal and get an instant prediction based on 7,500+ historical decisions.*")
+st.markdown("---")
+st.markdown("### Step 4: How Likely Will Your Proposal Pass?")
+st.markdown("*Select the variances identified above (or enter manually) and get your answer based on 3,700+ real ZBA decisions.*")
 
 # Proposal input row
 p1, p2, p3 = st.columns(3)
 
 with p1:
-    parcel_id = st.text_input("Parcel ID (for zoning lookup)", value=parcel_id_input if parcel_id_input else "", placeholder="e.g. 0102500000")
+    _auto_parcel = ""
+    if st.session_state.parcel_data and st.session_state.parcel_data.get("parcel_id"):
+        _auto_parcel = str(st.session_state.parcel_data["parcel_id"])
+    elif parcel_id_input:
+        _auto_parcel = parcel_id_input
+    parcel_id = st.text_input("Parcel ID (auto-filled from above)", value=_auto_parcel, placeholder="e.g. 0102500000")
     proposed_use = st.selectbox(
         "Proposed Use",
         ["Residential", "Commercial", "Mixed Use", "Industrial", "Institutional", "Other"]
@@ -928,7 +946,7 @@ if variances:
 
 
 # --- PREDICT BUTTON ---
-predict_clicked = st.button("⚡ Predict Approval Likelihood", type="primary", use_container_width=True)
+predict_clicked = st.button("⚡ Analyze My Proposal", type="primary", use_container_width=True)
 
 if predict_clicked:
     if not variances:
