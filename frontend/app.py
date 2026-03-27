@@ -617,6 +617,86 @@ if st.session_state.parcel_data:
     except Exception:
         pass
 
+    # --- Zoning Compliance Checker ---
+    with st.expander("🔍 Check: Does My Project Need a Variance?", expanded=False):
+        st.markdown("Enter your proposed project details to see if you need zoning relief.")
+        with st.form("compliance_check_form"):
+            cc1, cc2, cc3 = st.columns(3)
+            with cc1:
+                cc_far = st.number_input("Proposed FAR", min_value=0.0, max_value=20.0, value=0.0, step=0.1, key="cc_far")
+            with cc2:
+                cc_height = st.number_input("Proposed Height (ft)", min_value=0, max_value=500, value=0, step=5, key="cc_height")
+            with cc3:
+                cc_stories = st.number_input("Proposed Stories", min_value=0, max_value=50, value=0, step=1, key="cc_stories")
+            cc4, cc5, cc6 = st.columns(3)
+            with cc4:
+                cc_units = st.number_input("Proposed Units", min_value=0, max_value=500, value=0, step=1, key="cc_units")
+            with cc5:
+                cc_parking = st.number_input("Parking Spaces", min_value=0, max_value=500, value=0, step=1, key="cc_parking")
+            with cc6:
+                cc_use = st.selectbox("Proposed Use", ["Residential", "Commercial", "Mixed-Use"], key="cc_use")
+
+            cc_submitted = st.form_submit_button("Check Compliance")
+        if cc_submitted:
+            _cc_payload = {
+                "parcel_id": data.get("parcel_id", ""),
+                "proposed_far": cc_far if cc_far > 0 else None,
+                "proposed_height_ft": cc_height if cc_height > 0 else None,
+                "proposed_stories": cc_stories if cc_stories > 0 else None,
+                "proposed_units": cc_units if cc_units > 0 else None,
+                "parking_spaces": cc_parking if cc_parking > 0 or cc_units > 0 else None,
+                "proposed_use": cc_use.lower(),
+            }
+            # Remove None values
+            _cc_payload = {k: v for k, v in _cc_payload.items() if v is not None}
+
+            try:
+                _cc_res = requests.post(f"{API_URL}/zoning/check_compliance", json=_cc_payload, timeout=10)
+                if _cc_res.status_code == 200:
+                    cc_data = _cc_res.json()
+
+                    if cc_data.get("compliant"):
+                        st.success("**No variances needed.** Your project appears to comply with zoning requirements for this district.")
+                    else:
+                        variances = cc_data.get("variances_needed", [])
+                        complexity = cc_data.get("complexity", "unknown")
+                        violations = cc_data.get("violations", [])
+
+                        if complexity == "high":
+                            st.error(f"**{len(violations)} violation(s) found — {len(variances)} variance(s) needed**")
+                        elif complexity == "moderate":
+                            st.warning(f"**{len(violations)} violation(s) found — {len(variances)} variance(s) needed**")
+                        else:
+                            st.info(f"**{len(violations)} violation(s) found — {len(variances)} variance(s) needed**")
+
+                        st.markdown(f"*{esc(cc_data.get('complexity_note', ''))}*")
+
+                        for v in violations:
+                            v_color = "#ff4444" if v.get("type") in ("far", "height") else "#ffaa00"
+                            st.markdown(
+                                f'<div style="background:#2a2a2a;border-left:4px solid {v_color};padding:10px;margin:5px 0;border-radius:4px;">'
+                                f'<strong>{esc(v.get("type", "").upper())}</strong>: '
+                                f'{esc(v.get("requirement", ""))} → {esc(v.get("proposed", ""))}'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+
+                        # Show historical rates for these variances
+                        hist_rates = cc_data.get("variance_historical_rates", {})
+                        if hist_rates:
+                            st.markdown("**Historical approval rates for these variances:**")
+                            for vtype, vinfo in hist_rates.items():
+                                rate = vinfo.get("approval_rate", 0)
+                                color = "#00cc66" if rate >= 0.7 else "#ffaa00" if rate >= 0.5 else "#ff4444"
+                                st.markdown(
+                                    f'<span style="color:{color};font-weight:bold;">{rate:.0%}</span> for {esc(vtype)} variances ({vinfo.get("total_cases", 0)} cases)',
+                                    unsafe_allow_html=True
+                                )
+                else:
+                    st.error(f"Error: {_cc_res.json().get('detail', 'Unknown error')}")
+            except Exception as e:
+                st.error(f"Could not check compliance: {e}")
+
     # MAP
     if "geometry" in data:
         try:
