@@ -33,18 +33,23 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* Hide Streamlit branding for demo */
+    /* Hide Streamlit branding for clean demo */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    .stDeployButton {display: none;}
+    .stDeployButton {display: none !important;}
+    header[data-testid="stHeader"] {display: none !important;}
+
+    /* Global spacing */
+    .main .block-container { padding-top: 1rem; }
 
     /* Typography */
     .hero-title {
-        font-size: 48px; font-weight: 800; margin-bottom: 0;
+        font-size: 52px; font-weight: 900; margin-bottom: 0;
         background: linear-gradient(135deg, #4a9eff, #8b5cf6);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
     }
-    .hero-subtitle { font-size: 18px; color: #888; margin-top: -10px; }
+    .hero-subtitle { font-size: 16px; color: #777; margin-top: -8px; line-height: 1.4; }
 
     /* Probability display */
     .big-number { font-size: 72px; font-weight: 800; text-align: center; margin: 5px 0; line-height: 1; }
@@ -66,20 +71,25 @@ st.markdown("""
 
     /* Search results */
     .search-result {
-        background: #1a1a2e; padding: 14px 18px; border-radius: 8px;
+        background: linear-gradient(145deg, #1a1a2e, #16162a);
+        padding: 16px 20px; border-radius: 10px;
         margin: 8px 0; border: 1px solid #2a2a4e; cursor: pointer;
+        transition: border-color 0.2s, transform 0.2s;
     }
-    .search-result:hover { border-color: #4a9eff; }
-    .search-addr { font-size: 16px; font-weight: 600; }
-    .search-meta { color: #888; font-size: 13px; margin-top: 4px; }
+    .search-result:hover { border-color: #4a9eff; transform: translateY(-1px); }
+    .search-addr { font-size: 17px; font-weight: 700; color: #fff; }
+    .search-meta { color: #999; font-size: 13px; margin-top: 6px; line-height: 1.5; }
 
     /* Stats row */
     .stat-box {
-        background: #1a1a2e; padding: 16px; border-radius: 10px;
+        background: linear-gradient(145deg, #1a1a2e, #16162a);
+        padding: 20px 16px; border-radius: 12px;
         text-align: center; border: 1px solid #2a2a4e;
+        transition: transform 0.2s, border-color 0.2s;
     }
-    .stat-number { font-size: 32px; font-weight: 700; }
-    .stat-label { color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-box:hover { transform: translateY(-2px); border-color: #4a9eff; }
+    .stat-number { font-size: 36px; font-weight: 800; color: #fff; }
+    .stat-label { color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
 
     /* Disclaimer */
     .disclaimer { font-size: 11px; color: #555; font-style: italic; margin-top: 20px; }
@@ -108,11 +118,29 @@ st.markdown("""
     .confidence-medium { background: #ffaa0020; color: #ffaa00; }
     .confidence-low { background: #ff444420; color: #ff4444; }
 
-    /* Pulse animation for prediction button */
+    /* Prediction button */
     .stButton > button[kind="primary"] {
         transition: all 0.3s ease;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        border-radius: 10px;
     }
     .stButton > button[kind="primary"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 75, 75, 0.4);
+    }
+
+    /* Form submit buttons */
+    .stFormSubmitButton > button {
+        background: linear-gradient(135deg, #4a9eff, #6366f1);
+        color: white;
+        border: none;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 8px 24px;
+        transition: all 0.2s;
+    }
+    .stFormSubmitButton > button:hover {
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
     }
@@ -120,13 +148,20 @@ st.markdown("""
     /* Sidebar demo buttons */
     section[data-testid="stSidebar"] .stButton > button {
         font-size: 13px;
-        padding: 6px 10px;
+        padding: 8px 12px;
         border: 1px solid #333;
-        background: #1a1a2e;
+        background: linear-gradient(145deg, #1a1a2e, #222244);
+        border-radius: 8px;
+        width: 100%;
+        transition: all 0.2s;
     }
     section[data-testid="stSidebar"] .stButton > button:hover {
         border-color: #4a9eff;
-        background: #1a1a3e;
+        background: linear-gradient(145deg, #222244, #2a2a5e);
+        transform: translateX(2px);
+    }
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0d0d1a, #12122a);
     }
 
     /* Progress bar for OCR */
@@ -143,7 +178,31 @@ st.markdown("""
     /* Expander headers */
     .streamlit-expanderHeader {
         font-weight: 600;
+        font-size: 15px;
     }
+    details[data-testid="stExpander"] {
+        border: 1px solid #2a2a4e;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #12122a, #16162e);
+    }
+    details[data-testid="stExpander"] summary {
+        padding: 12px 16px;
+    }
+
+    /* Metric styling */
+    [data-testid="stMetricValue"] {
+        font-size: 28px;
+        font-weight: 800;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #888;
+    }
+
+    /* Section dividers */
+    hr { border-color: #2a2a4e; margin: 24px 0; }
 
     /* Loading skeleton animation */
     @keyframes skeleton-pulse {
@@ -562,20 +621,20 @@ if st.session_state.parcel_data:
     if extra_info:
         st.caption(" · ".join(extra_info))
 
-    z1, z2, z3, z4 = st.columns(4)
+    z1, z2, z3 = st.columns(3)
     with z1:
         st.metric("Zoning Code", data.get("zoning_code", "N/A"))
     with z2:
         st.metric("District", data.get("district", "N/A"))
     with z3:
         st.metric("Article", data.get("article", "N/A"))
-    with z4:
-        st.metric("Volume", data.get("volume", "N/A"))
 
-    st.markdown(f"**Summary:** {data.get('zoning_summary', 'N/A')}")
+    summary = data.get('zoning_summary', '')
+    if summary and summary != 'N/A' and summary.strip():
+        st.markdown(f"**Summary:** {esc(summary)}")
 
     if data.get("multi_zoning"):
-        st.warning(f"⚠️ Multi-zoning parcel — {data.get('zoning_count', 0)} zones overlap")
+        st.warning(f"Multi-zoning parcel — {data.get('zoning_count', 0)} zones overlap")
 
     # Zoning Requirements — from zoning analysis endpoint
     try:
@@ -673,10 +732,14 @@ if st.session_state.parcel_data:
 
                         for v in violations:
                             v_color = "#ff4444" if v.get("type") in ("far", "height") else "#ffaa00"
+                            excess = v.get("excess", v.get("deficit", ""))
                             st.markdown(
-                                f'<div style="background:#2a2a2a;border-left:4px solid {v_color};padding:10px;margin:5px 0;border-radius:4px;">'
-                                f'<strong>{esc(v.get("type", "").upper())}</strong>: '
-                                f'{esc(v.get("requirement", ""))} → {esc(v.get("proposed", ""))}'
+                                f'<div style="background:#1a1a2e;border-left:4px solid {v_color};padding:12px 16px;margin:6px 0;border-radius:6px;">'
+                                f'<span style="color:{v_color};font-weight:700;font-size:14px;">{esc(v.get("type", "").upper())}</span><br>'
+                                f'<span style="color:#ccc;font-size:13px;">{esc(v.get("requirement", ""))}</span>'
+                                f' <span style="color:#888;">→</span> '
+                                f'<span style="color:#fff;font-weight:600;font-size:13px;">{esc(v.get("proposed", ""))}</span>'
+                                f'{"<br><span style=color:#888;font-size:12px;>" + esc(excess) + "</span>" if excess else ""}'
                                 f'</div>',
                                 unsafe_allow_html=True
                             )
