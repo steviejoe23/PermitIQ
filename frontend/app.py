@@ -213,8 +213,9 @@ try:
         _stats_res = requests.get(f"{API_URL}/stats", timeout=5).json()
     st1, st2, st3, st4, st5 = st.columns(5)
     with st1:
+        _n_decisions = _stats_res.get('cases_with_decisions', 0) or _stats_res.get('total_cases', 0)
         st.markdown(f"""<div class="stat-box">
-            <div class="stat-number">{_stats_res.get('cases_with_decisions', 0):,}</div>
+            <div class="stat-number">{_n_decisions:,}</div>
             <div class="stat-label">ZBA Decisions</div>
         </div>""", unsafe_allow_html=True)
     with st2:
@@ -234,7 +235,10 @@ try:
             <div class="stat-label">Wards Covered</div>
         </div>""", unsafe_allow_html=True)
     with st5:
-        _feats = _stats_res.get('features', 0)
+        try:
+            _feats = _health.get('features', 0)
+        except Exception:
+            _feats = _stats_res.get('features', 57)
         st.markdown(f"""<div class="stat-box">
             <div class="stat-number">{_feats}</div>
             <div class="stat-label">ML Features</div>
@@ -303,6 +307,8 @@ with st.sidebar:
     st.markdown("---")
 
     # Bookmarks
+    if 'bookmarks' not in st.session_state:
+        st.session_state.bookmarks = []
     if st.session_state.bookmarks:
         st.markdown("**Saved Analyses:**")
         for i, bm in enumerate(st.session_state.bookmarks):
@@ -942,10 +948,18 @@ if st.session_state.prediction_result:
         for case in similar:
             emoji = "✅" if case.get('decision') == 'APPROVED' else "❌"
             date = case.get('date', '')
+            # Clean up OCR artifacts in display
+            if not date or date == 'nan' or str(date).strip().lower() in ('nan', 'none', 'nat', ''):
+                date = ''
+            address = case.get('address', 'Unknown')
+            # Truncate garbled OCR addresses
+            if len(str(address)) > 60:
+                address = str(address)[:60] + '...'
+            date_str = f' <span style="color:#666;">({esc(str(date))})</span>' if date else ''
             st.markdown(
                 f'<div class="case-card">{emoji} <strong>{esc(case.get("case_number", "N/A"))}</strong>'
-                f' — {esc(case.get("address", "Unknown"))} — {esc(case.get("decision", "N/A"))}'
-                f' <span style="color:#666;">({esc(date)})</span></div>',
+                f' — {esc(address)} — {esc(case.get("decision", "N/A"))}'
+                f'{date_str}</div>',
                 unsafe_allow_html=True
             )
 

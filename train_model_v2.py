@@ -256,14 +256,33 @@ if 'source_pdf' in df.columns:
     max_year = df['_year'].max()
     temporal_mask = df['_year'] >= max_year
     n_recent = temporal_mask.sum()
-    if n_recent >= 100:
+
+    # Need at least 200 cases for meaningful test+cal split (100 each)
+    # If not enough in the most recent year, use most recent 20% of data
+    if n_recent >= 200:
         train_idx = ~temporal_mask
         test_cal_idx = temporal_mask
         print(f"\nTEMPORAL SPLIT: Train on <{int(max_year)}, test+cal on {int(max_year)}+")
+    else:
+        # Use random stratified split — temporal split would give too-small test set
+        print(f"\nOnly {n_recent} cases in {int(max_year)} — too few for temporal split")
+        print(f"Using STRATIFIED RANDOM split instead (70/15/15)")
+        _train_i, _rest_i = train_test_split(
+            df.index, test_size=0.3, random_state=42,
+            stratify=df['approved']
+        )
+        _test_i, _cal_i = train_test_split(
+            _rest_i, test_size=0.5, random_state=42,
+            stratify=df.loc[_rest_i, 'approved']
+        )
+        train_idx = pd.Series(False, index=df.index); train_idx.loc[_train_i] = True
+        test_idx = pd.Series(False, index=df.index); test_idx.loc[_test_i] = True
+        cal_idx = pd.Series(False, index=df.index); cal_idx.loc[_cal_i] = True
+        print(f"   Train: {train_idx.sum()} | Test: {test_idx.sum()} | Calibration: {cal_idx.sum()}")
+        df = df.drop(columns=['_year'], errors='ignore')
 
-        # Split test into test (50%) and calibration (50%)
+    if n_recent >= 200:
         test_cal_indices = df.index[test_cal_idx]
-        # Use stratification only if both classes have enough samples
         test_cal_labels = df.loc[test_cal_indices, 'approved']
         min_class_count = test_cal_labels.value_counts().min()
         use_stratify = test_cal_labels if min_class_count >= 4 else None

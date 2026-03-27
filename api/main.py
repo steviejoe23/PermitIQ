@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 from typing import List, Optional
+from services.zoning_code import get_zoning_requirements, check_compliance, ZONING_REQUIREMENTS
 import geopandas as gpd
 import pandas as pd
 import numpy as np
@@ -490,6 +491,254 @@ def _do_search(q_norm: str) -> list:
         results.append(result_item)
 
     return results
+
+
+# =========================
+# ZONING ANALYSIS
+# =========================
+
+@app.get("/zoning/{parcel_id}", tags=["Zoning Analysis"])
+def zoning_analysis(parcel_id: str):
+    """
+    Full zoning analysis for a parcel — answers:
+    1. What zoning district is this parcel in?
+    2. What article governs this property?
+    3. What are the dimensional requirements?
+    4. What's the zoning summary?
+    """
+    # Look up parcel — PostGIS first, then GeoJSON fallback
+    district, article, all_codes, multi_zoning = '', '', '', False
+
+    if db_available() and query_parcel is not None:
+        db_row = query_parcel(parcel_id)
+        if db_row is not None:
+            district = db_row.get('primary_zoning', '')
+            article = db_row.get('article', '')
+            all_codes = db_row.get('all_zoning_codes', '')
+            multi_zoning = db_row.get('multi_zoning', False)
+
+    if not district and gdf is not None:
+        matches = gdf[gdf['parcel_id'] == parcel_id]
+        if not matches.empty:
+            row = matches.iloc[0]
+            district = str(row.get('primary_zoning', ''))
+            article = str(row.get('article', ''))
+            all_codes = str(row.get('all_zoning_codes', district))
+            multi_zoning = bool(row.get('multi_zoning', False))
+
+    if not district:
+        raise HTTPException(status_code=404, detail=f"Parcel {parcel_id} not found")
+
+    # Get dimensional requirements
+    reqs = get_zoning_requirements(district)
+
+    # ZBA case history for this area
+    case_count = 0
+    area_approval_rate = 0
+    if zba_df is not None:
+        area_cases = zba_df[zba_df['decision_clean'].notna()]
+        if district:
+            zone_cases = area_cases[area_cases.get('zoning', pd.Series(dtype=str)).fillna('').str.contains(district[:2], na=False)]
+            if len(zone_cases) > 10:
+                area_cases = zone_cases
+        case_count = len(area_cases)
+        area_approval_rate = float((area_cases['decision_clean'] == 'APPROVED').mean()) if case_count > 0 else 0
+
+    return {
+        "parcel_id": parcel_id,
+        "zoning_district": district,
+        "article": article,
+        "all_zoning_codes": all_codes,
+        "multi_zoning": multi_zoning,
+        "district_name": reqs.get('district_name', 'Unknown'),
+        "description": reqs.get('description', ''),
+        "dimensional_requirements": {
+            "max_far": reqs.get('max_far'),
+            "max_height_ft": reqs.get('max_height_ft'),
+            "max_stories": reqs.get('max_stories'),
+            "min_lot_sf": reqs.get('min_lot_sf'),
+            "min_frontage_ft": reqs.get('min_frontage_ft'),
+            "min_front_yard_ft": reqs.get('min_front_yard_ft'),
+            "min_side_yard_ft": reqs.get('min_side_yard_ft'),
+            "min_rear_yard_ft": reqs.get('min_rear_yard_ft'),
+            "max_lot_coverage_pct": reqs.get('max_lot_coverage_pct'),
+            "parking_per_unit": reqs.get('parking_per_unit'),
+        },
+        "allowed_uses": reqs.get('allowed_uses', []),
+        "area_zba_cases": case_count,
+        "area_approval_rate": round(area_approval_rate, 3),
+    }
+
+
+@app.post("/zoning/check_compliance", tags=["Zoning Analysis"])
+def zoning_compliance_check(payload: dict):
+    """
+    Check if a proposed project needs zoning relief.
+
+    Answers: "Do I need a variance?" and "How complex is this case?"
+
+    Input:
+        parcel_id: str (required) — parcel to check against
+        proposed_far: float — floor area ratio of proposed project
+        proposed_height_ft: int — proposed building height in feet
+        proposed_stories: int — proposed number of stories
+        proposed_units: int — proposed residential units
+        parking_spaces: int — proposed parking spaces
+        proposed_use: str — intended use (residential, commercial, mixed-use)
+        lot_size_sf: float — lot size (auto-filled from parcel data if available)
+        lot_frontage_ft: float — lot frontage (if known)
+    """
+    parcel_id = payload.get('parcel_id')
+    if not parcel_id:
+        raise HTTPException(status_code=400, detail="parcel_id is required")
+
+    # Look up parcel — PostGIS first, then GeoJSON
+    district = ''
+
+    if db_available() and query_parcel is not None:
+        db_row = query_parcel(parcel_id)
+        if db_row is not None:
+            district = db_row.get('primary_zoning', '')
+
+    if not district and gdf is not None:
+        matches = gdf[gdf['parcel_id'] == parcel_id]
+        if not matches.empty:
+            district = str(matches.iloc[0].get('primary_zoning', ''))
+
+    if not district:
+        raise HTTPException(status_code=404, detail=f"Parcel {parcel_id} not found")
+
+    # Auto-fill lot size from property data if available
+    proposal = dict(payload)
+    if 'lot_size_sf' not in proposal and zba_df is not None:
+        pa_match = zba_df[zba_df['pa_parcel_id'].astype(str) == parcel_id] if 'pa_parcel_id' in zba_df.columns else pd.DataFrame()
+        if not pa_match.empty:
+            ls = pa_match.iloc[0].get('lot_size_sf', 0)
+            if ls and float(ls) > 0:
+                proposal['lot_size_sf'] = float(ls)
+
+    # Run compliance check
+    result = check_compliance(district, proposal)
+
+    # Add historical context
+    if zba_df is not None and result['variances_needed']:
+        var_approval_rates = {}
+        df_with_dec = zba_df[zba_df['decision_clean'].notna()]
+        for var_type in result['variances_needed']:
+            col = f'var_{var_type}'
+            if col in df_with_dec.columns:
+                var_cases = df_with_dec[df_with_dec[col] == 1]
+                if len(var_cases) > 0:
+                    rate = float((var_cases['decision_clean'] == 'APPROVED').mean())
+                    var_approval_rates[var_type] = {
+                        "approval_rate": round(rate, 3),
+                        "total_cases": len(var_cases),
+                        "note": f"Based on {len(var_cases)} ZBA cases involving {var_type} variances"
+                    }
+        result['variance_historical_rates'] = var_approval_rates
+
+    return result
+
+
+@app.post("/zoning/full_analysis", tags=["Zoning Analysis"])
+def full_zoning_analysis(payload: dict):
+    """
+    Complete zoning analysis workflow — single endpoint that answers ALL questions:
+    1. What zoning district is this parcel in?
+    2. What are the dimensional requirements?
+    3. Does my project need variances?
+    4. How complex is this case?
+    5. What's the predicted approval probability?
+
+    This is the developer's complete pre-filing analysis in one API call.
+    """
+    parcel_id = payload.get('parcel_id')
+    if not parcel_id:
+        raise HTTPException(status_code=400, detail="parcel_id is required")
+
+    # Step 1: Zoning lookup
+    try:
+        zoning_info = zoning_analysis(parcel_id)
+    except HTTPException:
+        raise HTTPException(status_code=404, detail=f"Parcel {parcel_id} not found")
+
+    # Step 2: Compliance check
+    compliance = check_compliance(
+        zoning_info['zoning_district'],
+        payload
+    )
+
+    # Step 3: Run prediction (reuse analyze_proposal)
+    prediction_input = dict(payload)
+    prediction_input['variances'] = compliance.get('variances_needed', [])
+    if 'ward' not in prediction_input:
+        # Try to infer ward from parcel
+        if gdf is not None:
+            matches = gdf[gdf['parcel_id'] == parcel_id]
+            if not matches.empty and 'ward' in matches.columns:
+                prediction_input['ward'] = str(matches.iloc[0].get('ward', ''))
+
+    try:
+        prediction = analyze_proposal(prediction_input)
+    except Exception as e:
+        prediction = {"error": str(e), "probability": None}
+
+    # Step 4: Compile full report
+    return {
+        "parcel_id": parcel_id,
+
+        # Q1: What zoning district?
+        "zoning": {
+            "district": zoning_info['zoning_district'],
+            "district_name": zoning_info['district_name'],
+            "article": zoning_info['article'],
+            "description": zoning_info['description'],
+            "allowed_uses": zoning_info['allowed_uses'],
+        },
+
+        # Q2: Dimensional requirements
+        "requirements": zoning_info['dimensional_requirements'],
+
+        # Q3: Do I need variances?
+        "compliance": {
+            "compliant": compliance['compliant'],
+            "variances_needed": compliance['variances_needed'],
+            "num_variances": compliance['num_variances_needed'],
+            "violations": compliance['violations'],
+        },
+
+        # Q4: How complex is this?
+        "complexity": {
+            "level": compliance['complexity'],
+            "note": compliance['complexity_note'],
+            "area_cases": zoning_info['area_zba_cases'],
+            "area_approval_rate": zoning_info['area_approval_rate'],
+        },
+
+        # Q5: What's the predicted outcome?
+        "prediction": prediction,
+
+        # Disclaimer
+        "disclaimer": "This analysis is for informational purposes only. Always verify zoning requirements with the Boston Inspectional Services Department and consult a licensed zoning attorney before filing with the ZBA.",
+    }
+
+
+@app.get("/zoning/districts", tags=["Zoning Analysis"])
+def list_zoning_districts():
+    """List all zoning districts with their dimensional requirements."""
+    districts = []
+    for code, reqs in ZONING_REQUIREMENTS.items():
+        districts.append({
+            "code": code,
+            "name": reqs['district_name'],
+            "article": reqs['article'],
+            "description": reqs['description'],
+            "max_far": reqs['max_far'],
+            "max_height_ft": reqs['max_height_ft'],
+            "max_stories": reqs.get('max_stories'),
+            "allowed_uses": reqs['allowed_uses'],
+        })
+    return {"districts": districts, "total": len(districts)}
 
 
 @app.get("/search", tags=["Search"])
