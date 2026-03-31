@@ -14,7 +14,8 @@ PRE-HEARING (SAFE):
   - Legal articles (from zoning code)
   - Building scale (from application)
   - Ward/zoning approval rates (historical)
-  - Attorney win rate (historical)
+  - Attorney/contact win rates (historical)
+  - Ward x Zoning, Year x Ward interaction rates (historical)
   - Property data (from assessor database)
   - Permit history (from building permits DB)
 
@@ -49,8 +50,8 @@ FEATURE_COLS = [
     # Use type (2)
     'is_residential', 'is_commercial',
 
-    # Representation (2)
-    'has_attorney', 'bpda_involved',
+    # Representation (4)
+    'has_attorney', 'bpda_involved', 'is_building_appeal', 'is_refusal_appeal',
 
     # Project types (12)
     'proj_demolition', 'proj_new_construction', 'proj_addition',
@@ -64,8 +65,10 @@ FEATURE_COLS = [
     # Building scale (2)
     'proposed_units', 'proposed_stories',
 
-    # Location-based (3)
-    'ward_approval_rate', 'zoning_approval_rate', 'attorney_win_rate',
+    # Location-based (6)
+    'ward_approval_rate', 'zoning_approval_rate',
+    'attorney_win_rate', 'contact_win_rate',
+    'ward_zoning_rate', 'year_ward_rate',
 
     # Recency (1)
     'year_recency',
@@ -80,8 +83,15 @@ FEATURE_COLS = [
     # Interactions (3)
     'interact_height_stories', 'interact_attorney_variances', 'interact_highvalue_permits',
 
-    # Log transforms (2)
-    'lot_size_log', 'total_value_log',
+    # Log transforms (3)
+    'lot_size_log', 'total_value_log', 'prior_permits_log',
+
+    # Additional interactions (4)
+    'contact_x_appeal', 'attorney_x_building',
+    'many_variances', 'has_property_data',
+
+    # Meta-features (3)
+    'project_complexity', 'total_violations', 'num_features_active',
 ]
 
 VARIANCE_TYPES = [

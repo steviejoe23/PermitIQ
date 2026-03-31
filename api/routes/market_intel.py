@@ -10,6 +10,7 @@ Usage: In main.py, add:
 from fastapi import APIRouter, HTTPException
 import pandas as pd
 import numpy as np
+import time
 
 router = APIRouter(tags=["Market Intelligence"])
 
@@ -18,14 +19,32 @@ router = APIRouter(tags=["Market Intelligence"])
 _zba_df = None
 _VARIANCE_TYPES = []
 _PROJECT_TYPES = []
+_timeline_stats = None  # Pre-computed timeline stats from ZBA tracker
+
+# --- Simple TTL cache for expensive aggregations ---
+_cache = {}
+CACHE_TTL = 3600  # 1 hour
 
 
-def init(zba_df, variance_types, project_types):
+def _cached(key, compute_fn):
+    """Return cached result or compute and cache it."""
+    if key in _cache:
+        val, ts = _cache[key]
+        if time.time() - ts < CACHE_TTL:
+            return val
+    result = compute_fn()
+    _cache[key] = (result, time.time())
+    return result
+
+
+def init(zba_df, variance_types, project_types, timeline_stats=None):
     """Called by main.py after data loads."""
-    global _zba_df, _VARIANCE_TYPES, _PROJECT_TYPES
+    global _zba_df, _VARIANCE_TYPES, _PROJECT_TYPES, _timeline_stats
     _zba_df = zba_df
     _VARIANCE_TYPES = variance_types
     _PROJECT_TYPES = project_types
+    _timeline_stats = timeline_stats
+    _cache.clear()  # Invalidate cache on data reload
 
 
 def _require_data():
@@ -37,30 +56,25 @@ def _require_data():
 @router.get("/wards/all")
 def all_ward_stats():
     """All ward statistics in a single call."""
-    df = _require_data()
-    df = df[df['decision_clean'].notna()].copy()
-    df['_ward_clean'] = df['ward'].apply(lambda w: str(int(float(w))) if pd.notna(w) else None)
-    df = df[df['_ward_clean'].notna()]
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        df['_ward_clean'] = df['ward'].apply(lambda w: str(int(float(w))) if pd.notna(w) else None)
+        df = df[df['_ward_clean'].notna()]
 
-    grouped = df.groupby('_ward_clean').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
-    )
+        grouped = df.groupby('_ward_clean').agg(
+            total=('decision_clean', 'count'),
+            approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+        ).reset_index()
 
-    wards = []
-    for ward_name, row in grouped.iterrows():
-        total = int(row['total'])
-        approved = int(row['approved'])
-        wards.append({
-            "ward": ward_name,
-            "total_cases": total,
-            "approved": approved,
-            "denied": total - approved,
-            "approval_rate": round(float(approved / total), 3) if total > 0 else 0,
-        })
+        grouped['denied'] = grouped['total'] - grouped['approved']
+        grouped['approval_rate'] = (grouped['approved'] / grouped['total']).round(3)
+        grouped['total_cases'] = grouped['total']
+        wards = grouped.rename(columns={'_ward_clean': 'ward'}).to_dict('records')
+        wards.sort(key=lambda x: -x['approval_rate'])
+        return {"wards": wards}
 
-    wards.sort(key=lambda x: -x['approval_rate'])
-    return {"wards": wards}
+    return _cached("wards_all", _compute)
 
 
 @router.get("/wards/{ward_id}/stats")
@@ -94,155 +108,194 @@ def ward_stats(ward_id: str):
 @router.get("/project_type_stats")
 def project_type_stats():
     """Approval rates by project type."""
-    df = _require_data()
-    df = df[df['decision_clean'].notna()].copy()
-    results = []
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        results = []
 
-    for pt in _PROJECT_TYPES:
-        col = f'proj_{pt}'
-        if col in df.columns:
-            matched = df[df[col] == 1]
-            if len(matched) > 5:
-                approved = (matched['decision_clean'] == 'APPROVED').sum()
-                total = len(matched)
-                results.append({
-                    "project_type": pt.replace('_', ' ').title(),
-                    "total_cases": int(total),
-                    "approved": int(approved),
-                    "approval_rate": round(approved / total, 3),
-                })
+        # First try proj_ columns (available after full OCR retrain)
+        has_proj_cols = any(f'proj_{pt}' in df.columns for pt in _PROJECT_TYPES)
+        if has_proj_cols:
+            for pt in _PROJECT_TYPES:
+                col = f'proj_{pt}'
+                if col in df.columns:
+                    matched = df[df[col] == 1]
+                    if len(matched) > 5:
+                        approved = int((matched['decision_clean'] == 'APPROVED').sum())
+                        total = len(matched)
+                        results.append({
+                            "project_type": pt.replace('_', ' ').title(),
+                            "total_cases": int(total),
+                            "approved": approved,
+                            "approval_rate": round(approved / total, 3),
+                        })
+        else:
+            # Derive project types from tracker_description and appeal_type columns
+            import re
+            project_patterns = {
+                'New Construction': r'(?i)\b(new\s+construct|erect\s+a?\s*new|build\s+(?:a\s+)?new)\b',
+                'Addition': r'(?i)\b(addition|add\s+(?:a\s+)?(?:rear|side|front|second|third|story|deck|porch|dormer))\b',
+                'Renovation': r'(?i)\b(renovati|remodel|rehab|gut\s+(?:and\s+)?renovat|interior\s+renovation)\b',
+                'Demolition': r'(?i)\b(demoli|tear\s*down|raze)\b',
+                'Conversion': r'(?i)\b(convert|conversion|change\s+(?:of\s+)?(?:use|occupancy))\b',
+                'Roof Deck': r'(?i)\b(roof\s*deck)\b',
+                'Parking': r'(?i)\b(parking\s+(?:lot|garage|space|pad)|off[- ]street\s+parking|driveway)\b',
+                'Subdivision': r'(?i)\b(subdivi|lot\s+split)\b',
+                'ADU': r'(?i)\b(accessory\s+(?:dwelling|apartment)|adu|in[- ]law\s+(?:unit|apartment))\b',
+                'Mixed Use': r'(?i)\b(mixed[- ]use)\b',
+            }
 
-    results.sort(key=lambda x: -x['approval_rate'])
-    return {"project_type_stats": results}
+            # Combine tracker_description and appeal_type for matching
+            desc_col = None
+            for col_name in ['tracker_description', 'description', 'raw_text']:
+                if col_name in df.columns:
+                    desc_col = col_name
+                    break
+
+            if desc_col:
+                desc_text = df[desc_col].fillna('')
+                for ptype, pattern in project_patterns.items():
+                    mask = desc_text.str.contains(pattern, na=False)
+                    matched = df[mask]
+                    if len(matched) > 5:
+                        approved = int((matched['decision_clean'] == 'APPROVED').sum())
+                        total = len(matched)
+                        results.append({
+                            "project_type": ptype,
+                            "total_cases": int(total),
+                            "approved": approved,
+                            "approval_rate": round(approved / total, 3),
+                        })
+
+            # Also include appeal_type breakdown (Zoning vs Building)
+            if 'appeal_type' in df.columns:
+                for atype in df['appeal_type'].dropna().unique():
+                    atype_str = str(atype).strip()
+                    if len(atype_str) > 1:
+                        matched = df[df['appeal_type'] == atype]
+                        if len(matched) > 5:
+                            approved = int((matched['decision_clean'] == 'APPROVED').sum())
+                            total = len(matched)
+                            results.append({
+                                "project_type": f"{atype_str} Appeal",
+                                "total_cases": int(total),
+                                "approved": approved,
+                                "approval_rate": round(approved / total, 3),
+                            })
+
+        results.sort(key=lambda x: -x['approval_rate'])
+        return {"project_type_stats": results}
+    return _cached("project_type_stats", _compute)
 
 
 @router.get("/variance_stats")
 def variance_stats():
     """Approval rates by variance type."""
-    df = _require_data()
-    df = df[df['decision_clean'].notna()].copy()
-    results = []
-
-    for vt in _VARIANCE_TYPES:
-        mask = df['variance_types'].fillna('').str.contains(vt, na=False)
-        matched = df[mask]
-        if len(matched) > 5:
-            approved = (matched['decision_clean'] == 'APPROVED').sum()
-            total = len(matched)
-            results.append({
-                "variance_type": vt,
-                "total_cases": int(total),
-                "approved": int(approved),
-                "approval_rate": round(approved / total, 3),
-            })
-
-    results.sort(key=lambda x: -x['approval_rate'])
-    return {"variance_stats": results}
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        results = []
+        for vt in _VARIANCE_TYPES:
+            mask = df['variance_types'].fillna('').str.contains(vt, na=False)
+            matched = df[mask]
+            if len(matched) > 5:
+                approved = int((matched['decision_clean'] == 'APPROVED').sum())
+                total = len(matched)
+                results.append({
+                    "variance_type": vt,
+                    "total_cases": int(total),
+                    "approved": approved,
+                    "approval_rate": round(approved / total, 3),
+                })
+        results.sort(key=lambda x: -x['approval_rate'])
+        return {"variance_stats": results}
+    return _cached("variance_stats", _compute)
 
 
 @router.get("/neighborhoods")
 def neighborhood_stats():
     """Approval rates by zoning district/neighborhood."""
-    df = _require_data()
-    df = df[df['decision_clean'].notna()].copy()
-
-    z_col = 'zoning_district' if 'zoning_district' in df.columns else (
-        'zoning_clean' if 'zoning_clean' in df.columns else 'zoning')
-    if z_col not in df.columns:
-        return {"neighborhoods": []}
-
-    df['_neighborhood'] = df[z_col].fillna('Unknown').astype(str)
-    grouped = df.groupby('_neighborhood').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
-    )
-    grouped['approval_rate'] = grouped['approved'] / grouped['total']
-    qualified = grouped[grouped['total'] >= 10].sort_values('approval_rate', ascending=False)
-
-    results = []
-    for name, row in qualified.iterrows():
-        results.append({
-            "neighborhood": str(name),
-            "total_cases": int(row['total']),
-            "approved": int(row['approved']),
-            "denied": int(row['total'] - row['approved']),
-            "approval_rate": round(float(row['approval_rate']), 3),
-        })
-
-    return {"neighborhoods": results}
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        z_col = 'zoning_district' if 'zoning_district' in df.columns else (
+            'zoning_clean' if 'zoning_clean' in df.columns else 'zoning')
+        if z_col not in df.columns:
+            return {"neighborhoods": []}
+        df['_neighborhood'] = df[z_col].fillna('Unknown').astype(str)
+        grouped = df.groupby('_neighborhood').agg(
+            total=('decision_clean', 'count'),
+            approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+        ).reset_index()
+        grouped['denied'] = grouped['total'] - grouped['approved']
+        grouped['approval_rate'] = (grouped['approved'] / grouped['total']).round(3)
+        qualified = grouped[grouped['total'] >= 10].sort_values('approval_rate', ascending=False)
+        qualified['total_cases'] = qualified['total']
+        results = qualified.rename(columns={'_neighborhood': 'neighborhood'}).to_dict('records')
+        return {"neighborhoods": results}
+    return _cached("neighborhoods", _compute)
 
 
 @router.get("/attorneys/leaderboard")
 def attorney_leaderboard(min_cases: int = 5, limit: int = 20):
     """Top attorneys by ZBA approval rate."""
-    df = _require_data()
-    df = df[
-        (df['decision_clean'].notna()) &
-        (df['applicant_name'].notna()) &
-        (df['applicant_name'].str.len() > 3)
-    ].copy()
+    def _compute():
+        df = _require_data()
+        df = df[
+            (df['decision_clean'].notna()) &
+            (df['applicant_name'].notna()) &
+            (df['applicant_name'].str.len() > 3)
+        ].copy()
 
-    grouped = df.groupby('applicant_name').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
-    )
-    grouped['approval_rate'] = grouped['approved'] / grouped['total']
-    qualified = grouped[grouped['total'] >= min_cases].sort_values(
-        ['approval_rate', 'total'], ascending=[False, False]
-    ).head(limit)
+        grouped = df.groupby('applicant_name').agg(
+            total=('decision_clean', 'count'),
+            approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+        ).reset_index()
+        grouped['denied'] = grouped['total'] - grouped['approved']
+        grouped['approval_rate'] = (grouped['approved'] / grouped['total']).round(3)
+        qualified = grouped[grouped['total'] >= min_cases].sort_values(
+            ['approval_rate', 'total'], ascending=[False, False]
+        ).head(limit)
 
-    results = []
-    for name, row in qualified.iterrows():
-        results.append({
-            "name": str(name),
-            "total_cases": int(row['total']),
-            "approved": int(row['approved']),
-            "denied": int(row['total'] - row['approved']),
-            "approval_rate": round(float(row['approval_rate']), 3),
-        })
+        qualified['total_cases'] = qualified['total']
+        results = qualified.rename(columns={'applicant_name': 'name'}).to_dict('records')
 
-    has_attorney = df[df.get('has_attorney', pd.Series(dtype=int)) == 1] if 'has_attorney' in df.columns else pd.DataFrame()
-    no_attorney = df[df.get('has_attorney', pd.Series(dtype=int)) == 0] if 'has_attorney' in df.columns else pd.DataFrame()
+        has_attorney = df[df['has_attorney'] == 1] if 'has_attorney' in df.columns else pd.DataFrame()
+        no_attorney = df[df['has_attorney'] == 0] if 'has_attorney' in df.columns else pd.DataFrame()
 
-    return {
-        "attorneys": results,
-        "total_unique_applicants": int(df['applicant_name'].nunique()),
-        "attorney_approval_rate": round(float((has_attorney['decision_clean'] == 'APPROVED').mean()), 3) if len(has_attorney) > 0 else None,
-        "no_attorney_approval_rate": round(float((no_attorney['decision_clean'] == 'APPROVED').mean()), 3) if len(no_attorney) > 0 else None,
-    }
+        return {
+            "attorneys": results,
+            "total_unique_applicants": int(df['applicant_name'].nunique()),
+            "attorney_approval_rate": round(float((has_attorney['decision_clean'] == 'APPROVED').mean()), 3) if len(has_attorney) > 0 else None,
+            "no_attorney_approval_rate": round(float((no_attorney['decision_clean'] == 'APPROVED').mean()), 3) if len(no_attorney) > 0 else None,
+        }
+    return _cached(f"attorney_leaderboard_{min_cases}_{limit}", _compute)
 
 
 @router.get("/trends")
 def approval_trends():
     """Approval rate trends over time, by year."""
-    df = _require_data()
-    df = df[df['decision_clean'].notna()].copy()
-
-    if 'source_pdf' in df.columns:
-        df['_year'] = df['source_pdf'].str.extract(r'(20\d{2})').astype(float)
-    elif 'filing_date' in df.columns:
-        df['_year'] = pd.to_datetime(df['filing_date'], errors='coerce').dt.year
-    else:
-        return {"years": []}
-
-    df = df[df['_year'].notna()]
-    grouped = df.groupby('_year').agg(
-        total=('decision_clean', 'count'),
-        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
-    )
-    grouped['approval_rate'] = grouped['approved'] / grouped['total']
-
-    years = []
-    for year, row in grouped.sort_index().iterrows():
-        years.append({
-            "year": int(year),
-            "total_cases": int(row['total']),
-            "approved": int(row['approved']),
-            "denied": int(row['total'] - row['approved']),
-            "approval_rate": round(float(row['approval_rate']), 3),
-        })
-
-    return {"years": years}
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        if 'source_pdf' in df.columns:
+            df['_year'] = df['source_pdf'].str.extract(r'(20\d{2})').astype(float)
+        elif 'filing_date' in df.columns:
+            df['_year'] = pd.to_datetime(df['filing_date'], errors='coerce').dt.year
+        else:
+            return {"years": []}
+        df = df[df['_year'].notna()]
+        grouped = df.groupby('_year').agg(
+            total=('decision_clean', 'count'),
+            approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+        ).reset_index()
+        grouped['denied'] = grouped['total'] - grouped['approved']
+        grouped['approval_rate'] = (grouped['approved'] / grouped['total']).round(3)
+        grouped['year'] = grouped['_year'].astype(int)
+        grouped['total_cases'] = grouped['total']
+        years = grouped.drop(columns=['_year']).sort_values('year').to_dict('records')
+        return {"years": years}
+    return _cached("trends", _compute)
 
 
 @router.get("/denial_patterns")
@@ -280,6 +333,7 @@ def denial_patterns():
                     "denied_rate": round(den_rate, 3),
                     "difference": round(diff, 3),
                     "direction": "favors_approval" if diff > 0 else "favors_denial",
+                    "type": "rate",
                 })
 
     if 'num_variances' in df.columns:
@@ -287,10 +341,13 @@ def denial_patterns():
         avg_den = float(denied['num_variances'].fillna(0).mean())
         patterns.append({
             "factor": "Average Variance Count",
+            "approved_avg": round(avg_app, 2),
+            "denied_avg": round(avg_den, 2),
             "approved_rate": round(avg_app, 2),
             "denied_rate": round(avg_den, 2),
             "difference": round(avg_app - avg_den, 2),
             "direction": "more_variances_denied" if avg_den > avg_app else "fewer_variances_denied",
+            "type": "average",
         })
 
     patterns.sort(key=lambda x: -abs(x['difference']))
@@ -365,66 +422,44 @@ def proviso_stats():
 
 
 @router.get("/timeline_stats")
-def timeline_stats():
-    """How long ZBA decisions take — filing to decision date."""
-    df = _require_data()
-    df = df[df['decision_clean'].notna()].copy()
+def timeline_stats(ward: str = None, appeal_type: str = None):
+    """Real ZBA timeline statistics from 14K+ tracker records.
 
-    if 'filing_date' not in df.columns:
-        return {"message": "No filing date data available", "stats": {}}
+    Returns median, 25th, and 75th percentile days for each phase:
+    - filing_to_hearing: Time from application to first hearing
+    - hearing_to_decision: Time from hearing to final vote
+    - filing_to_decision: Total time from filing to decision
+    - filing_to_closed: Total time from filing to case closure
 
-    df['_filing_dt'] = pd.to_datetime(df['filing_date'], errors='coerce')
+    Optional filters: ward (1-22), appeal_type (Zoning, Building)
+    """
+    if _timeline_stats is None:
+        raise HTTPException(status_code=503, detail="Timeline data not loaded")
 
-    if 'source_pdf' in df.columns:
-        df['_decision_dt'] = pd.to_datetime(
-            df['source_pdf'].str.extract(r'Filed (.+?)\.pdf')[0],
-            errors='coerce'
-        )
-    else:
-        df['_decision_dt'] = pd.NaT
-
-    has_both = df[df['_filing_dt'].notna() & df['_decision_dt'].notna()].copy()
-    if len(has_both) == 0:
-        return {"message": "Insufficient date data for timeline analysis", "stats": {}}
-
-    has_both['_days'] = (has_both['_decision_dt'] - has_both['_filing_dt']).dt.days
-    has_both = has_both[(has_both['_days'] > 0) & (has_both['_days'] < 1100)]
-
-    if len(has_both) == 0:
-        return {"message": "No valid timelines computed", "stats": {}}
-
-    overall = {
-        "cases_with_timeline": int(len(has_both)),
-        "median_days": int(has_both['_days'].median()),
-        "mean_days": int(has_both['_days'].mean()),
-        "p25_days": int(has_both['_days'].quantile(0.25)),
-        "p75_days": int(has_both['_days'].quantile(0.75)),
-        "min_days": int(has_both['_days'].min()),
-        "max_days": int(has_both['_days'].max()),
+    result = {
+        "overall": _timeline_stats.get("overall", {}),
     }
 
-    by_decision = {}
-    for dec in ['APPROVED', 'DENIED']:
-        subset = has_both[has_both['decision_clean'] == dec]
-        if len(subset) >= 5:
-            by_decision[dec.lower()] = {
-                "count": int(len(subset)),
-                "median_days": int(subset['_days'].median()),
-                "mean_days": int(subset['_days'].mean()),
-            }
+    if ward:
+        try:
+            ward_str = str(int(float(ward)))
+        except (ValueError, TypeError):
+            ward_str = str(ward).strip()
+        ward_data = _timeline_stats.get("by_ward", {}).get(ward_str)
+        if ward_data:
+            result["ward"] = {"ward": ward_str, "phases": ward_data}
+        else:
+            result["ward"] = {"ward": ward_str, "note": "Insufficient data for this ward"}
 
-    by_ward = []
-    if 'ward' in has_both.columns:
-        ward_grp = has_both.groupby('ward')['_days'].agg(['median', 'count'])
-        for w, row in ward_grp[ward_grp['count'] >= 5].iterrows():
-            try:
-                by_ward.append({
-                    "ward": str(int(float(w))),
-                    "median_days": int(row['median']),
-                    "cases": int(row['count']),
-                })
-            except (ValueError, TypeError):
-                pass
-        by_ward.sort(key=lambda x: x['median_days'])
+    if appeal_type:
+        atype_data = _timeline_stats.get("by_appeal_type", {}).get(appeal_type)
+        if atype_data:
+            result["appeal_type"] = {"type": appeal_type, "phases": atype_data}
+        else:
+            result["appeal_type"] = {"type": appeal_type, "note": "No data for this appeal type"}
 
-    return {"overall": overall, "by_decision": by_decision, "by_ward": by_ward}
+    # Include all wards summary for comparison
+    result["wards_available"] = sorted(_timeline_stats.get("by_ward", {}).keys(), key=lambda x: int(x))
+    result["appeal_types_available"] = sorted(_timeline_stats.get("by_appeal_type", {}).keys())
+
+    return result

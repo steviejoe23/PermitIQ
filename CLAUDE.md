@@ -253,6 +253,59 @@ overnight_rebuild.py      — Full pipeline: OCR all PDFs → rebuild → retrai
 83. /wards/all — single call replaces 22 sequential calls
 84. /stats, /autocomplete, /model_info restored after monolith split
 
+**Session 4 — Model Accuracy Improvements (March 28, 2026):**
+85. Downloaded 11 missing PDFs from boston.gov (275 total, up from 263)
+86. OCR processing 11 new PDFs (~700+ new cases)
+87. XGBoost added as model candidate (pip install xgboost)
+88. Composite model selection: 0.6*AUC + 0.4*DenialRecall (prevents "everything approved" models)
+89. `is_building_appeal` feature — Building appeals 58% vs Zoning 91% approval (#5 feature)
+90. Full year coverage from tracker dates — year_recency went from 55% → 100% coverage
+91. Broader project type patterns for tracker descriptions (change of occupancy, erect, etc.)
+92. Better units/stories extraction from tracker descriptions (1,235 units, 1,718 stories extracted)
+93. 3 meta-features: project_complexity, total_violations, num_features_active
+94. Smart dedup: OCR cases preferred over tracker (richer features)
+95. Feature richness weighting: tracker cases get 0.3x weight
+96. Model improved: AUC 0.7269 → 0.7665, CV AUC 0.7320 → 0.7706, Brier 0.0957 → 0.0912
+97. 61 features (up from 57), 13,308 unique cases, Gradient Boosting winner
+
+**Session 5 — Model Architecture & Honest Evaluation (March 28, 2026):**
+98. Stacking ensemble — XGBoost_Deep + GB + RF with balanced LR meta-learner, 5-fold OOF
+99. Feature selection — removes 22 noise features (<0.002 importance), auto-retrains
+100. XGBoost_Deep variant — deeper trees (max_depth=7), more regularization
+101. Honest CV — recomputes target encoding within each fold (reveals 0.06 inflation in simple CV)
+102. Simple CV AUC: 0.8284, **Honest CV AUC: 0.7686** (the true generalizable performance)
+103. **Test AUC: 0.7728** (stacking ensemble, +0.0063 over best individual model)
+104. **Denial Recall: 63.2%** (catches 2/3 of denials, up from 56.7% individual model)
+105. Brier Score: 0.0906 (well-calibrated after Platt scaling)
+106. Manual Platt scaling fallback for custom model classes
+107. API updated: contact_win_rate, ward_zoning_rate, year_ward_rate now served from model package
+108. feature_builder.py synced to 70 features (was 65)
+109. New features: prior_permits_log, contact_x_appeal, attorney_x_building, many_variances, has_property_data
+110. Model package now saves all rate dictionaries (contact_win_rates, ward_zoning_rates, year_ward_rates)
+111. Tested and rejected: LOO target encoding (killed signal — AUC dropped to 0.58), higher smoothing (reduced signal)
+
+**Session 6 — Data Quality & Product Polish (March 29, 2026):**
+112. Scraped 1,485 ZBA hearing agendas from boston.gov (scrape_zba_agendas.py) — pre-hearing variance data
+113. Improved variance extraction for denied cases (reextract_denied_variances.py) — +159 denied cases filled
+114. Inferred variances from tracker descriptions + zoning limits (infer_denied_variances.py) — +461 denied cases
+115. Variance coverage: 47% → 69% overall, denied 44% → 74%
+116. **Model: AUC 0.7727 → 0.7987 (+0.026), Honest CV 0.7686 → 0.7910, Denial Recall 63.2% → 69.7%**
+117. Downloaded BPDA Zoning Subdistricts (1,640 polygons, 286 unique subdistricts)
+118. Rebuilt boston_parcels_zoning.geojson with granular subdistricts (EBR-3 not "3A-3C")
+119. /zoning/{parcel_id} now returns subdistrict, subdistrict_type, neighborhood, data_source
+120. /zoning/check_compliance rewritten — uses SAME subdistrict requirements as /zoning endpoint (was inconsistent)
+121. _get_parcel_zoning() — single source of truth for all zoning endpoints
+122. Overlay districts: GCOD (10,069 parcels) and Coastal Flood (9,195 parcels) flagged in GeoJSON and API
+123. /zoning/check_compliance returns overlay_warnings for GCOD and Coastal Flood
+124. key_factors computed from REAL historical data (was hardcoded "~18%", "68%")
+125. SHAP labels human-readable: "Recent approval trend in this ward" not "Year Ward Rate"
+126. Similar cases: stratified sampling includes 1-2 denied cases for contrast
+127. variance_history integrated into /analyze_proposal response (real rates for exact combo)
+128. Actionable recommendations in /analyze_proposal — "hire attorney", "reduce units", "add parking", etc.
+129. Timeline from real tracker data — median 142 days, by phase (filing→hearing→decision), by ward
+130. Frontend: historical analysis section, subdistrict display, color-coded similar cases, SHAP labels
+131. Tested and rejected: agenda features in model (added noise, AUC dropped 0.006 — rolled back)
+
 ### Known Issues / TODO
 - ~~Frontend `API_URL` is hardcoded to localhost~~ → FIXED
 - ~~No structured logging anywhere~~ → FIXED
@@ -271,7 +324,18 @@ overnight_rebuild.py      — Full pipeline: OCR all PDFs → rebuild → retrai
 - ~~API monolith too large~~ → FIXED (market_intel router, 794 lines extracted)
 - ~~No PostGIS~~ → FIXED (88K parcels, spatial index, API uses DB first)
 - ~~No version control~~ → FIXED (GitHub private repo)
-- AUC will drop after retrain with clean features (expected: 0.70-0.82, was inflated to 0.94 by leakage)
+- ~~AUC will drop after retrain with clean features~~ → Settled at honest test AUC 0.7728, honest CV 0.7686
+- ~~CV AUC inflated by target encoding leakage~~ → FIXED (honest CV recomputes TE within folds)
+- ~~Model ceiling ~0.77 AUC~~ → Pushed to **0.7987** with enriched denial data
+- ~~Zoning districts too coarse (3A-3C)~~ → FIXED (286 granular subdistricts from BPDA)
+- ~~Q1/Q2 inconsistency~~ → FIXED (_get_parcel_zoning single source of truth)
+- ~~Hardcoded key_factors~~ → FIXED (computed from real historical data)
+- ~~Cryptic SHAP labels~~ → FIXED (human-readable FEATURE_LABELS dict)
+- ~~Similar cases all APPROVED~~ → FIXED (stratified sampling includes denied)
+- ~~Timeline hardcoded 120 days~~ → FIXED (real tracker data, by phase, by ward)
+- ~~No overlay district awareness~~ → FIXED (GCOD + Coastal Flood flagged)
+- ~~No actionable recommendations~~ → FIXED (attorney, units, parking, project type advice)
+- 490 denied cases still have no variance data (no tracker description, no OCR text)
 - `proj_*` columns not in current CSV (will be added after OCR retrain)
 - Need manual OCR quality audit (sample 50 cases vs original PDFs)
 - Customer segment and pricing model undefined (business decision)
