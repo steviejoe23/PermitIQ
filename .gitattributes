@@ -1,4 +1,0 @@
-zba_cases_cleaned.csv filter=lfs diff=lfs merge=lfs -text
-boston_parcels_zoning.geojson filter=lfs diff=lfs merge=lfs -text
-property_assessment_fy2026.csv filter=lfs diff=lfs merge=lfs -text
-api/zba_model.pkl filter=lfs diff=lfs merge=lfs -text
