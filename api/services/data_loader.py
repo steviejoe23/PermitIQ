@@ -160,20 +160,26 @@ def _build_case_coords():
 def _log_memory(label: str):
     """Log current RSS memory usage."""
     try:
-        import resource
-        rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)  # macOS
+        # Linux: read from /proc (most reliable)
+        with open('/proc/self/status') as f:
+            for line in f:
+                if line.startswith('VmRSS:'):
+                    rss_kb = int(line.split()[1])
+                    logger.info("Memory [%s]: %.0f MB RSS", label, rss_kb / 1024)
+                    return
+    except Exception:
+        pass
+    try:
+        import resource, platform
+        maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        # macOS returns bytes, Linux returns KB
+        if platform.system() == 'Darwin':
+            rss_mb = maxrss / (1024 * 1024)
+        else:
+            rss_mb = maxrss / 1024
         logger.info("Memory [%s]: %.0f MB RSS", label, rss_mb)
     except Exception:
-        try:
-            # Linux: /proc/self/status
-            with open('/proc/self/status') as f:
-                for line in f:
-                    if line.startswith('VmRSS:'):
-                        rss_kb = int(line.split()[1])
-                        logger.info("Memory [%s]: %.0f MB RSS", label, rss_kb / 1024)
-                        return
-        except Exception:
-            pass
+        pass
 
 
 def load_all(market_init=None, attorney_init=None, variance_types=None, project_types=None):
@@ -200,9 +206,12 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
 
     try:
         state.zba_df = pd.read_csv(ZBA_DATA_PATH, low_memory=False)
+        if light_mode and 'raw_text' in state.zba_df.columns:
+            state.zba_df = state.zba_df.drop(columns=['raw_text'])
+            logger.info("Dropped raw_text column to save memory")
         if 'address_clean' in state.zba_df.columns:
             state.zba_df['_addr_norm'] = state.zba_df['address_clean'].apply(normalize_address)
-        logger.info("ZBA dataset loaded (%d cases)", len(state.zba_df))
+        logger.info("ZBA dataset loaded (%d cases, %d cols)", len(state.zba_df), len(state.zba_df.columns))
     except Exception as e:
         logger.error("Failed to load ZBA dataset: %s", e)
     gc.collect()
