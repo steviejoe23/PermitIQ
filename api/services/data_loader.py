@@ -160,7 +160,9 @@ def _build_case_coords():
 def load_all(market_init=None, attorney_init=None, variance_types=None, project_types=None):
     """Load all data into state module. Called once at startup."""
     import gc
-    light_mode = os.environ.get('PERMITIQ_LIGHT_MODE', '').lower() in ('1', 'true', 'yes')
+    light_mode_val = os.environ.get('PERMITIQ_LIGHT_MODE', '')
+    light_mode = light_mode_val.lower() in ('1', 'true', 'yes')
+    logger.info("PERMITIQ_LIGHT_MODE=%r, light_mode=%s", light_mode_val, light_mode)
     if light_mode:
         logger.info("LIGHT MODE enabled — skipping GeoJSON to conserve memory")
 
