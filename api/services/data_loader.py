@@ -217,15 +217,18 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
     gc.collect()
     _log_memory("after zba")
 
-    try:
-        state.model_package = joblib.load(MODEL_PATH)
-        model_name = state.model_package.get('model_name', 'unknown')
-        auc = state.model_package.get('auc_score', 0)
-        n_features = len(state.model_package.get('feature_cols', []))
-        logger.info("ML model loaded (%s, AUC: %.4f, %d features)", model_name, auc, n_features)
-    except Exception as e:
-        logger.warning("No trained model found, using fallback logic: %s", e)
-    gc.collect()
+    if light_mode:
+        logger.info("LIGHT MODE — skipping ML model to conserve memory (using fallback logic)")
+    else:
+        try:
+            state.model_package = joblib.load(MODEL_PATH)
+            model_name = state.model_package.get('model_name', 'unknown')
+            auc = state.model_package.get('auc_score', 0)
+            n_features = len(state.model_package.get('feature_cols', []))
+            logger.info("ML model loaded (%s, AUC: %.4f, %d features)", model_name, auc, n_features)
+        except Exception as e:
+            logger.warning("No trained model found, using fallback logic: %s", e)
+        gc.collect()
     _log_memory("after model")
 
     if not light_mode:
