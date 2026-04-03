@@ -59,7 +59,14 @@ def all_ward_stats():
     def _compute():
         df = _require_data()
         df = df[df['decision_clean'].notna()].copy()
-        df['_ward_clean'] = df['ward'].apply(lambda w: str(int(float(w))) if pd.notna(w) else None)
+        def _safe_ward(w):
+            if pd.isna(w):
+                return None
+            try:
+                return str(int(float(w)))
+            except (ValueError, TypeError):
+                return None
+        df['_ward_clean'] = df['ward'].apply(_safe_ward)
         df = df[df['_ward_clean'].notna()]
 
         grouped = df.groupby('_ward_clean').agg(

@@ -78,3 +78,9 @@ docker-compose.override.yml
 
 # Claude settings (local only)
 .claude/settings.local.json
+
+# Memory (may contain credentials or personal notes)
+memory/
+
+# Auth usage logs
+api/usage.log

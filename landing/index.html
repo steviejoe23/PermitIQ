@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PermitIQ — Know If You'll Win Before You File</title>
+    <meta name="description" content="PermitIQ predicts ZBA approval probability using ML trained on 7,500+ real Boston decisions. Stop guessing. Start knowing.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d0d1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-card-hover: #1a2744;
+            --accent: #4f8cff;
+            --accent-bright: #6fa3ff;
+            --accent-glow: rgba(79, 140, 255, 0.15);
+            --text-primary: #e8eaf0;
+            --text-secondary: #9ca3b4;
+            --text-muted: #6b7280;
+            --border: rgba(255, 255, 255, 0.06);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --gradient-accent: linear-gradient(135deg, #4f8cff 0%, #7c5cfc 100%);
+            --gradient-hero: linear-gradient(160deg, #0d0d1a 0%, #1a1a2e 40%, #16213e 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- NAV --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(13, 13, 26, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+
+        .nav-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            background: var(--gradient-accent);
+            color: #fff !important;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .nav-cta:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--text-primary);
+            margin: 5px 0;
+            transition: 0.3s;
+        }
+
+        /* --- SECTIONS --- */
+        section {
+            padding: 6rem 2rem;
+        }
+
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 640px;
+            line-height: 1.7;
+        }
+
+        /* --- HERO --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+            padding-top: 64px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 60% 40%, rgba(79, 140, 255, 0.06) 0%, transparent 60%),
+                        radial-gradient(ellipse at 30% 70%, rgba(124, 92, 252, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(79, 140, 255, 0.1);
+            border: 1px solid rgba(79, 140, 255, 0.2);
+            border-radius: 100px;
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent-bright);
+            margin-bottom: 2rem;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.25rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--gradient-accent);
+            color: #fff;
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 24px rgba(79, 140, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.92;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(79, 140, 255, 0.35);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: transparent;
+            color: var(--text-primary);
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            margin-top: 4rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .hero-stat .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* --- PROBLEM --- */
+        .problem {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 3rem;
+        }
+
+        .problem-text h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .problem-text p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .pain-points {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .pain-points li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .pain-points .icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .comparison-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .comparison-header {
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .comparison-cell {
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-cell:first-child {
+            border-right: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .comparison-cell:last-child {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .comparison-cell.highlight {
+            color: var(--accent-bright);
+            font-weight: 600;
+        }
+
+        .comparison-row:last-child .comparison-cell {
+            border-bottom: none;
+        }
+
+        /* --- HOW IT WORKS --- */
+        .how-it-works {
+            background: var(--bg-primary);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .step:hover {
+            border-color: rgba(79, 140, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .step h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+        }
+
+        .step p {
+            color: var(--text-secondary);
+            font-size: 0.925rem;
+            line-height: 1.7;
+        }
+
+        .step-arrow {
+            display: none;
+        }
+
+        /* --- STATS --- */
+        .stats {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(79, 140, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .stat-value {
+            font-size: 2.75rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .stat-detail {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* --- FEATURES --- */
+        .features {
+            background: var(--bg-primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.75rem;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(79, 140, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--accent-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            font-size: 1.25rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+
+        /* --- PERSONAS --- */
+        .personas {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .personas-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .persona-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .persona-card:hover {
+            border-color: rgba(79, 140, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .persona-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: var(--accent-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            font-size: 1.75rem;
+        }
+
+        .persona-card h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .persona-card .role {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .persona-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* --- PRICING --- */
+        .pricing {
+            background: var(--bg-primary);
+            text-align: center;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+            align-items: start;
+        }
+
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            transition: border-color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent);
+            box-shadow: 0 0 40px rgba(79, 140, 255, 0.1);
+        }
+
+        .pricing-card.featured::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-accent);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+        }
+
+        .pricing-tier {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .pricing-price .period {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .pricing-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features li {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .pricing-features .check {
+            color: var(--success);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .pricing-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-size: 0.925rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: opacity 0.2s, transform 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .pricing-btn.primary {
+            background: var(--gradient-accent);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(79, 140, 255, 0.2);
+        }
+
+        .pricing-btn.secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .pricing-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* --- CTA --- */
+        .cta-section {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+        }
+
+        .footer-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-left {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .footer-left .brand {
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-secondary);
+        }
+
+        /* --- SCROLL ANIMATIONS --- */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .animate-on-scroll.delay-1 { transition-delay: 0.1s; }
+        .animate-on-scroll.delay-2 { transition-delay: 0.2s; }
+        .animate-on-scroll.delay-3 { transition-delay: 0.3s; }
+        .animate-on-scroll.delay-4 { transition-delay: 0.4s; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                right: 0;
+                background: rgba(13, 13, 26, 0.98);
+                backdrop-filter: blur(16px);
+                padding: 1.5rem 2rem;
+                gap: 1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .hamburger { display: block; }
+            .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+            .problem-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .steps { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .features-grid { grid-template-columns: 1fr; }
+            .personas-grid { grid-template-columns: 1fr; }
+            .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+            .section-title { font-size: 2rem; }
+        }
+
+        @media (max-width: 600px) {
+            section { padding: 4rem 1.25rem; }
+            nav { padding: 0 1.25rem; }
+            .hero-stats { flex-direction: column; gap: 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .footer-inner { flex-direction: column; text-align: center; }
+            .footer-links { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="#" class="nav-logo">Permit<span>IQ</span></a>
+    <ul class="nav-links" id="navLinks">
+        <li><a href="#problem">Problem</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="mailto:steve@permitiq.com" class="nav-cta">Request Access</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            Trained on every Boston ZBA decision since 2020
+        </div>
+        <h1>Know if you'll <span class="gradient-text">win</span> before you file.</h1>
+        <p>PermitIQ predicts ZBA approval probability using ML trained on 7,500+ real Boston decisions. Stop spending $100K to find out the answer is no.</p>
+        <div class="hero-buttons">
+            <a href="mailto:steve@permitiq.com" class="btn-primary">
+                Request Early Access
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#how-it-works" class="btn-secondary">See How It Works</a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="number">7,500+</div>
+                <div class="label">ZBA Decisions</div>
+            </div>
+            <div class="hero-stat">
+                <div class="number">98,510</div>
+                <div class="label">Parcels Mapped</div>
+            </div>
+            <div class="hero-stat">
+                <div class="number">80%</div>
+                <div class="label">Model AUC</div>
+            </div>
+            <div class="hero-stat">
+                <div class="number">1% ECE</div>
+                <div class="label">Calibration Error</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+    <div class="container">
+        <div class="animate-on-scroll">
+            <span class="section-label">The Problem</span>
+            <h2 class="section-title">Developers are flying blind.</h2>
+            <p class="section-subtitle">The ZBA process is opaque, political, and expensive. You only learn the answer after you've spent the money.</p>
+        </div>
+        <div class="problem-grid">
+            <div class="problem-text animate-on-scroll delay-1">
+                <h3>$30-100K at risk. Zero insight.</h3>
+                <p>Every development project in Boston that needs a zoning variance goes before the ZBA. Developers hire lawyers, architects, and consultants before they have any idea what the board will say.</p>
+                <ul class="pain-points">
+                    <li>
+                        <span class="icon">$</span>
+                        <span>$30-100K in legal and filing costs before a single vote</span>
+                    </li>
+                    <li>
+                        <span class="icon">?</span>
+                        <span>No way to assess approval probability before filing</span>
+                    </li>
+                    <li>
+                        <span class="icon">!</span>
+                        <span>Political dynamics invisible to outsiders</span>
+                    </li>
+                    <li>
+                        <span class="icon">X</span>
+                        <span>Competitors tell you the rules, not whether you'll win</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="comparison-card animate-on-scroll delay-2">
+                <div class="comparison-header">PermitIQ vs. Existing Tools</div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Capability</div>
+                    <div class="comparison-cell" style="font-weight:600; color: var(--text-muted);">UrbanForm / Zoneomics</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Zoning rules lookup</div>
+                    <div class="comparison-cell">Yes</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Compliance check</div>
+                    <div class="comparison-cell">Basic</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Approval prediction</div>
+                    <div class="comparison-cell" style="color: var(--danger);">No</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Similar case analysis</div>
+                    <div class="comparison-cell" style="color: var(--danger);">No</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Attorney win rates</div>
+                    <div class="comparison-cell" style="color: var(--danger);">No</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">What-if scenarios</div>
+                    <div class="comparison-cell" style="color: var(--danger);">No</div>
+                </div>
+
+                <div class="comparison-header" style="border-top: 2px solid var(--accent); color: var(--accent);">PermitIQ</div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">All of the above</div>
+                    <div class="comparison-cell highlight">Yes &mdash; plus ML prediction</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <div class="animate-on-scroll" style="text-align:center;">
+            <span class="section-label">How It Works</span>
+            <h2 class="section-title">Three steps to your answer.</h2>
+            <p class="section-subtitle" style="margin:0 auto;">Enter an address, describe your project, and get an ML-powered risk assessment in seconds.</p>
+        </div>
+        <div class="steps">
+            <div class="step animate-on-scroll delay-1">
+                <div class="step-number">1</div>
+                <h3>Enter your address</h3>
+                <p>Instant zoning analysis, parcel data, and auto-detected variances from public records. We know what violations your parcel already has before you tell us anything.</p>
+            </div>
+            <div class="step animate-on-scroll delay-2">
+                <div class="step-number">2</div>
+                <h3>Describe your project</h3>
+                <p>Tell us the use type, height, units, and scope. Our compliance engine identifies every variance you'll need and checks against 286 zoning subdistricts.</p>
+            </div>
+            <div class="step animate-on-scroll delay-3">
+                <div class="step-number">3</div>
+                <h3>Get your probability</h3>
+                <p>ML prediction with confidence intervals, similar historical cases, attorney recommendations, and what-if scenarios showing how to improve your odds.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<section class="stats" id="stats">
+    <div class="container">
+        <div class="animate-on-scroll">
+            <span class="section-label">By The Numbers</span>
+            <h2 class="section-title">Built on real data, not rules of thumb.</h2>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card animate-on-scroll delay-1">
+                <div class="stat-value">7,500+</div>
+                <div class="stat-label">ZBA Decisions Analyzed</div>
+                <div class="stat-detail">Every decision from 2020 to 2026</div>
+            </div>
+            <div class="stat-card animate-on-scroll delay-2">
+                <div class="stat-value">98,510</div>
+                <div class="stat-label">Boston Parcels Mapped</div>
+                <div class="stat-detail">Full city coverage with zoning data</div>
+            </div>
+            <div class="stat-card animate-on-scroll delay-3">
+                <div class="stat-value">48</div>
+                <div class="stat-label">ML Features Per Prediction</div>
+                <div class="stat-detail">Variance types, location, legal, scale</div>
+            </div>
+            <div class="stat-card animate-on-scroll delay-4">
+                <div class="stat-value">80%</div>
+                <div class="stat-label">Model AUC</div>
+                <div class="stat-detail">Honest cross-validated accuracy</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+    <div class="container">
+        <div class="animate-on-scroll" style="text-align:center;">
+            <span class="section-label">Capabilities</span>
+            <h2 class="section-title">Everything you need to assess risk.</h2>
+            <p class="section-subtitle" style="margin:0 auto;">From zoning lookup to ML-powered approval prediction, in one platform.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll delay-1">
+                <div class="feature-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3>Auto-Detect Parcel Variances</h3>
+                <p>Public records tell us what violations a parcel already has. We flag them before you even describe your project.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-2">
+                <div class="feature-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+                </div>
+                <h3>Historical Approval Rates</h3>
+                <p>Approval rates by variance type, ward, zoning district, attorney, and project type. Real data from 7,500+ cases.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-3">
+                <div class="feature-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5"/></svg>
+                </div>
+                <h3>What-If Scenario Analysis</h3>
+                <p>Change the attorney, reduce units, swap project type. See exactly how each change affects your probability.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-1">
+                <div class="feature-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <h3>Attorney Leaderboard</h3>
+                <p>Win rates, case counts, ward specialties, and variance expertise for every attorney who has appeared before the ZBA.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-2">
+                <div class="feature-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <h3>Risk Assessment Reports</h3>
+                <p>Downloadable, professional reports with prediction, confidence intervals, similar cases, and recommendations. Ready for investor decks.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-3">
+                <div class="feature-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </div>
+                <h3>API Access</h3>
+                <p>RESTful API with 33 endpoints. Integrate predictions, parcel data, and zoning analysis into your own tools and workflows.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PERSONAS -->
+<section class="personas" id="personas">
+    <div class="container">
+        <div class="animate-on-scroll" style="text-align:center;">
+            <span class="section-label">Who It's For</span>
+            <h2 class="section-title">Built for the people who need it most.</h2>
+        </div>
+        <div class="personas-grid">
+            <div class="persona-card animate-on-scroll delay-1">
+                <div class="persona-avatar">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                </div>
+                <h3>Real Estate Developers</h3>
+                <div class="role">De-risk before you invest</div>
+                <p>Know your approval probability before hiring lawyers and architects. Compare sites, optimize project parameters, and build the strongest possible application.</p>
+            </div>
+            <div class="persona-card animate-on-scroll delay-2">
+                <div class="persona-avatar">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                </div>
+                <h3>Zoning Attorneys</h3>
+                <div class="role">Win more cases</div>
+                <p>Benchmark your track record, identify your strongest wards and variance types, and use data-backed insights to counsel clients more effectively.</p>
+            </div>
+            <div class="persona-card animate-on-scroll delay-3">
+                <div class="persona-avatar">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <h3>Real Estate Investors</h3>
+                <div class="role">Quantify entitlement risk</div>
+                <p>Score parcels by development potential. Understand which properties can be rezoned, what variances are realistic, and where the upside is.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+    <div class="container">
+        <div class="animate-on-scroll">
+            <span class="section-label">Pricing</span>
+            <h2 class="section-title">Start free. Scale when you're ready.</h2>
+            <p class="section-subtitle" style="margin:0 auto;">One prediction can save you $50K in wasted filings. What's that worth?</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card animate-on-scroll delay-1">
+                <div class="pricing-tier">Explorer</div>
+                <div class="pricing-price">Free</div>
+                <div class="pricing-desc">Get started with basic zoning lookups</div>
+                <ul class="pricing-features">
+                    <li><span class="check">&#10003;</span> 5 lookups per month</li>
+                    <li><span class="check">&#10003;</span> Basic zoning info</li>
+                    <li><span class="check">&#10003;</span> Parcel mapping</li>
+                    <li><span class="check">&#10003;</span> Historical case search</li>
+                </ul>
+                <a href="mailto:steve@permitiq.com" class="pricing-btn secondary">Get Started</a>
+            </div>
+            <div class="pricing-card featured animate-on-scroll delay-2">
+                <div class="pricing-tier">Pro</div>
+                <div class="pricing-price">$199<span class="period">/mo</span></div>
+                <div class="pricing-desc">Full prediction and analysis platform</div>
+                <ul class="pricing-features">
+                    <li><span class="check">&#10003;</span> Unlimited predictions</li>
+                    <li><span class="check">&#10003;</span> Confidence intervals</li>
+                    <li><span class="check">&#10003;</span> What-if scenarios</li>
+                    <li><span class="check">&#10003;</span> Attorney intelligence</li>
+                    <li><span class="check">&#10003;</span> Downloadable reports</li>
+                    <li><span class="check">&#10003;</span> Compliance analysis</li>
+                </ul>
+                <a href="mailto:steve@permitiq.com" class="pricing-btn primary">Request Access</a>
+            </div>
+            <div class="pricing-card animate-on-scroll delay-3">
+                <div class="pricing-tier">Enterprise</div>
+                <div class="pricing-price">Custom</div>
+                <div class="pricing-desc">API access and team features</div>
+                <ul class="pricing-features">
+                    <li><span class="check">&#10003;</span> Everything in Pro</li>
+                    <li><span class="check">&#10003;</span> REST API access</li>
+                    <li><span class="check">&#10003;</span> Batch predictions (50+)</li>
+                    <li><span class="check">&#10003;</span> White-label reports</li>
+                    <li><span class="check">&#10003;</span> Dedicated support</li>
+                    <li><span class="check">&#10003;</span> Custom integrations</li>
+                </ul>
+                <a href="mailto:steve@permitiq.com" class="pricing-btn secondary">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container animate-on-scroll">
+        <h2>Stop guessing. Start knowing.</h2>
+        <p>Join the early access list and be the first to predict your next ZBA outcome.</p>
+        <a href="mailto:steve@permitiq.com" class="btn-primary">
+            Request Early Access
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-left">
+            <span class="brand">PermitIQ</span> &middot; Boston, MA &middot; &copy; 2026 All rights reserved.
+        </div>
+        <ul class="footer-links">
+            <li><a href="mailto:steve@permitiq.com">Contact</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="https://github.com/steviejoe23/PermitIQ">GitHub</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script>
+    // Mobile menu toggle
+    document.getElementById('hamburger').addEventListener('click', function() {
+        document.getElementById('navLinks').classList.toggle('open');
+    });
+
+    // Close mobile menu on link click
+    document.querySelectorAll('.nav-links a').forEach(function(link) {
+        link.addEventListener('click', function() {
+            document.getElementById('navLinks').classList.remove('open');
+        });
+    });
+
+    // Scroll animations
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(function(el) {
+        observer.observe(el);
+    });
+
+    // Smooth nav background on scroll
+    var nav = document.querySelector('nav');
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 20) {
+            nav.style.background = 'rgba(13, 13, 26, 0.95)';
+        } else {
+            nav.style.background = 'rgba(13, 13, 26, 0.85)';
+        }
+    });
+</script>
+
+</body>
+</html>

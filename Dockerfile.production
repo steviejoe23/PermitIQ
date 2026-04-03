@@ -1,0 +1,37 @@
+FROM python:3.9-slim
+
+# Install system deps for tesseract, gdal (geopandas), and curl (healthcheck)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr \
+    libgdal-dev \
+    gcc \
+    g++ \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python deps first (layer caching)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY api/ api/
+
+# Copy data files into the image for Railway (no volume mounts)
+# These make the image ~500MB but avoid needing external storage for MVP
+COPY zba_cases_cleaned.csv .
+COPY boston_parcels_zoning.geojson .
+COPY property_assessment_fy2026.csv .
+
+# Model file lives inside api/
+# (api/zba_model.pkl is already copied with the api/ directory above)
+
+# Railway sets PORT dynamically — do not hardcode
+ENV PYTHONUNBUFFERED=1
+
+# Expose placeholder port (Railway overrides with $PORT)
+EXPOSE 8000
+
+# Default command — Railway overrides this via railway.toml startCommand
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

@@ -118,19 +118,48 @@ def audit():
         print(f"  Has filing_date: {has_date} ({has_date/len(df):.0%})")
         print(f"  Parseable dates: {parseable} ({parseable/len(df):.0%})")
 
-    # Summary
+    # 7. Source breakdown
+    print("\n--- DATA SOURCE BREAKDOWN ---")
+    ocr_count = tracker_count = 0
+    if 'raw_text' in df.columns:
+        long_text = df['raw_text'].dropna().str.len() > 200
+        ocr_count = long_text.sum()
+        tracker_count = len(df) - ocr_count
+        print(f"  OCR-sourced records (>200 chars text): {ocr_count}")
+        print(f"  Tracker-sourced records (short/no text): {tracker_count}")
+
+    # Summary — separate OCR quality from tracker gaps
     print("\n" + "=" * 60)
     print("  QUALITY SUMMARY")
     print("=" * 60)
 
-    total_issues = sum(issues.values())
-    print(f"\n  Total issues found: {total_issues}")
-    for name, count in sorted(issues.items(), key=lambda x: -x[1]):
+    # True quality issues (not expected tracker gaps)
+    true_issues = {
+        'address_garbage': issues.get('address_garbage', 0),
+        'decision_missing': issues.get('decision_missing', 0),
+        'text_garbage': issues.get('text_garbage', 0),
+    }
+    # Tracker-related gaps (expected, not OCR quality issues)
+    tracker_gaps = {
+        'address_missing (mostly tracker records)': issues.get('address_missing', 0),
+        'case_dupes (OCR + tracker overlap)': issues.get('case_dupes', 0),
+        'text_too_short (mostly tracker records)': issues.get('text_too_short', 0),
+    }
+
+    true_issue_count = sum(true_issues.values())
+    print(f"\n  True quality issues: {true_issue_count}")
+    for name, count in sorted(true_issues.items(), key=lambda x: -x[1]):
         if count > 0:
             print(f"    {name}: {count}")
 
-    quality_score = max(0, 100 - (total_issues / len(df) * 100))
-    print(f"\n  Overall quality score: {quality_score:.0f}/100")
+    print(f"\n  Expected tracker gaps (not quality issues):")
+    for name, count in sorted(tracker_gaps.items(), key=lambda x: -x[1]):
+        if count > 0:
+            print(f"    {name}: {count}")
+
+    # Quality score based on true issues only
+    quality_score = max(0, 100 - (true_issue_count / len(df) * 100))
+    print(f"\n  OCR Quality Score: {quality_score:.0f}/100")
 
     if quality_score >= 80:
         print("  Status: GOOD — ready for training")
@@ -138,6 +167,10 @@ def audit():
         print("  Status: FAIR — run cleanup_ocr.py before training")
     else:
         print("  Status: POOR — significant OCR issues, manual review recommended")
+
+    # Data completeness score (separate metric)
+    completeness = (len(df) - issues.get('address_missing', 0) - issues.get('decision_missing', 0)) / len(df) * 100
+    print(f"\n  Data Completeness: {completeness:.0f}% of records have address + decision")
 
 
 if __name__ == '__main__':

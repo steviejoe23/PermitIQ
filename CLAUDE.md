@@ -29,11 +29,47 @@ Competitors (UrbanForm, Zoneomics) tell you the zoning rules. PermitIQ tells you
     → train_model_v2.py               (train 3 models, pick best → zba_model_v2.pkl + api/zba_model.pkl)
 ```
 
-### Application Stack
+### Application Stack (Refactored — Session 8)
 ```
-api/main.py          — FastAPI backend (port 8000), 1053 lines
-frontend/app.py      — Streamlit frontend (port 8501), 796 lines
-api/zba_model.pkl    — Serialized model package (model + feature_cols + ward/zoning rates + metadata)
+api/
+  main.py              — App shell: FastAPI creation, middleware, startup, router includes (200 lines)
+  state.py             — Shared mutable state: gdf, zba_df, model_package, etc. (24 lines)
+  utils.py             — Pure functions: normalize_address, safe_float/int/str, haversine (162 lines)
+  constants.py         — VARIANCE_TYPES, PROJECT_TYPES, FEATURE_LABELS, DISCLAIMER (115 lines)
+  api_models.py        — Pydantic request/response models (92 lines)
+  services/
+    data_loader.py     — Startup data loading, timeline stats, case coordinate index (211 lines)
+    feature_builder.py — FEATURE_COLS list (shared with training pipeline)
+    zoning_code.py     — Zoning requirements lookup table
+    database.py        — PostGIS queries
+    model_classes.py   — Custom model class definitions for pickle deserialization
+  routes/
+    parcels.py         — GET /parcels, /nearby_cases, /geocode (273 lines)
+    search.py          — GET /search, /address/cases, /autocomplete (230 lines)
+    zoning.py          — GET /zoning, POST /compliance, /full_analysis, /variance_analysis (721 lines)
+    prediction.py      — POST /analyze_proposal, /batch_predict, /compare + feature building (882 lines)
+    platform.py        — GET /stats, /health, /model_info, /data_status (168 lines)
+    recommend.py       — GET /recommend (122 lines)
+    market_intel.py    — 12 market intelligence endpoints (465 lines)
+    attorneys.py       — Attorney search, profile, similar cases (413 lines)
+frontend/app.py        — Streamlit frontend (port 8501), 2,759 lines
+api/zba_model.pkl      — Serialized model package (model + feature_cols + ward/zoning rates + metadata)
+```
+
+### Other Project Files
+```
+landing/index.html       — Static landing page / marketing site (1,290 lines)
+normalize_decisions.py   — Decision normalization utility (180 lines)
+README.md                — Project README (115 lines)
+TASKS.md                 — Task tracking and backlog (34 lines)
+memory/                  — Structured context files for AI assistants
+  glossary.md            — Domain terminology (36 lines)
+  context/company.md     — Company context (28 lines)
+  people/michael-winston.md — Stakeholder notes (13 lines)
+  projects/permitiq.md   — Project summary (24 lines)
+docs/
+  API_GUIDE.md           — Customer-facing API quick-start guide
+  DEPLOYMENT.md          — Deployment and infrastructure guide
 ```
 
 ### Automation Scripts
@@ -335,12 +371,63 @@ overnight_rebuild.py      — Full pipeline: OCR all PDFs → rebuild → retrai
 - ~~Timeline hardcoded 120 days~~ → FIXED (real tracker data, by phase, by ward)
 - ~~No overlay district awareness~~ → FIXED (GCOD + Coastal Flood flagged)
 - ~~No actionable recommendations~~ → FIXED (attorney, units, parking, project type advice)
+**Session 7 — Full Audit, Testing & Product Hardening (March 31, 2026):**
+132. CRITICAL FIX: nearby_cases endpoint structural bug — geographic results with distances were being skipped due to indentation error, falling through to district fallback with None distances
+133. CRITICAL FIX: Compliance checker not parsing nested `proposal` objects — was catching 1/6 violations, now catches all (FAR, height, stories, lot_area, parking, conditional_use, setbacks)
+134. CRITICAL FIX: Geocoder normalization — "ave" vs "av", city/zip suffixes, directionals, suffix letters, em-dashes. Geocode rate: **34.9% → 83.9%** (6,253/7,451 addresses)
+135. CRITICAL FIX: Variance historical rates in compliance response was empty `{}` — now returns real data (e.g., "height: 91% approval, 4,240 cases")
+136. Full audit: tested all 7,451 addresses × 7 questions. **Q6 prediction: 100.0%**, Q1-Q5/Q7: 97.2%
+137. **119 integration tests** (tests/test_integration.py) covering every endpoint, edge case, security (SQL injection, XSS, unicode), and concurrency
+138. **Calibration analysis** — ECE 1.0% (excellent). 90-100% bucket: predicted 95.8%, actual 95.4%. Probabilities are trustworthy. Report at calibration_report.png/txt
+139. Calibration warnings added to API — low probability (<50%) and building appeal cases get explicit warnings
+140. Model calibration data exposed in /model_info endpoint with bucket-level trust ratings
+141. Frontend: "How trustworthy is this number?" expander with calibration explanation and trust badges
+142. **Attorney router** (api/routes/attorneys.py) — 3 new endpoints: search, profile (win rate, wards, specialties, recent cases, vs-average comparison), similar cases filtered by ward/variance
+143. Frontend: Attorney Lookup section with search, profile display, ward/variance/yearly tabs, CSV export
+144. OCR address cleanup (clean_addresses.py) — 4,328 garbage addresses nulled, 7,855 cleaned. 15 cleaning rules.
+145. Added `proposed_parking_spaces` alias in compliance checker
+146. Refactoring plan created (REFACTOR_PLAN.md) — module split strategy for main.py (3,500 lines)
+147. Auto-filled lot data no longer triggers false violations in compliance checker
+148. Compliant projects correctly return compliant:true with empty variances
+
+**Session 8 — API Refactoring (April 1, 2026):**
+149. MAJOR: Executed REFACTOR_PLAN.md — split main.py (3,550 lines) into 12 focused modules
+150. main.py: 3,550 → 200 lines (app shell only: FastAPI, middleware, startup, router includes)
+151. New shared modules: state.py (24 lines), utils.py (162), constants.py (115), api_models.py (92)
+152. New data loader: services/data_loader.py (211 lines) — extracted startup logic
+153. 6 route modules: parcels.py (273), search.py (213), zoning.py (588), prediction.py (882), platform.py (168), recommend.py (122)
+154. normalize_address isolated in utils.py — a regex bug there can no longer crash every endpoint
+155. Deleted 6 dead files: schema.py, config.py, models.py, data_loader.py (old), zoning_rules.py, boston_parcel_zoning.schema.json
+156. 33 endpoints confirmed in OpenAPI spec with correct tags
+157. 19/19 smoke tests passed, 119/119 integration tests passed
+158. No behavior changes — pure structural refactor
+
+**Session 9 — Auto-Detect Parcel Issues & Product Polish (April 1, 2026):**
+159. PRODUCT FIX: Compliance checker was suppressing auto-filled lot_area/frontage violations — now flags them with source annotation
+160. NEW: `_detect_parcel_issues()` — auto-detects zoning violations from public records (lot size vs minimums) before any proposal is entered
+161. NEW: `/zoning/{parcel_id}` now returns `parcel_issues` section: auto-detected variances, violations with sources, and proposal-dependent check list
+162. NEW: Compliance response separates `parcel_level_variances` (always needed) from `proposal_level_variances` (triggered by proposal)
+163. NEW: Search results enriched with `parcel_id` from property assessment geocoder — enables seamless search→zoning→compliance flow
+164. FIX: Range address matching in search results (e.g., "55-57 Centre St" → parcel_id for "57 Centre St")
+165. Frontend: "Parcel-Level Zoning Issues" expander with auto-detected violations, source attribution, red severity styling
+166. Frontend: Compliance violations now show parcel-level vs proposal-level breakdown with color-coded badges
+167. Frontend: Auto-loads parcel data when single search result has parcel_id (eliminates extra click)
+168. Frontend: "View Parcel" button label when parcel_id available (vs "Find Parcel" when geocode needed)
+169. All 14 compliance tests pass, 46/46 zoning/search/prediction tests pass
+
+### Known Issues / TODO
 - 490 denied cases still have no variance data (no tracker description, no OCR text)
 - `proj_*` columns not in current CSV (will be added after OCR retrain)
 - Need manual OCR quality audit (sample 50 cases vs original PDFs)
+- ~~main.py still ~3,500 lines — REFACTOR_PLAN.md has the extraction strategy~~ → FIXED (200 lines)
+- ~~Auto-filled lot data not flagging violations~~ → FIXED (now auto-detects with source annotation)
+- Building appeal predictions are ~10pp overconfident (calibration warning added)
+- Predictions below 50% have limited calibration data (31 test cases in bucket)
+- No lot_frontage data in property assessment CSV — can't auto-detect frontage violations (need additional data source or parcel polygon boundaries)
 - Customer segment and pricing model undefined (business decision)
 - Boston-only TAM too small for venture scale (expansion strategy needed)
-- PostgreSQL 18 runs on port 5432 (installed at /Library/PostgreSQL/18), password: permitiq123
+- PostgreSQL 18 runs on port 5432 (installed at /Library/PostgreSQL/18), password in PGPASSWORD env var
+- ~~Attorney/Market intel routers fail to load (module import path issue with `routes.` prefix)~~ → FIXED
 
 ## How to Run Everything
 
@@ -348,7 +435,7 @@ overnight_rebuild.py      — Full pipeline: OCR all PDFs → rebuild → retrai
 ```bash
 cd ~/Desktop/Boston\ Zoning\ Project
 make run          # Starts API + Frontend
-make test         # Run 75 tests (requires API running)
+make test         # Run 119 tests (requires API running)
 make retrain      # Retrain model from existing dataset
 make retrain-clean # Clean OCR → audit → retrain (after OCR completes)
 make audit        # Run OCR quality audit

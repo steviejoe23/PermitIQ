@@ -18,7 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY api/ api/
 COPY frontend/ frontend/
 COPY train_model_v2.py .
-COPY .env.example .env
+# Environment variables passed via docker-compose.yml or -e flags
+# Do NOT bake credentials into the image
 
 # Data files are mounted as volumes (too large for image)
 # See docker-compose.yml

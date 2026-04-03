@@ -656,6 +656,17 @@ if st.session_state.parcel_data and not st.session_state.get('search_results'):
 
 if st.session_state.search_results:
     results = st.session_state.search_results
+
+    # Auto-load parcel if search returned exactly one result with a parcel_id and we don't have parcel data yet
+    if not st.session_state.parcel_data and len(results) == 1 and results[0].get('parcel_id'):
+        try:
+            _auto_pid = results[0]['parcel_id']
+            _auto_p_res = requests.get(f"{API_URL}/parcels/{_auto_pid}", timeout=15)
+            if _auto_p_res.status_code == 200:
+                st.session_state.parcel_data = _auto_p_res.json()
+        except Exception:
+            pass
+
     st.markdown(f"**Found {len(results)} matching address(es):**")
 
     for i, result in enumerate(results):
@@ -689,16 +700,19 @@ if st.session_state.search_results:
         """, unsafe_allow_html=True)
 
         # Manual find button — loads THIS result's parcel (overrides the auto-found one)
-        if st.button(f"Find Parcel for {result['address']}", key=f"find_{i}", use_container_width=True):
-            _pid = None
-            try:
-                geo_res = requests.get(f"{API_URL}/geocode", params={"q": result['address']}, timeout=10)
-                if geo_res.status_code == 200:
-                    geo_results = geo_res.json().get("results", [])
-                    if geo_results:
-                        _pid = geo_results[0]["parcel_id"]
-            except Exception:
-                pass
+        _btn_label = f"View Parcel for {result['address']}" if result.get('parcel_id') else f"Find Parcel for {result['address']}"
+        if st.button(_btn_label, key=f"find_{i}", use_container_width=True):
+            # Use parcel_id from search results if available (no extra API call needed)
+            _pid = result.get('parcel_id')
+            if not _pid:
+                try:
+                    geo_res = requests.get(f"{API_URL}/geocode", params={"q": result['address']}, timeout=10)
+                    if geo_res.status_code == 200:
+                        geo_results = geo_res.json().get("results", [])
+                        if geo_results:
+                            _pid = geo_results[0]["parcel_id"]
+                except Exception:
+                    pass
             # Fallback: autocomplete
             if not _pid:
                 try:
@@ -888,6 +902,44 @@ if st.session_state.parcel_data:
                         st.markdown(f"**ZBA History in {_area_label}:** {area_rate:.0%} approval rate across {area_cases:,} cases")
                     elif area_cases >= 5000:
                         st.caption(f"City-wide ZBA stats: {area_rate:.0%} approval rate ({area_cases:,} total cases)")
+
+            # Show auto-detected parcel-level issues
+            _parcel_issues = zdata.get("parcel_issues", {})
+            _auto_vars = _parcel_issues.get("auto_detected_variances", [])
+            _auto_viols = _parcel_issues.get("auto_detected_violations", [])
+            _prop_checks = _parcel_issues.get("proposal_dependent_checks", [])
+
+            if _auto_vars or _prop_checks:
+                with st.expander("🚨 Parcel-Level Zoning Issues (Auto-Detected)", expanded=bool(_auto_vars)):
+                    if _auto_vars:
+                        st.markdown(
+                            f'<div style="background:#7f1d1d;padding:14px 18px;border-radius:8px;border:1px solid #dc2626;margin-bottom:12px;">'
+                            f'<div style="font-size:16px;font-weight:700;color:#fca5a5;">⚠️ {len(_auto_vars)} Variance(s) Required — Regardless of What You Build</div>'
+                            f'<div style="color:#fecaca;font-size:13px;margin-top:6px;">'
+                            f'Based on public property records, this parcel has zoning violations that will require variances for <b>any</b> development project.</div>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                        for v in _auto_viols:
+                            _vtype = esc(v.get('type', '').replace('_', ' ').title())
+                            st.markdown(
+                                f'<div style="background:#1e293b;padding:12px 16px;border-radius:8px;border-left:4px solid #dc2626;margin:8px 0;">'
+                                f'<div style="font-weight:600;color:#f87171;">{_vtype} Variance Needed</div>'
+                                f'<div style="color:#e2e8f0;font-size:13px;margin-top:4px;">'
+                                f'{esc(v.get("requirement", ""))} · <b>{esc(v.get("actual", ""))}</b> · {esc(v.get("deficit", ""))}'
+                                f'</div>'
+                                f'<div style="color:#94a3b8;font-size:11px;margin-top:4px;">Source: {esc(v.get("source", ""))}</div>'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+                    else:
+                        st.success("No parcel-level zoning issues detected from public records.")
+
+                    if _prop_checks:
+                        st.markdown(f"**{len(_prop_checks)} additional variance types depend on your specific proposal:**")
+                        for pc in _prop_checks:
+                            st.markdown(f"- **{esc(pc['type'].replace('_', ' ').title())}** — {esc(pc['depends_on'])}")
+
     except Exception:
         pass
 
@@ -1107,16 +1159,40 @@ if st.session_state.parcel_data:
 
                     st.markdown(f"*{esc(cc_data.get('complexity_note', ''))}*")
 
+                    # Show parcel-level vs proposal-level breakdown
+                    _plv = cc_data.get("parcel_level_variances", {})
+                    _prv = cc_data.get("proposal_level_variances", {})
+                    if _plv.get("types"):
+                        st.markdown(
+                            f'<div style="background:#7f1d1d;padding:10px 14px;border-radius:8px;margin:8px 0;border:1px solid #dc2626;">'
+                            f'<span style="color:#fca5a5;font-weight:700;">🏠 Parcel-level ({len(_plv["types"])})</span>'
+                            f'<span style="color:#fecaca;font-size:12px;"> — required regardless of your proposal: {", ".join(esc(t) for t in _plv["types"])}</span>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                    if _prv.get("types"):
+                        st.markdown(
+                            f'<div style="background:#78350f;padding:10px 14px;border-radius:8px;margin:8px 0;border:1px solid #f59e0b;">'
+                            f'<span style="color:#fde68a;font-weight:700;">📐 Proposal-specific ({len(_prv["types"])})</span>'
+                            f'<span style="color:#fef3c7;font-size:12px;"> — triggered by your proposal: {", ".join(esc(t) for t in _prv["types"])}</span>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+
                     for v in violations:
-                        v_color = "#ef4444" if v.get("type") in ("far", "height", "conditional_use") else "#f59e0b"
+                        is_parcel = v.get("source") == "Boston property assessment records"
+                        v_color = "#dc2626" if is_parcel else ("#ef4444" if v.get("type") in ("far", "height", "conditional_use") else "#f59e0b")
                         excess = v.get("excess", v.get("deficit", ""))
+                        source_badge = '<span style="background:#dc2626;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:8px;">AUTO-DETECTED</span>' if is_parcel else ''
+                        note_html = f'<br><span style="color:#fca5a5;font-size:11px;font-style:italic;">{esc(v.get("note", ""))}</span>' if v.get("note") else ''
                         st.markdown(
                             f'<div style="background:#0f172a;border-left:4px solid {v_color};padding:14px 18px;margin:8px 0;border-radius:8px;border:1px solid #1e293b;border-left-width:4px;">'
-                            f'<span style="color:{v_color};font-weight:700;font-size:14px;">{esc(v.get("type", "").upper())}</span><br>'
+                            f'<span style="color:{v_color};font-weight:700;font-size:14px;">{esc(v.get("type", "").upper())}</span>{source_badge}<br>'
                             f'<span style="color:#ccc;font-size:13px;">{esc(v.get("requirement", ""))}</span>'
                             f' <span style="color:#888;">→</span> '
-                            f'<span style="color:#fff;font-weight:600;font-size:13px;">{esc(v.get("proposed", ""))}</span>'
+                            f'<span style="color:#fff;font-weight:600;font-size:13px;">{esc(v.get("proposed", v.get("actual", "")))}</span>'
                             f'{"<br><span style=color:#888;font-size:12px;>" + esc(excess) + "</span>" if excess else ""}'
+                            f'{note_html}'
                             f'</div>',
                             unsafe_allow_html=True
                         )
@@ -1430,6 +1506,33 @@ if st.session_state.prediction_result:
             unsafe_allow_html=True
         )
 
+    # --- Calibration Warnings ---
+    cal_warnings = result.get("calibration_warnings") or []
+    for cw in cal_warnings:
+        st.warning(str(cw))
+
+    # --- How trustworthy is this number? ---
+    with st.expander("How trustworthy is this number?", expanded=False):
+        if prob > 0.8:
+            trust_badge = '<span style="color:#10b981;font-weight:700;">High confidence range -- well-calibrated</span>'
+        elif prob >= 0.5:
+            trust_badge = '<span style="color:#f59e0b;font-weight:700;">Moderate confidence -- treat as directional estimate</span>'
+        else:
+            trust_badge = '<span style="color:#f59e0b;font-weight:700;">Limited calibration data in this range -- treat with extra caution</span>'
+
+        st.markdown(
+            f'<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:16px 20px;margin:8px 0;">'
+            f'<div style="font-size:14px;color:#e2e8f0;margin-bottom:10px;">'
+            f'<strong>Expected Calibration Error (ECE): 1.0%</strong> — excellent</div>'
+            f'<div style="font-size:13px;color:#cbd5e1;margin-bottom:10px;">'
+            f'When we say 90%, cases are actually approved 95.4% of the time. '
+            f'Our probabilities are slightly conservative in the 70-90% range — '
+            f'your actual chances may be a bit better than shown.</div>'
+            f'<div style="font-size:13px;">{trust_badge}</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
     # --- Risk Assessment ---
     st.markdown("")
     war = result.get('ward_approval_rate')
@@ -1735,6 +1838,64 @@ if st.session_state.prediction_result:
             f'</div>',
             unsafe_allow_html=True
         )
+
+    # --- Calibration Detail (from /model_info) ---
+    with st.expander("Model Calibration Details", expanded=False):
+        try:
+            mi_res = requests.get(f"{API_URL}/model_info", timeout=10)
+            if mi_res.status_code == 200:
+                mi_data = mi_res.json()
+                cal = mi_data.get("calibration") or {}
+                if cal:
+                    ece_val = cal.get("ece")
+                    verdict = cal.get("verdict", "")
+                    if ece_val is not None:
+                        st.markdown(
+                            f'<div style="font-size:14px;color:#e2e8f0;">'
+                            f'<strong>Expected Calibration Error:</strong> {ece_val:.1%} · '
+                            f'<em>{esc(verdict)}</em></div>',
+                            unsafe_allow_html=True
+                        )
+                    buckets = cal.get("buckets", {})
+                    if buckets:
+                        rows = []
+                        # buckets may be a dict (range→details) or list of dicts
+                        bucket_items = buckets.items() if isinstance(buckets, dict) else [(b.get("range", ""), b) for b in buckets]
+                        for bucket_range, b in bucket_items:
+                            if isinstance(b, str):
+                                continue  # skip malformed entries
+                            trust = b.get("trust", "")
+                            trust_color = "#10b981" if "good" in trust.lower() or "excellent" in trust.lower() or "high" in trust.lower() else "#f59e0b" if "fair" in trust.lower() or "moderate" in trust.lower() else "#ef4444"
+                            rows.append(
+                                f'<tr>'
+                                f'<td style="padding:6px 12px;border-bottom:1px solid #1e293b;color:#cbd5e1;">{esc(str(bucket_range))}</td>'
+                                f'<td style="padding:6px 12px;border-bottom:1px solid #1e293b;color:#cbd5e1;">{esc(str(b.get("predicted", "")))}</td>'
+                                f'<td style="padding:6px 12px;border-bottom:1px solid #1e293b;color:#cbd5e1;">{esc(str(b.get("actual", "")))}</td>'
+                                f'<td style="padding:6px 12px;border-bottom:1px solid #1e293b;color:#cbd5e1;">{esc(str(b.get("gap", "")))}</td>'
+                                f'<td style="padding:6px 12px;border-bottom:1px solid #1e293b;color:{trust_color};font-weight:600;">{esc(trust)}</td>'
+                                f'</tr>'
+                            )
+                        st.markdown(
+                            '<table style="width:100%;border-collapse:collapse;margin-top:10px;">'
+                            '<thead><tr>'
+                            '<th style="padding:6px 12px;text-align:left;border-bottom:2px solid #334155;color:#94a3b8;font-size:12px;">Range</th>'
+                            '<th style="padding:6px 12px;text-align:left;border-bottom:2px solid #334155;color:#94a3b8;font-size:12px;">Predicted</th>'
+                            '<th style="padding:6px 12px;text-align:left;border-bottom:2px solid #334155;color:#94a3b8;font-size:12px;">Actual</th>'
+                            '<th style="padding:6px 12px;text-align:left;border-bottom:2px solid #334155;color:#94a3b8;font-size:12px;">Gap</th>'
+                            '<th style="padding:6px 12px;text-align:left;border-bottom:2px solid #334155;color:#94a3b8;font-size:12px;">Trust</th>'
+                            '</tr></thead><tbody>'
+                            + "".join(rows)
+                            + '</tbody></table>',
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.caption("No bucket-level calibration data available.")
+                else:
+                    st.caption("Calibration data not available from model.")
+            else:
+                st.caption("Could not load model info.")
+        except Exception:
+            st.caption("Could not load calibration details (API unavailable).")
 
     # --- Timeline Estimate ---
     timeline = result.get("estimated_timeline_days")
@@ -2316,6 +2477,196 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                         st.caption("No proviso data in current dataset.")
             except Exception as e:
                 st.caption(f"Proviso data unavailable: {e}")
+
+
+# =========================
+# ATTORNEY LOOKUP
+# =========================
+
+with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=False):
+    st.markdown(
+        "Search for any zoning attorney or applicant to see their full ZBA track record, "
+        "ward coverage, variance specialties, and recent cases."
+    )
+
+    atty_search_q = st.text_input("Search by attorney name", key="atty_search_input", placeholder="e.g. Drago, Pulgini, Lynds...")
+
+    if atty_search_q and len(atty_search_q) >= 2:
+        try:
+            atty_search_res = requests.get(f"{API_URL}/attorneys/search", params={"q": atty_search_q}, timeout=10)
+            if atty_search_res.status_code == 200:
+                atty_results = atty_search_res.json().get("results", [])
+                if atty_results:
+                    # Show search results as selectable buttons
+                    st.markdown(f"**{len(atty_results)} matches found:**")
+                    selected_attorney = st.selectbox(
+                        "Select an attorney to view profile",
+                        options=[a["name"] for a in atty_results],
+                        format_func=lambda n: next(
+                            (f"{a['name']} — {a['approval_rate']:.0%} win rate ({a['total_cases']} cases)"
+                             for a in atty_results if a['name'] == n), n
+                        ),
+                        key="atty_select"
+                    )
+
+                    if selected_attorney:
+                        # Fetch full profile
+                        try:
+                            profile_res = requests.get(
+                                f"{API_URL}/attorneys/{requests.utils.quote(selected_attorney, safe='')}/profile",
+                                timeout=15
+                            )
+                            if profile_res.status_code == 200:
+                                prof = profile_res.json()
+
+                                # Header stats
+                                st.markdown("---")
+                                st.markdown(f"### {esc(prof['name'])}")
+
+                                pc1, pc2, pc3, pc4 = st.columns(4)
+                                with pc1:
+                                    st.metric("Total Cases", f"{prof['total_cases']:,}")
+                                with pc2:
+                                    rate_color = "#10b981" if prof['win_rate'] >= 0.7 else ("#f59e0b" if prof['win_rate'] >= 0.5 else "#ef4444")
+                                    st.metric("Win Rate", f"{prof['win_rate']:.0%}")
+                                with pc3:
+                                    st.metric("Record", f"{prof['approved']}W - {prof['denied']}L")
+                                with pc4:
+                                    comp = prof.get("comparison", {})
+                                    pct = comp.get("percentile_rank", 50)
+                                    st.metric("Percentile", f"Top {100 - pct:.0f}%" if pct > 50 else f"{pct:.0f}th")
+
+                                # Comparison callout
+                                comp = prof.get("comparison", {})
+                                vs_avg = comp.get("vs_avg_attorney", 0)
+                                vs_overall = comp.get("vs_overall", 0)
+                                if vs_avg > 0:
+                                    st.success(
+                                        f"Beats average attorney by **{vs_avg:+.1%}** "
+                                        f"(avg attorney: {comp.get('avg_attorney_rate', 0):.0%}, "
+                                        f"overall ZBA: {comp.get('overall_zba_rate', 0):.0%})"
+                                    )
+                                elif vs_avg < 0:
+                                    st.warning(
+                                        f"Below average attorney by **{vs_avg:+.1%}** "
+                                        f"(avg attorney: {comp.get('avg_attorney_rate', 0):.0%}, "
+                                        f"overall ZBA: {comp.get('overall_zba_rate', 0):.0%})"
+                                    )
+                                else:
+                                    st.info(f"At average attorney rate ({comp.get('avg_attorney_rate', 0):.0%})")
+
+                                # Streak
+                                streak = prof.get("current_streak", {})
+                                if streak.get("length", 0) >= 3:
+                                    streak_emoji = "W" if streak["type"] == "APPROVED" else "L"
+                                    st.markdown(f"Current streak: **{streak['length']} {streak_emoji}**")
+
+                                # Tabs for breakdown
+                                prof_tab1, prof_tab2, prof_tab3, prof_tab4 = st.tabs([
+                                    "Wards", "Variance Specialties", "Yearly Trend", "Recent Cases"
+                                ])
+
+                                with prof_tab1:
+                                    wards = prof.get("wards", [])
+                                    if wards:
+                                        for w in wards:
+                                            rate = w["approval_rate"]
+                                            color = "#10b981" if rate >= 0.7 else ("#f59e0b" if rate >= 0.5 else "#ef4444")
+                                            bar_pct = int(rate * 100)
+                                            st.markdown(
+                                                f'<div class="intel-row">'
+                                                f'<div style="min-width:120px;"><span class="intel-name">Ward {esc(w["ward"])}</span>'
+                                                f'<br><span class="intel-meta">{w["total_cases"]} cases &middot; {w["approved"]}W-{w["denied"]}L</span></div>'
+                                                f'<div class="intel-bar-bg"><div class="intel-bar" style="width:{bar_pct}%;background:{color};"></div></div>'
+                                                f'<span class="intel-rate" style="color:{color};min-width:50px;text-align:right;">{rate:.0%}</span>'
+                                                f'</div>',
+                                                unsafe_allow_html=True
+                                            )
+                                        st.caption(f"Top ward: Ward {esc(str(prof.get('top_ward', 'N/A')))}")
+                                    else:
+                                        st.caption("No ward data available.")
+
+                                with prof_tab2:
+                                    variances = prof.get("variance_specialties", [])
+                                    if variances:
+                                        for v in variances:
+                                            rate = v["approval_rate"]
+                                            name = v["variance_type"].replace("_", " ").title()
+                                            color = "#10b981" if rate >= 0.7 else ("#f59e0b" if rate >= 0.5 else "#ef4444")
+                                            bar_pct = int(rate * 100)
+                                            st.markdown(
+                                                f'<div class="intel-row">'
+                                                f'<div style="min-width:160px;"><span class="intel-name">{esc(name)}</span>'
+                                                f'<br><span class="intel-meta">{v["total_cases"]} cases &middot; {v["approved"]}W-{v["denied"]}L</span></div>'
+                                                f'<div class="intel-bar-bg"><div class="intel-bar" style="width:{bar_pct}%;background:{color};"></div></div>'
+                                                f'<span class="intel-rate" style="color:{color};min-width:50px;text-align:right;">{rate:.0%}</span>'
+                                                f'</div>',
+                                                unsafe_allow_html=True
+                                            )
+                                    else:
+                                        st.caption("No variance data available.")
+
+                                with prof_tab3:
+                                    yearly = prof.get("yearly_performance", [])
+                                    if yearly:
+                                        yearly_df = pd.DataFrame(yearly)
+                                        if len(yearly_df) > 1:
+                                            st.bar_chart(yearly_df.set_index("year")["approval_rate"], use_container_width=True)
+                                            st.caption("Win rate by year")
+                                        for y in yearly:
+                                            rate = y["approval_rate"]
+                                            color = "#10b981" if rate >= 0.7 else ("#f59e0b" if rate >= 0.5 else "#ef4444")
+                                            st.markdown(
+                                                f'<span style="color:{color};font-weight:700;">{y["year"]}</span>: '
+                                                f'{rate:.0%} ({y["approved"]}W-{y["denied"]}L, {y["total_cases"]} cases)',
+                                                unsafe_allow_html=True
+                                            )
+                                    else:
+                                        st.caption("No yearly data available.")
+
+                                with prof_tab4:
+                                    recent = prof.get("recent_cases", [])
+                                    if recent:
+                                        for c in recent:
+                                            dec = c.get("decision", "")
+                                            dec_color = "#10b981" if dec == "APPROVED" else "#ef4444"
+                                            addr = esc(c.get("address", "N/A"))
+                                            case_num = esc(c.get("case_number", ""))
+                                            yr = c.get("year", "")
+                                            ward_str = f"Ward {c['ward']}" if c.get("ward") else ""
+                                            vt = c.get("variance_types", "")
+                                            vt_display = ", ".join(v.replace("_", " ").title() for v in vt.split(",")) if vt else ""
+                                            st.markdown(
+                                                f'<div style="padding:6px 0;border-bottom:1px solid #333;">'
+                                                f'<span style="color:{dec_color};font-weight:700;">{esc(dec)}</span> '
+                                                f'<span style="color:#e2e8f0;">{addr}</span> '
+                                                f'<span style="color:#64748b;font-size:12px;">{case_num} &middot; {yr} &middot; {esc(ward_str)}</span>'
+                                                f'{"<br><span style=color:#94a3b8;font-size:12px;>" + esc(vt_display) + "</span>" if vt_display else ""}'
+                                                f'</div>',
+                                                unsafe_allow_html=True
+                                            )
+                                    else:
+                                        st.caption("No recent cases available.")
+
+                                # Export profile
+                                st.download_button(
+                                    "Export Profile CSV",
+                                    pd.DataFrame(prof.get("recent_cases", [])).to_csv(index=False),
+                                    f"permitiq_attorney_{selected_attorney.replace(' ', '_')}.csv",
+                                    "text/csv",
+                                    key="dl_atty_profile"
+                                )
+
+                            elif profile_res.status_code == 404:
+                                st.warning(f"No profile found for '{esc(selected_attorney)}'.")
+                            else:
+                                st.error(f"Error loading profile: {profile_res.status_code}")
+                        except Exception as e:
+                            st.caption(f"Profile unavailable: {e}")
+                else:
+                    st.caption(f"No attorneys found matching '{esc(atty_search_q)}'.")
+        except Exception as e:
+            st.caption(f"Attorney search unavailable: {e}")
 
 
 # =========================

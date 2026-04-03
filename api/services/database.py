@@ -2,8 +2,8 @@
 PostGIS database connection for parcel lookups.
 Replaces in-memory GeoJSON loading (140MB per worker → ~0 memory).
 
-Connection string configurable via DATABASE_URL env var.
-Default: postgresql://postgres:permitiq123@localhost/permitiq
+Connection string configured via DATABASE_URL env var.
+If not set, PostGIS features are disabled (falls back to GeoJSON).
 """
 
 import os
@@ -21,10 +21,7 @@ except ImportError:
     _HAS_PSYCOPG2 = False
     logger.info("psycopg2 not installed — PostGIS features disabled")
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://postgres:permitiq123@localhost/permitiq"
-)
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 _pool = None
 

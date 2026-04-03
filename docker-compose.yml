@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: permitiq
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-permitiq123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_ME}
     ports:
       - "5433:5432"  # 5433 to avoid conflict with local postgres
     volumes:
@@ -30,7 +30,7 @@ services:
       - ./api/zba_model.pkl:/app/api/zba_model.pkl:ro
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-permitiq123}@db:5432/permitiq
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-CHANGE_ME}@db:5432/permitiq
       - PERMITIQ_API_KEY=${PERMITIQ_API_KEY:-}
       - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-60}
     depends_on:

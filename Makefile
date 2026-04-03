@@ -69,8 +69,9 @@ push: ## Commit and push to GitHub
 	git commit -m "$$msg" && git push origin main
 
 db-setup: ## Create PostGIS database and import parcels
-	PGPASSWORD=permitiq123 /Library/PostgreSQL/18/bin/psql -U postgres -h localhost -c "CREATE DATABASE permitiq;" 2>/dev/null; true
-	PGPASSWORD=permitiq123 /Library/PostgreSQL/18/bin/psql -U postgres -h localhost -d permitiq -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+	@test -n "$$PGPASSWORD" || (echo "ERROR: Set PGPASSWORD env var first" && exit 1)
+	/Library/PostgreSQL/18/bin/psql -U postgres -h localhost -c "CREATE DATABASE permitiq;" 2>/dev/null; true
+	/Library/PostgreSQL/18/bin/psql -U postgres -h localhost -d permitiq -c "CREATE EXTENSION IF NOT EXISTS postgis;"
 	@echo "Database ready. Import parcels with: make db-import"
 
 db-import: ## Import 98K parcels from GeoJSON into PostGIS

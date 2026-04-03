@@ -92,6 +92,22 @@ FEATURE_COLS = [
 
     # Meta-features (3)
     'project_complexity', 'total_violations', 'num_features_active',
+
+    # Variance interactions (3) — from application
+    'var_height_and_far', 'var_parking_and_units', 'num_variances_sq',
+
+    # Existing conditions (2) — from assessor DB
+    'has_existing_parking', 'existing_parking_count',
+
+    # Scale & density (4) — from application + assessor
+    'units_log', 'large_project', 'units_per_lot_area', 'value_per_unit_log',
+
+    # Application type (2) — from tracker description
+    'is_change_occupancy', 'is_maintain_use',
+
+    # Complexity signals (4) — engineered
+    'multiple_setbacks', 'num_setback_variances',
+    'interact_stories_far', 'complex_case_score',
 ]
 
 VARIANCE_TYPES = [

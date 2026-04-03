@@ -555,6 +555,68 @@ df['many_variances'] = (df['num_variances'] >= 3).astype(int)
 # Property data available flag — helps model know when property features are real vs imputed zeros
 df['has_property_data'] = (df['total_value'] > 0).astype(int)
 
+# --- NEW FEATURES (Session 10) ---
+print("\nEngineering new features (Session 10)...")
+
+# Variance interaction features (pre-hearing: from application)
+df['var_height_and_far'] = (df.get('var_height', pd.Series(0, index=df.index)).fillna(0) *
+                            df.get('var_far', pd.Series(0, index=df.index)).fillna(0)).astype(int)
+df['var_parking_and_units'] = (df.get('var_parking', pd.Series(0, index=df.index)).fillna(0) *
+                               (df['proposed_units'].fillna(0) > 2).astype(int)).astype(int)
+df['num_variances_sq'] = (df['num_variances'].fillna(0) ** 2).astype(float)
+print(f"  var_height_and_far: {df['var_height_and_far'].sum()} cases")
+print(f"  var_parking_and_units: {df['var_parking_and_units'].sum()} cases")
+print(f"  num_variances_sq: mean={df['num_variances_sq'].mean():.2f}")
+
+# Existing parking data (from assessor DB — pre-hearing)
+df['existing_parking_count'] = pd.to_numeric(df.get('existing_parking', 0), errors='coerce').fillna(0)
+df['has_existing_parking'] = (df['existing_parking_count'] > 0).astype(int)
+print(f"  has_existing_parking: {df['has_existing_parking'].sum()} cases")
+
+# Project scale features (from application)
+df['units_log'] = np.log1p(df['proposed_units'].fillna(0))
+df['large_project'] = (df['proposed_units'].fillna(0) > 5).astype(int)
+print(f"  large_project (>5 units): {df['large_project'].sum()} cases")
+
+# Density features — lot utilization (from application + assessor)
+_lot = df['lot_size_sf'].fillna(0).replace(0, np.nan)
+df['units_per_lot_area'] = (df['proposed_units'].fillna(0) / _lot).fillna(0)
+df['value_per_unit'] = np.where(
+    df['proposed_units'].fillna(0) > 0,
+    df['total_value'].fillna(0) / df['proposed_units'].fillna(0).replace(0, 1),
+    0
+)
+df['value_per_unit_log'] = np.log1p(df['value_per_unit'])
+print(f"  units_per_lot_area: {(df['units_per_lot_area'] > 0).sum()} nonzero")
+print(f"  value_per_unit_log: mean={df['value_per_unit_log'].mean():.2f}")
+
+# Change of occupancy (from tracker description — pre-hearing application data)
+if 'tracker_description' in df.columns:
+    td = df['tracker_description'].fillna('').str.lower()
+    df['is_change_occupancy'] = td.str.contains(r'change.*(?:occupancy|use)|convert|conversion', regex=True).astype(int)
+    df['is_maintain_use'] = td.str.contains(r'maintain', regex=True).astype(int)
+    print(f"  is_change_occupancy: {df['is_change_occupancy'].sum()} cases")
+    print(f"  is_maintain_use: {df['is_maintain_use'].sum()} cases")
+else:
+    df['is_change_occupancy'] = 0
+    df['is_maintain_use'] = 0
+
+# Setback combo — multiple setback variances requested at once (complex ask)
+setback_cols = ['var_front_setback', 'var_rear_setback', 'var_side_setback']
+df['num_setback_variances'] = df[[c for c in setback_cols if c in df.columns]].fillna(0).sum(axis=1)
+df['multiple_setbacks'] = (df['num_setback_variances'] >= 2).astype(int)
+print(f"  multiple_setbacks: {df['multiple_setbacks'].sum()} cases")
+
+# Stories x FAR interaction (tall building with high density — harder approval)
+df['interact_stories_far'] = df['proposed_stories'].fillna(0) * df.get('var_far', pd.Series(0, index=df.index)).fillna(0)
+
+# Attorney x Variance count x Building appeal — triple interaction for complex cases
+df['complex_case_score'] = (df.get('has_attorney', pd.Series(0, index=df.index)).fillna(0) +
+                            df['many_variances'] +
+                            df['is_building_appeal'] +
+                            df['large_project']).astype(int)
+print(f"  complex_case_score: mean={df['complex_case_score'].mean():.2f}")
+
 
 # ===========================
 # CLEAN FEATURE LIST — PRE-HEARING ONLY
@@ -624,6 +686,22 @@ feature_cols = [
 
     # Meta-features (3) — project complexity and data quality signals
     'project_complexity', 'total_violations', 'num_features_active',
+
+    # NEW (Session 10) — Variance interactions (3)
+    'var_height_and_far', 'var_parking_and_units', 'num_variances_sq',
+
+    # NEW (Session 10) — Existing conditions (2)
+    'has_existing_parking', 'existing_parking_count',
+
+    # NEW (Session 10) — Scale & density (4)
+    'units_log', 'large_project', 'units_per_lot_area', 'value_per_unit_log',
+
+    # NEW (Session 10) — Application type (2)
+    'is_change_occupancy', 'is_maintain_use',
+
+    # NEW (Session 10) — Complexity signals (4)
+    'multiple_setbacks', 'num_setback_variances',
+    'interact_stories_far', 'complex_case_score',
 ]
 
 # Remove articles 7/8/51/65 — too generic, often just mean "has a variance"
