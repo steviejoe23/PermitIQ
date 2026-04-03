@@ -157,6 +157,25 @@ def _build_case_coords():
                 len(state._case_coords), total_cases, 100 * len(state._case_coords) / max(total_cases, 1))
 
 
+def _log_memory(label: str):
+    """Log current RSS memory usage."""
+    try:
+        import resource
+        rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)  # macOS
+        logger.info("Memory [%s]: %.0f MB RSS", label, rss_mb)
+    except Exception:
+        try:
+            # Linux: /proc/self/status
+            with open('/proc/self/status') as f:
+                for line in f:
+                    if line.startswith('VmRSS:'):
+                        rss_kb = int(line.split()[1])
+                        logger.info("Memory [%s]: %.0f MB RSS", label, rss_kb / 1024)
+                        return
+        except Exception:
+            pass
+
+
 def load_all(market_init=None, attorney_init=None, variance_types=None, project_types=None):
     """Load all data into state module. Called once at startup."""
     import gc
@@ -164,7 +183,9 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
     light_mode = light_mode_val.lower() in ('1', 'true', 'yes')
     logger.info("PERMITIQ_LIGHT_MODE=%r, light_mode=%s", light_mode_val, light_mode)
     if light_mode:
-        logger.info("LIGHT MODE enabled — skipping GeoJSON to conserve memory")
+        logger.info("LIGHT MODE enabled — skipping GeoJSON and property assessment to conserve memory")
+
+    _log_memory("baseline")
 
     if not light_mode:
         try:
@@ -175,6 +196,7 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
         except Exception as e:
             logger.error("Failed to load GeoJSON: %s", e)
         gc.collect()
+        _log_memory("after geojson")
 
     try:
         state.zba_df = pd.read_csv(ZBA_DATA_PATH, low_memory=False)
@@ -184,6 +206,7 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
     except Exception as e:
         logger.error("Failed to load ZBA dataset: %s", e)
     gc.collect()
+    _log_memory("after zba")
 
     try:
         state.model_package = joblib.load(MODEL_PATH)
@@ -194,22 +217,27 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
     except Exception as e:
         logger.warning("No trained model found, using fallback logic: %s", e)
     gc.collect()
+    _log_memory("after model")
 
-    try:
-        _pa = pd.read_csv(PROPERTY_PATH, usecols=['PID', 'ST_NUM', 'ST_NAME', 'LAND_SF'], low_memory=False)
-        _pa = _pa.dropna(subset=['PID', 'ST_NUM', 'ST_NAME'])
-        _pa['ST_NUM'] = _pa['ST_NUM'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
-        _pa['ST_NAME'] = _pa['ST_NAME'].astype(str).str.strip()
-        _pa['address'] = _pa['ST_NUM'] + ' ' + _pa['ST_NAME']
-        _pa['_addr_norm'] = _pa['address'].apply(normalize_address)
-        _pa['parcel_id'] = _pa['PID'].astype(str).str.zfill(10)
-        _pa['lot_size'] = pd.to_numeric(_pa['LAND_SF'].astype(str).str.replace(',', ''), errors='coerce').fillna(0)
-        state.parcel_addr_df = _pa[['parcel_id', 'address', '_addr_norm', 'lot_size']].drop_duplicates('parcel_id')
-        logger.info("Property address lookup loaded (%d parcels)", len(state.parcel_addr_df))
-    except Exception as e:
-        logger.warning("Could not load property assessment for geocoding: %s", e)
+    if not light_mode:
+        try:
+            _pa = pd.read_csv(PROPERTY_PATH, usecols=['PID', 'ST_NUM', 'ST_NAME', 'LAND_SF'], low_memory=False)
+            _pa = _pa.dropna(subset=['PID', 'ST_NUM', 'ST_NAME'])
+            _pa['ST_NUM'] = _pa['ST_NUM'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+            _pa['ST_NAME'] = _pa['ST_NAME'].astype(str).str.strip()
+            _pa['address'] = _pa['ST_NUM'] + ' ' + _pa['ST_NAME']
+            _pa['_addr_norm'] = _pa['address'].apply(normalize_address)
+            _pa['parcel_id'] = _pa['PID'].astype(str).str.zfill(10)
+            _pa['lot_size'] = pd.to_numeric(_pa['LAND_SF'].astype(str).str.replace(',', ''), errors='coerce').fillna(0)
+            state.parcel_addr_df = _pa[['parcel_id', 'address', '_addr_norm', 'lot_size']].drop_duplicates('parcel_id')
+            logger.info("Property address lookup loaded (%d parcels)", len(state.parcel_addr_df))
+        except Exception as e:
+            logger.warning("Could not load property assessment for geocoding: %s", e)
+        gc.collect()
+        _log_memory("after property")
 
-    state.timeline_stats = _precompute_timeline_stats(TRACKER_PATH)
+    if not light_mode:
+        state.timeline_stats = _precompute_timeline_stats(TRACKER_PATH)
 
     if market_init is not None and state.zba_df is not None:
         market_init(state.zba_df, variance_types, project_types, timeline_stats=state.timeline_stats)
@@ -219,4 +247,8 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
         attorney_init(state.zba_df, variance_types)
         logger.info("Attorney router initialized")
 
-    _build_case_coords()
+    if not light_mode:
+        _build_case_coords()
+
+    _log_memory("startup complete")
+    logger.info("Startup complete — light_mode=%s", light_mode)
