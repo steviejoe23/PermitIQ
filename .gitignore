@@ -20,6 +20,11 @@ zoning-env/
 !.claude/launch.json
 !package.json
 !.env.example
+# Un-ignore specific data files needed for Railway deploy
+!zba_cases_cleaned.csv
+!boston_parcels_zoning.geojson
+!property_assessment_fy2026.csv
+!api/zba_model.pkl
 pdfs/
 ocr_output/
 ocr_checkpoint.json

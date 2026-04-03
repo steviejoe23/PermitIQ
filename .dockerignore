@@ -1,0 +1,38 @@
+# Ignore these for Docker builds
+zoning-env/
+pdfs/
+ocr_output/
+__pycache__/
+.git/
+.pytest_cache/
+*.ipynb
+*.ipynb_checkpoints/
+.DS_Store
+model_history/
+model_diagnostics.png
+landing/
+docs/
+tests/
+leads/
+*.sh
+*.md
+!requirements.txt
+calibration_report.*
+calibration_analysis.py
+clean_addresses.py
+extract_leads.py
+normalize_decisions.py
+dashboard.html
+# Large files we don't need in the API container
+building_permits.csv
+zba_tracker.csv
+zba_cases_dataset.csv
+# Shapefiles
+*.shp
+*.shx
+*.dbf
+*.prj
+*.zip
+Boston Zoning GCOD Clean/
+Coastal Flood Resilience Overlay District Clean/
+boston_zoning_district_clean/
