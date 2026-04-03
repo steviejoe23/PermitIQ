@@ -159,13 +159,20 @@ def _build_case_coords():
 
 def load_all(market_init=None, attorney_init=None, variance_types=None, project_types=None):
     """Load all data into state module. Called once at startup."""
-    try:
-        state.gdf = gpd.read_file(GEOJSON_PATH)
-        state.gdf["parcel_id"] = state.gdf["parcel_id"].astype(str)
-        state.gdf = state.gdf.set_index("parcel_id", drop=False)
-        logger.info("GeoJSON loaded (%d parcels)", len(state.gdf))
-    except Exception as e:
-        logger.error("Failed to load GeoJSON: %s", e)
+    import gc
+    light_mode = os.environ.get('PERMITIQ_LIGHT_MODE', '').lower() in ('1', 'true', 'yes')
+    if light_mode:
+        logger.info("LIGHT MODE enabled — skipping GeoJSON to conserve memory")
+
+    if not light_mode:
+        try:
+            state.gdf = gpd.read_file(GEOJSON_PATH)
+            state.gdf["parcel_id"] = state.gdf["parcel_id"].astype(str)
+            state.gdf = state.gdf.set_index("parcel_id", drop=False)
+            logger.info("GeoJSON loaded (%d parcels)", len(state.gdf))
+        except Exception as e:
+            logger.error("Failed to load GeoJSON: %s", e)
+        gc.collect()
 
     try:
         state.zba_df = pd.read_csv(ZBA_DATA_PATH, low_memory=False)
@@ -174,6 +181,7 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
         logger.info("ZBA dataset loaded (%d cases)", len(state.zba_df))
     except Exception as e:
         logger.error("Failed to load ZBA dataset: %s", e)
+    gc.collect()
 
     try:
         state.model_package = joblib.load(MODEL_PATH)
@@ -183,6 +191,7 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
         logger.info("ML model loaded (%s, AUC: %.4f, %d features)", model_name, auc, n_features)
     except Exception as e:
         logger.warning("No trained model found, using fallback logic: %s", e)
+    gc.collect()
 
     try:
         _pa = pd.read_csv(PROPERTY_PATH, usecols=['PID', 'ST_NUM', 'ST_NAME', 'LAND_SF'], low_memory=False)
