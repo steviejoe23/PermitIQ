@@ -12,27 +12,23 @@ build/
 # Virtual environment
 zoning-env/
 
-# Data files (too large for git — store separately)
+# Data files (large — not tracked in git)
 *.csv
 *.geojson
 *.pkl
+*.pkl.gz
 *.json
 !.claude/launch.json
 !package.json
 !.env.example
-# Un-ignore specific data files needed for Railway deploy
-!zba_cases_cleaned.csv
-!boston_parcels_zoning.geojson
-!property_assessment_fy2026.csv
-!api/zba_model.pkl.gz
 pdfs/
 ocr_output/
 ocr_checkpoint.json
 
-# Zip archives (raw data downloads)
+# Zip archives
 *.zip
 
-# GIS shapefiles and data directories
+# GIS shapefiles
 *.shp
 *.shx
 *.dbf
@@ -45,7 +41,7 @@ Boston Zoning GCOD Clean/
 Coastal Flood Resilience Overlay District Clean/
 boston_zoning_district_clean/
 
-# Jupyter checkpoints and notebooks (exploratory, not production)
+# Jupyter
 .ipynb_checkpoints/
 .virtual_documents/
 *.ipynb
@@ -81,11 +77,23 @@ htmlcov/
 # Docker
 docker-compose.override.yml
 
-# Claude settings (local only)
-.claude/settings.local.json
-
-# Memory (may contain credentials or personal notes)
+# Claude / AI context (not for public repos)
+CLAUDE.md
+.claude/
 memory/
+
+# Internal planning & ops docs
+TASKS.md
+REFACTOR_PLAN.md
+DEMO_SCRIPT.md
+
+# Leads / sales (private)
+leads/
+
+# One-off scripts & artifacts
+calibration_report.png
+calibration_report.txt
+dashboard.html
 
 # Auth usage logs
 api/usage.log
