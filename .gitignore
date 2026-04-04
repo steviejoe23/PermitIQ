@@ -14,25 +14,8 @@ build/
 # Virtual environment (rebuild with: pip install -r requirements.txt)
 zoning-env/
 
-# ---- FILES OVER 100MB (transfer via cloud storage) ----
-# building_permits.csv          253MB
-# zba_model_v2.pkl              219MB
-# api/zba_model.pkl             219MB (copy of zba_model_v2.pkl)
-# boston_parcels_zoning.geojson   81MB
-# property_assessment_fy2026.csv 76MB
-# pdfs/                         4.2GB
-# model_history/                1.7GB
-# parcels_2025/                  91MB
-# parcels_2025_clean/           118MB
-building_permits.csv
-zba_model_v2.pkl
-api/zba_model.pkl
-boston_parcels_zoning.geojson
-property_assessment_fy2026.csv
-pdfs/
-model_history/
-parcels_2025/
-parcels_2025_clean/
+# ---- LARGE FILES NOW HANDLED BY GIT LFS ----
+# building_permits.csv, *.pkl, *.geojson, pdfs/, model_history/, parcels_2025*
 
 # GIS shapefiles (raw source data — in parcels dirs above)
 *.shp
