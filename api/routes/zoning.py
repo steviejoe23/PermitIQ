@@ -14,6 +14,9 @@ from api.services.zoning_code import get_zoning_requirements, ZONING_REQUIREMENT
 logger = logging.getLogger("permitiq")
 router = APIRouter()
 
+# Cache for parcel zoning lookups (same parcel_id always returns same data)
+_parcel_zoning_cache = {}
+
 # Import db functions
 try:
     from api.services.database import query_parcel, db_available
@@ -26,7 +29,17 @@ except ImportError:
 
 
 def _get_parcel_zoning(parcel_id: str) -> dict:
-    """Single source of truth for parcel zoning data."""
+    """Single source of truth for parcel zoning data. Cached per parcel_id."""
+    if parcel_id in _parcel_zoning_cache:
+        return _parcel_zoning_cache[parcel_id]
+    result = _compute_parcel_zoning(parcel_id)
+    if len(_parcel_zoning_cache) < 1000:  # Bound cache size
+        _parcel_zoning_cache[parcel_id] = result
+    return result
+
+
+def _compute_parcel_zoning(parcel_id: str) -> dict:
+    """Compute parcel zoning data (uncached)."""
     district, article, all_codes, multi_zoning = '', '', '', False
     subdistrict = ''
     subdistrict_type = ''

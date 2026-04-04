@@ -1821,11 +1821,30 @@ if st.session_state.prediction_result:
             if ward_raw and str(ward_raw) not in ('', 'nan', 'None'):
                 ward_clean = str(ward_raw).replace('.0', '')
                 ward_str = f' <span style="color:#666;">Ward {esc(ward_clean)}</span>'
+            # Show variances with enriched approval rates
+            _sim_var_html = ""
+            _sim_variances = case.get('variances', '')
+            if _sim_variances and str(_sim_variances).lower() not in ('nan', 'none', ''):
+                _sim_parts = []
+                for _sv in str(_sim_variances).split(','):
+                    _svc = _sv.strip().lower().replace(' ', '_')
+                    _svi = _global_var_rates.get(_svc, {})
+                    _svr = _svi.get("approval_rate")
+                    if _svr is not None:
+                        _scol = "#10b981" if _svr >= 0.7 else "#f59e0b" if _svr >= 0.5 else "#ef4444"
+                        _sim_parts.append(f'<span style="color:{_scol};font-size:12px;">{esc(_sv.strip().title())} ({_svr:.0%})</span>')
+                    else:
+                        _sim_parts.append(f'<span style="color:#64748b;font-size:12px;">{esc(_sv.strip().title())}</span>')
+                _sim_var_html = f'<br><span style="font-size:12px;color:#94a3b8;">Variances: </span>{", ".join(_sim_parts)}'
+            # Show attorney if present
+            _sim_atty = case.get('attorney', '')
+            _sim_atty_html = f' <span style="color:#94a3b8;font-size:12px;">· Rep: {esc(_sim_atty)}</span>' if _sim_atty else ''
             st.markdown(
                 f'<div class="case-card" style="border-left:3px solid {border_color};">'
                 f'{emoji} <strong>{esc(case.get("case_number", "N/A"))}</strong>'
                 f' — {esc(address)} — <span style="color:{border_color};font-weight:600;">{esc(decision)}</span>'
-                f'{date_str}{ward_str}</div>',
+                f'{date_str}{ward_str}{_sim_atty_html}'
+                f'{_sim_var_html}</div>',
                 unsafe_allow_html=True
             )
 

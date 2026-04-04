@@ -264,6 +264,8 @@ def get_similar_cases(ward, variances, project_type=None, limit=5):
         if addr == 'Address not available' or not addr.strip():
             continue
         date_str = _clean_case_date(row)
+        _case_variances = str(row.get('variance_types', '')) if pd.notna(row.get('variance_types')) else ''
+        _case_attorney = str(row.get('contact', '')) if pd.notna(row.get('contact')) else ''
         cases.append({
             "case_number": str(row.get('case_number') or ''),
             "address": addr,
@@ -271,6 +273,9 @@ def get_similar_cases(ward, variances, project_type=None, limit=5):
             "ward": str(int(float(row['ward']))) if pd.notna(row.get('ward')) else '',
             "date": date_str,
             "relevance_score": round(float(row.get('_relevance', 0)), 1),
+            "variances": _case_variances,
+            "attorney": _case_attorney,
+            "has_attorney": bool(row.get('has_attorney', False)),
         })
 
     return cases, total, approval_rate
@@ -798,12 +803,12 @@ def analyze_proposal(payload: dict):
 
 @router.post("/batch_predict", tags=["Prediction"])
 def batch_predict(payload: dict):
-    """Predict approval likelihood for multiple proposals at once. Max 20."""
+    """Predict approval likelihood for multiple proposals at once. Max 50."""
     proposals = payload.get("proposals", [])
     if not proposals:
         raise HTTPException(status_code=400, detail="No proposals provided")
-    if len(proposals) > 20:
-        raise HTTPException(status_code=400, detail="Maximum 20 proposals per batch request")
+    if len(proposals) > 50:
+        raise HTTPException(status_code=400, detail="Maximum 50 proposals per batch request")
 
     results = []
     for i, p in enumerate(proposals):
