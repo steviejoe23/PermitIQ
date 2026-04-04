@@ -921,14 +921,34 @@ if st.session_state.parcel_data:
                             f'</div>',
                             unsafe_allow_html=True
                         )
+                        # Fetch historical variance approval rates for auto-detected violations
+                        _auto_var_rates = {}
+                        try:
+                            _avsr = requests.get(f"{API_URL}/variance_stats", timeout=5)
+                            if _avsr.status_code == 200:
+                                _auto_var_rates = {v["variance_type"]: v for v in _avsr.json().get("variance_stats", [])}
+                        except Exception:
+                            pass
+
                         for v in _auto_viols:
-                            _vtype = esc(v.get('type', '').replace('_', ' ').title())
+                            _vtype_raw = v.get('type', '')
+                            _vtype = esc(_vtype_raw.replace('_', ' ').title())
+                            _avr = _auto_var_rates.get(_vtype_raw, {})
+                            _arate = _avr.get("approval_rate", 0)
+                            _acases = _avr.get("total_cases", 0)
+                            _rate_html = ""
+                            if _acases > 0:
+                                _acolor = "#10b981" if _arate >= 0.7 else "#f59e0b" if _arate >= 0.5 else "#ef4444"
+                                _rate_html = (f'<div style="margin-top:6px;">'
+                                    f'<span style="color:{_acolor};font-weight:700;font-size:15px;">{_arate:.0%} historical approval</span>'
+                                    f' <span style="color:#64748b;font-size:12px;">({_acases:,} ZBA cases with this variance)</span></div>')
                             st.markdown(
                                 f'<div style="background:#1e293b;padding:12px 16px;border-radius:8px;border-left:4px solid #dc2626;margin:8px 0;">'
                                 f'<div style="font-weight:600;color:#f87171;">{_vtype} Variance Needed</div>'
                                 f'<div style="color:#e2e8f0;font-size:13px;margin-top:4px;">'
                                 f'{esc(v.get("requirement", ""))} · <b>{esc(v.get("actual", ""))}</b> · {esc(v.get("deficit", ""))}'
                                 f'</div>'
+                                f'{_rate_html}'
                                 f'<div style="color:#94a3b8;font-size:11px;margin-top:4px;">Source: {esc(v.get("source", ""))}</div>'
                                 f'</div>',
                                 unsafe_allow_html=True
@@ -937,9 +957,35 @@ if st.session_state.parcel_data:
                         st.success("No parcel-level zoning issues detected from public records.")
 
                     if _prop_checks:
-                        st.markdown(f"**{len(_prop_checks)} additional variance types depend on your specific proposal:**")
+                        # Fetch historical variance approval rates
+                        _var_rates = {}
+                        try:
+                            _vsr = requests.get(f"{API_URL}/variance_stats", timeout=5)
+                            if _vsr.status_code == 200:
+                                _var_rates = {v["variance_type"]: v for v in _vsr.json().get("variance_stats", [])}
+                        except Exception:
+                            pass
+
+                        st.markdown(f"**{len(_prop_checks)} additional variance types — may be needed depending on your proposal:**")
                         for pc in _prop_checks:
-                            st.markdown(f"- **{esc(pc['type'].replace('_', ' ').title())}** — {esc(pc['depends_on'])}")
+                            _vt = pc['type']
+                            _vt_label = esc(_vt.replace('_', ' ').title())
+                            _vr = _var_rates.get(_vt, {})
+                            _rate = _vr.get("approval_rate", 0)
+                            _cases = _vr.get("total_cases", 0)
+                            if _cases > 0:
+                                _color = "#10b981" if _rate >= 0.7 else "#f59e0b" if _rate >= 0.5 else "#ef4444"
+                                st.markdown(
+                                    f'<div style="background:#1e293b;padding:10px 14px;border-radius:8px;margin:6px 0;border:1px solid #334155;">'
+                                    f'<span style="font-weight:600;color:#e2e8f0;">{_vt_label}</span>'
+                                    f' <span style="color:{_color};font-weight:700;font-size:15px;">{_rate:.0%} approval</span>'
+                                    f' <span style="color:#64748b;font-size:12px;">({_cases:,} ZBA cases)</span>'
+                                    f'<br><span style="color:#94a3b8;font-size:12px;">{esc(pc["depends_on"])}</span>'
+                                    f'</div>',
+                                    unsafe_allow_html=True
+                                )
+                            else:
+                                st.markdown(f"- **{_vt_label}** — {esc(pc['depends_on'])}")
 
     except Exception:
         pass
@@ -947,30 +993,52 @@ if st.session_state.parcel_data:
     # MAP
     if "geometry" in data:
         try:
-            coords = data["geometry"]["coordinates"][0]
-            if isinstance(coords[0], list) and isinstance(coords[0][0], list):
-                coords = coords[0]
+            geom_type = data["geometry"].get("type", "")
+            raw_coords = data["geometry"]["coordinates"]
 
-            df_coords = pd.DataFrame(coords, columns=["lon", "lat"])
-
-            st.pydeck_chart(pdk.Deck(
-                map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-                initial_view_state=pdk.ViewState(
-                    latitude=df_coords["lat"].mean(),
-                    longitude=df_coords["lon"].mean(),
-                    zoom=16, pitch=0,
-                ),
-                layers=[
-                    pdk.Layer(
-                        "PolygonLayer",
-                        data=[{"polygon": coords}],
-                        get_polygon="polygon",
-                        get_fill_color=[74, 158, 255, 140],
-                        get_line_color=[255, 255, 255],
-                        line_width_min_pixels=2,
-                    )
-                ],
-            ))
+            if geom_type == "Point":
+                # Point geometry — show a marker
+                lon, lat = raw_coords[0], raw_coords[1]
+                st.pydeck_chart(pdk.Deck(
+                    map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+                    initial_view_state=pdk.ViewState(latitude=lat, longitude=lon, zoom=16, pitch=0),
+                    layers=[
+                        pdk.Layer(
+                            "ScatterplotLayer",
+                            data=[{"lat": lat, "lon": lon}],
+                            get_position=["lon", "lat"],
+                            get_fill_color=[74, 158, 255, 200],
+                            get_line_color=[255, 255, 255],
+                            get_radius=30,
+                            line_width_min_pixels=2,
+                        )
+                    ],
+                ))
+            else:
+                # Polygon/MultiPolygon geometry
+                if geom_type == "MultiPolygon":
+                    coords = raw_coords[0][0]
+                else:
+                    coords = raw_coords[0]
+                if coords and isinstance(coords[0], list) and len(coords[0]) > 2:
+                    coords = coords[0]
+                df_coords = pd.DataFrame(coords, columns=["lon", "lat"])
+                st.pydeck_chart(pdk.Deck(
+                    map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+                    initial_view_state=pdk.ViewState(
+                        latitude=df_coords["lat"].mean(), longitude=df_coords["lon"].mean(), zoom=16, pitch=0,
+                    ),
+                    layers=[
+                        pdk.Layer(
+                            "PolygonLayer",
+                            data=[{"polygon": coords}],
+                            get_polygon="polygon",
+                            get_fill_color=[74, 158, 255, 140],
+                            get_line_color=[255, 255, 255],
+                            line_width_min_pixels=2,
+                        )
+                    ],
+                ))
         except Exception as e:
             st.warning(f"Could not render map: {e}")
 
