@@ -368,6 +368,17 @@ def _fetch_variance_stats():
 # Pre-fetch variance stats (used by Steps 2, 3, 4)
 _global_var_rates = _fetch_variance_stats()
 
+@st.cache_data(ttl=300)
+def _fetch_market_intel(endpoint: str):
+    """Cached fetch for market intelligence endpoints (5 min TTL)."""
+    try:
+        res = requests.get(f"{API_URL}/{endpoint}", timeout=10)
+        if res.status_code == 200:
+            return res.json()
+    except Exception:
+        pass
+    return None
+
 try:
     _health, _stats_res = _fetch_startup_data()
     _model_name = _health.get('model_name', 'none')
@@ -2370,9 +2381,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
     # --- Approval Trends Chart ---
     with intel_tab1:
         try:
-            trends_res = requests.get(f"{API_URL}/trends", timeout=10)
-            if trends_res.status_code == 200:
-                trends_data = trends_res.json().get("years", [])
+            _trends_json = _fetch_market_intel("trends")
+            if _trends_json:
+                trends_data = _trends_json.get("years", [])
                 if trends_data:
                     trends_df = pd.DataFrame(trends_data)
                     col_chart, col_table = st.columns([2, 1])
@@ -2395,9 +2406,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
     # --- Variance Success Rates ---
     with intel_tab2:
         try:
-            var_res = requests.get(f"{API_URL}/variance_stats", timeout=10)
-            if var_res.status_code == 200:
-                var_data = var_res.json().get("variance_stats", [])
+            _var_json = _fetch_market_intel("variance_stats")
+            if _var_json:
+                var_data = _var_json.get("variance_stats", [])
                 if var_data:
                     for v in var_data:
                         rate = v["approval_rate"]
@@ -2426,9 +2437,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
     # --- Project Type Rates ---
     with intel_tab3:
         try:
-            pt_res = requests.get(f"{API_URL}/project_type_stats", timeout=10)
-            if pt_res.status_code == 200:
-                pt_data = pt_res.json().get("project_type_stats", [])
+            _pt_json = _fetch_market_intel("project_type_stats")
+            if _pt_json:
+                pt_data = _pt_json.get("project_type_stats", [])
                 if pt_data:
                     for p in pt_data:
                         rate = p["approval_rate"]
@@ -2457,9 +2468,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
     # --- Attorney Leaderboard ---
     with intel_tab4:
         try:
-            atty_res = requests.get(f"{API_URL}/attorneys/leaderboard?min_cases=10&limit=15", timeout=10)
-            if atty_res.status_code == 200:
-                atty_data = atty_res.json()
+            _atty_json = _fetch_market_intel("attorneys/leaderboard?min_cases=10&limit=15")
+            if _atty_json:
+                atty_data = _atty_json
                 attorneys = atty_data.get("attorneys", [])
 
                 # Context stats
@@ -2498,9 +2509,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
     # --- Neighborhoods ---
     with intel_tab5:
         try:
-            nb_res = requests.get(f"{API_URL}/neighborhoods", timeout=10)
-            if nb_res.status_code == 200:
-                nb_data = nb_res.json().get("neighborhoods", [])
+            _nb_json = _fetch_market_intel("neighborhoods")
+            if _nb_json:
+                nb_data = _nb_json.get("neighborhoods", [])
                 if nb_data:
                     for n in nb_data:
                         rate = n["approval_rate"]
@@ -2535,9 +2546,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
     # --- Denial Patterns ---
     with intel_tab6:
         try:
-            dp_res = requests.get(f"{API_URL}/denial_patterns", timeout=10)
-            if dp_res.status_code == 200:
-                dp_data = dp_res.json()
+            _dp_json = _fetch_market_intel("denial_patterns")
+            if _dp_json:
+                dp_data = _dp_json
                 st.markdown(
                     f"**{dp_data.get('total_approved', 0):,} approved** vs "
                     f"**{dp_data.get('total_denied', 0):,} denied** — what separates them?"
@@ -2575,9 +2586,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
         with vc1:
             st.markdown("**Voting Patterns**")
             try:
-                vp_res = requests.get(f"{API_URL}/voting_patterns", timeout=10)
-                if vp_res.status_code == 200:
-                    vp = vp_res.json()
+                _vp_json = _fetch_market_intel("voting_patterns")
+                if _vp_json:
+                    vp = _vp_json
                     if vp.get("unanimous_total"):
                         st.metric("Unanimous Decisions", f"{vp['unanimous_total']:,}")
                         st.metric("Unanimous Approval Rate", f"{vp['unanimous_approval_rate']:.0%}")
@@ -2590,9 +2601,9 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
         with vc2:
             st.markdown("**Common Approval Conditions**")
             try:
-                pv_res = requests.get(f"{API_URL}/proviso_stats", timeout=10)
-                if pv_res.status_code == 200:
-                    pv = pv_res.json()
+                _pv_json = _fetch_market_intel("proviso_stats")
+                if _pv_json:
+                    pv = _pv_json
                     conditions = pv.get("conditions", [])
                     if conditions:
                         for c in conditions:
