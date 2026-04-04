@@ -1954,24 +1954,38 @@ if st.session_state.prediction_result:
     except Exception as e:
         st.caption(f"Could not load key factors: {e}")
 
-    # --- Actionable Recommendations ---
+    # --- Actionable Recommendations (from ML engine) ---
     st.markdown("")
-    recommendations = []
-    if not result.get("has_attorney"):
-        recommendations.append("Hire an attorney — legal representation significantly boosts approval odds")
-    if len(result.get("variances", [])) > 3:
-        recommendations.append(f"Reduce scope — you're requesting {len(result['variances'])} variances; fewer = better odds")
-    if prob < 0.4 and result.get("ward_approval_rate") and result["ward_approval_rate"] > 0.6:
-        recommendations.append("Your project specifics are dragging you below the ward average — review variance selections")
-    if prob >= 0.6:
-        recommendations.append("Strong position — ensure community engagement and clean application to maintain odds")
-    if prob < 0.3:
-        recommendations.append("Consider redesigning the project to require fewer variances before filing")
-
-    if recommendations:
-        with st.expander("Recommended Next Steps", expanded=prob < 0.5):
-            for r in recommendations:
-                st.markdown(f"→ {r}")
+    smart_recs = result.get("smart_recommendations", {})
+    api_recs = smart_recs.get("recommendations", [])
+    if api_recs:
+        with st.expander("Recommended Next Steps", expanded=prob < 0.7):
+            opt_prob = smart_recs.get("optimized_probability")
+            if opt_prob:
+                st.markdown(f"**If you follow these recommendations, your probability could increase from {prob:.0%} to {opt_prob:.0%}.**")
+            for rec in api_recs:
+                impact_color = "#10b981" if "+" in str(rec.get("probability_impact", "")) else "#f59e0b"
+                st.markdown(
+                    f'<div style="border-left:3px solid {impact_color};padding:8px 12px;margin:8px 0;background:rgba(255,255,255,0.03);border-radius:0 6px 6px 0;">'
+                    f'<strong>{esc(rec["action"])}</strong> '
+                    f'<span style="color:{impact_color};font-weight:bold;">({esc(str(rec.get("probability_impact", "")))})</span><br/>'
+                    f'<span style="color:#94a3b8;font-size:13px;">{esc(rec.get("evidence", rec.get("detail", "")))}</span>'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+    else:
+        # Fallback to generic recommendations if API doesn't return smart_recommendations
+        recommendations = []
+        if not result.get("has_attorney"):
+            recommendations.append("Hire an attorney — legal representation significantly boosts approval odds")
+        if len(result.get("variances", [])) > 3:
+            recommendations.append(f"Reduce scope — you're requesting {len(result['variances'])} variances; fewer = better odds")
+        if prob >= 0.6:
+            recommendations.append("Strong position — ensure community engagement and clean application to maintain odds")
+        if recommendations:
+            with st.expander("Recommended Next Steps", expanded=prob < 0.5):
+                for r in recommendations:
+                    st.markdown(f"→ {r}")
 
     # --- Model Info ---
     # --- Save / Bookmark ---
@@ -2060,21 +2074,38 @@ if st.session_state.prediction_result:
         days = timeline["median_days"]
         months = days / 30
         cases_used = timeline.get('cases_used', 0)
-        note = timeline.get('note', '')
-        if note:
-            ward_note = f" ({esc(note)})"
-        elif timeline.get("ward_specific"):
-            ward_note = f" (Ward-specific, {cases_used} cases)"
-        elif cases_used > 0:
-            ward_note = f" (city-wide avg, {cases_used} cases)"
+        ward_label = f"Ward {timeline['ward']}" if timeline.get("ward") else "City-wide"
+        ward_specific = timeline.get("ward_specific", False)
+
+        phases = timeline.get("phases", {})
+        if phases:
+            ftoh = phases.get("filing_to_hearing", {})
+            htod = phases.get("hearing_to_decision", {})
+            ftod = phases.get("filing_to_decision", {})
+
+            st.markdown(
+                f'<div style="margin-top:12px;padding:12px 16px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid #334155;">'
+                f'<div style="font-weight:700;margin-bottom:8px;">Estimated Timeline ({ward_label}, {cases_used} cases)</div>'
+                f'<div style="display:flex;gap:16px;flex-wrap:wrap;">'
+                + (f'<div style="flex:1;min-width:140px;text-align:center;padding:8px;background:rgba(59,130,246,0.1);border-radius:6px;">'
+                   f'<div style="font-size:22px;font-weight:700;color:#3b82f6;">{ftoh["median_days"]}d</div>'
+                   f'<div style="font-size:11px;color:#94a3b8;">Filing → Hearing</div></div>' if ftoh.get("median_days") else '')
+                + (f'<div style="flex:1;min-width:140px;text-align:center;padding:8px;background:rgba(168,85,247,0.1);border-radius:6px;">'
+                   f'<div style="font-size:22px;font-weight:700;color:#a855f7;">{htod["median_days"]}d</div>'
+                   f'<div style="font-size:11px;color:#94a3b8;">Hearing → Decision</div></div>' if htod.get("median_days") else '')
+                + (f'<div style="flex:1;min-width:140px;text-align:center;padding:8px;background:rgba(16,185,129,0.1);border-radius:6px;">'
+                   f'<div style="font-size:22px;font-weight:700;color:#10b981;">{ftod["median_days"]}d</div>'
+                   f'<div style="font-size:11px;color:#94a3b8;">Total (Filing → Decision)</div></div>' if ftod.get("median_days") else '')
+                + f'</div></div>',
+                unsafe_allow_html=True
+            )
         else:
-            ward_note = ""
-        st.markdown(
-            f'<div style="color:#888; font-size:13px; margin-top:5px;">'
-            f'Estimated timeline: ~{months:.0f} months ({days} days){ward_note}'
-            f'</div>',
-            unsafe_allow_html=True
-        )
+            st.markdown(
+                f'<div style="color:#888; font-size:13px; margin-top:5px;">'
+                f'Estimated timeline: ~{months:.0f} months ({days} days) ({ward_label}, {cases_used} cases)'
+                f'</div>',
+                unsafe_allow_html=True
+            )
 
     # --- Export Report ---
     st.markdown("")
