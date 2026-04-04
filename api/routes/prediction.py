@@ -9,7 +9,7 @@ import traceback
 import datetime
 import numpy as np
 import pandas as pd
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 
 from api import state
 from api.utils import safe_int, safe_str, safe_float, _clean_case_address, _clean_case_date
@@ -21,13 +21,16 @@ logger = logging.getLogger("permitiq")
 router = APIRouter()
 
 
-# Import verify_api_key from main at runtime to avoid circular imports
-def _get_api_key_dep():
-    try:
-        from api.main import verify_api_key
-        return Depends(verify_api_key)
-    except ImportError:
+def _auto_detect_ward(district: str) -> str:
+    """Auto-detect ward from zoning district using ZBA case history."""
+    if not district or state.zba_df is None or 'zoning_district' not in state.zba_df.columns:
         return None
+    ward_lookup = state.zba_df[
+        (state.zba_df['zoning_district'] == district) & state.zba_df['ward'].notna()
+    ]['ward']
+    if not ward_lookup.empty:
+        return str(int(ward_lookup.mode().iloc[0]))
+    return None
 
 
 def build_features(parcel_row, proposed_use: str, variances: list,
@@ -201,7 +204,7 @@ def build_features(parcel_row, proposed_use: str, variances: list,
     return features
 
 
-def get_similar_cases(ward, variances, project_type=None, limit=5):
+def get_similar_cases(ward, variances, project_type=None, limit=5, zoning_district=None):
     """Find similar historical ZBA cases using relevance scoring."""
     if state.zba_df is None or len(state.zba_df) == 0:
         return [], 0, 0.0
@@ -215,6 +218,10 @@ def get_similar_cases(ward, variances, project_type=None, limit=5):
             df.loc[df['ward'] == ward_float, '_relevance'] += 3.0
         except (ValueError, TypeError):
             pass
+
+    # Zoning district matching — cases in the same district are highly relevant
+    if zoning_district and 'zoning_district' in df.columns:
+        df.loc[df['zoning_district'].fillna('').str.lower() == zoning_district.lower(), '_relevance'] += 2.5
 
     if variances and 'variance_types' in df.columns:
         vt = df['variance_types'].fillna('').str.lower()
@@ -589,17 +596,14 @@ def analyze_proposal(payload: dict):
     zoning = str(parcel_row.get("primary_zoning") or "") if parcel_row is not None else ""
     district = str(parcel_row.get("districts") or "") if parcel_row is not None else ""
 
-    if not ward and district and state.zba_df is not None and 'zoning_district' in state.zba_df.columns:
-        ward_lookup = state.zba_df[
-            (state.zba_df['zoning_district'] == district) & state.zba_df['ward'].notna()
-        ]['ward']
-        if not ward_lookup.empty:
-            ward = str(int(ward_lookup.mode().iloc[0]))
+    if not ward:
+        ward = _auto_detect_ward(district)
+        if ward:
             logger.info("Auto-detected ward %s from district %s", ward, district)
 
     features = build_features(parcel_row, proposed_use, variances, project_type, ward, has_attorney,
                               proposed_units, proposed_stories)
-    similar, total_similar, approval_rate_similar = get_similar_cases(ward, variances, project_type)
+    similar, total_similar, approval_rate_similar = get_similar_cases(ward, variances, project_type, zoning_district=district)
     variance_history = _get_variance_history(variances, ward, has_attorney)
 
     # ML MODEL PREDICTION
@@ -616,12 +620,14 @@ def analyze_proposal(payload: dict):
 
             prob = float(model.predict_proba(input_df)[0][1])
 
-            # SHAP explainability
+            # SHAP explainability (use cached explainer from startup for speed)
             top_drivers = []
             try:
-                import shap
-                shap_model = state.model_package.get('base_model', model)
-                explainer = shap.TreeExplainer(shap_model)
+                explainer = state.shap_explainer
+                if explainer is None:
+                    import shap
+                    shap_model = state.model_package.get('base_model', model)
+                    explainer = shap.TreeExplainer(shap_model)
                 sv = explainer.shap_values(input_df)
                 if isinstance(sv, list):
                     sv = sv[1]
@@ -850,12 +856,8 @@ def compare_scenarios(payload: dict):
 
         district = str(parcel_row.get("districts") or "") if parcel_row is not None else ""
 
-        if not ward and district and state.zba_df is not None and 'zoning_district' in state.zba_df.columns:
-            ward_lookup = state.zba_df[
-                (state.zba_df['zoning_district'] == district) & state.zba_df['ward'].notna()
-            ]['ward']
-            if not ward_lookup.empty:
-                ward = str(int(ward_lookup.mode().iloc[0]))
+        if not ward:
+            ward = _auto_detect_ward(district)
 
         def predict_prob(feat_dict):
             if state.model_package and 'model' in state.model_package:
@@ -1022,12 +1024,8 @@ def get_smart_recommendations(payload: dict):
 
     # Auto-detect ward
     district = str(parcel_row.get("districts") or "") if parcel_row is not None else ""
-    if not ward and district and state.zba_df is not None and 'zoning_district' in state.zba_df.columns:
-        ward_lookup = state.zba_df[
-            (state.zba_df['zoning_district'] == district) & state.zba_df['ward'].notna()
-        ]['ward']
-        if not ward_lookup.empty:
-            ward = str(int(ward_lookup.mode().iloc[0]))
+    if not ward:
+        ward = _auto_detect_ward(district)
 
     # Compute base prediction
     features = build_features(parcel_row, proposed_use, variances, project_type, ward, has_attorney,

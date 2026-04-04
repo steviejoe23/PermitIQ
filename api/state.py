@@ -22,3 +22,6 @@ timeline_stats = None
 
 # DataFrame — geocoded ZBA cases for geographic nearby search
 _case_coords = None
+
+# SHAP TreeExplainer — cached at model load to avoid per-request overhead
+shap_explainer = None

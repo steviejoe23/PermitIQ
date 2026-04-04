@@ -164,3 +164,98 @@ class TestFeatureBuilder:
     def test_no_duplicate_features(self):
         """No duplicate features allowed."""
         assert len(FEATURE_COLS) == len(set(FEATURE_COLS)), "Duplicate features found"
+
+
+# ===========================
+# api/routes/prediction.py tests
+# ===========================
+
+from api.routes.prediction import build_features, _auto_detect_ward
+
+
+class TestBuildFeatures:
+    def test_basic_output_keys(self):
+        """build_features should return a dict with all expected feature columns."""
+        result = build_features(
+            parcel_row=None,
+            proposed_use="residential",
+            variances=["height", "parking"],
+            project_type="new_construction",
+            ward="7",
+            has_attorney=True,
+            proposed_units=4,
+            proposed_stories=3,
+        )
+        assert isinstance(result, dict)
+        assert 'num_variances' in result
+        assert result['num_variances'] == 2
+        assert result['var_height'] == 1
+        assert result['var_parking'] == 1
+        assert result['has_attorney'] == 1
+        assert result['proposed_units'] == 4
+        assert result['proposed_stories'] == 3
+
+    def test_zero_variances(self):
+        """No variances should produce zero counts."""
+        result = build_features(
+            parcel_row=None, proposed_use="commercial", variances=[],
+        )
+        assert result['num_variances'] == 0
+        assert result['var_height'] == 0
+        assert result['var_far'] == 0
+        assert result['is_variance'] == 0
+
+    def test_residential_detection(self):
+        """Residential use should be detected."""
+        result = build_features(parcel_row=None, proposed_use="two-family dwelling", variances=[])
+        assert result['is_residential'] == 1
+        assert result['is_commercial'] == 0
+
+    def test_commercial_detection(self):
+        """Commercial use should be detected."""
+        result = build_features(parcel_row=None, proposed_use="retail store", variances=[])
+        assert result['is_residential'] == 0
+        assert result['is_commercial'] == 1
+
+    def test_article_80_threshold(self):
+        """Projects over 15 units or 4 stories should flag article_80."""
+        result = build_features(parcel_row=None, proposed_use="residential", variances=[], proposed_units=20, proposed_stories=6)
+        assert result['article_80'] == 1
+
+    def test_below_article_80(self):
+        """Small projects should not flag article_80."""
+        result = build_features(parcel_row=None, proposed_use="residential", variances=[], proposed_units=3, proposed_stories=2)
+        assert result['article_80'] == 0
+
+    def test_interaction_features(self):
+        """Interaction features should compute correctly."""
+        result = build_features(
+            parcel_row=None, proposed_use="residential",
+            variances=["height"], has_attorney=True,
+            proposed_stories=5,
+        )
+        assert result['interact_height_stories'] == 1 * 5
+        assert result['interact_attorney_variances'] == 1 * 1
+
+    def test_large_project_flag(self):
+        """Large project should be flagged."""
+        result = build_features(parcel_row=None, proposed_use="residential", variances=[], proposed_units=12, proposed_stories=6)
+        assert result['large_project'] == 1
+
+    def test_many_variances_flag(self):
+        """3+ variances should set many_variances."""
+        result = build_features(parcel_row=None, proposed_use="residential", variances=["height", "far", "parking"])
+        assert result['many_variances'] == 1
+
+
+class TestAutoDetectWard:
+    def test_returns_none_with_no_data(self):
+        """Should return None when no ZBA data available."""
+        # state.zba_df is loaded but we pass empty district
+        result = _auto_detect_ward("")
+        assert result is None
+
+    def test_returns_none_for_nonexistent_district(self):
+        """Should return None for a district that doesn't exist."""
+        result = _auto_detect_ward("ZZZZZZZ-FAKE-999")
+        assert result is None

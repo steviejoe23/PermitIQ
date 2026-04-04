@@ -103,12 +103,46 @@ def ward_stats(ward_id: str):
     denied = int((ward_cases['decision_clean'] == 'DENIED').sum())
     total = approved + denied
 
+    # Variance breakdown for this ward
+    variance_breakdown = []
+    if 'variance_types' in ward_cases.columns:
+        vt_series = ward_cases['variance_types'].fillna('')
+        for vtype in _VARIANCE_TYPES:
+            mask = vt_series.str.contains(vtype, na=False)
+            v_cases = ward_cases[mask]
+            if len(v_cases) > 0:
+                v_approved = int((v_cases['decision_clean'] == 'APPROVED').sum())
+                variance_breakdown.append({
+                    "variance_type": vtype,
+                    "cases": len(v_cases),
+                    "approval_rate": round(v_approved / len(v_cases), 3),
+                })
+        variance_breakdown.sort(key=lambda x: -x['cases'])
+
+    # Attorney effect
+    attorney_effect = None
+    if 'has_attorney' in ward_cases.columns:
+        with_atty = ward_cases[ward_cases['has_attorney'] == 1]
+        without_atty = ward_cases[ward_cases['has_attorney'] == 0]
+        if len(with_atty) >= 3 and len(without_atty) >= 3:
+            rate_with = float((with_atty['decision_clean'] == 'APPROVED').mean())
+            rate_without = float((without_atty['decision_clean'] == 'APPROVED').mean())
+            attorney_effect = {
+                "with_attorney_rate": round(rate_with, 3),
+                "without_attorney_rate": round(rate_without, 3),
+                "difference": round(rate_with - rate_without, 3),
+                "cases_with": len(with_atty),
+                "cases_without": len(without_atty),
+            }
+
     return {
         "ward": ward_id,
         "total_cases": int(total),
         "approved": approved,
         "denied": denied,
         "approval_rate": round(float(approved / total), 3) if total > 0 else 0,
+        "variance_breakdown": variance_breakdown,
+        "attorney_effect": attorney_effect,
     }
 
 

@@ -66,6 +66,9 @@ def overall_stats():
         "worst_ward": str(ward_rates.idxmin()) if len(ward_rates) > 0 else None,
         "worst_ward_rate": round(float(ward_rates.min()), 3) if len(ward_rates) > 0 else None,
         "total_parcels": len(state.gdf) if state.gdf is not None else 0,
+        "feature_count": len(state.model_package.get('feature_cols', [])) if state.model_package else 0,
+        "model_loaded": state.model_package is not None,
+        "model_name": state.model_package.get('model_name', '') if state.model_package else '',
     }
 
 

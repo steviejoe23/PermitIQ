@@ -91,6 +91,14 @@ def recommend_parcels(
     features_df = pd.DataFrame(features_list)[feature_cols].fillna(0)
     probs = model.predict_proba(features_df)[:, 1]
 
+    # Build address lookup for enrichment
+    addr_lookup = {}
+    if state.parcel_addr_df is not None:
+        addr_lookup = dict(zip(
+            state.parcel_addr_df['parcel_id'].astype(str),
+            state.parcel_addr_df['address']
+        ))
+
     results = []
     for i, (parcel_id, prob) in enumerate(zip(valid_indices, probs)):
         prob = float(prob)
@@ -98,12 +106,22 @@ def recommend_parcels(
             parcel_row = candidates.loc[parcel_id]
             if isinstance(parcel_row, pd.DataFrame):
                 parcel_row = parcel_row.iloc[0]
+            pid_str = str(parcel_id)
+            district_val = str(parcel_row.get("districts") or "")
             result = {
-                "parcel_id": str(parcel_id),
+                "parcel_id": pid_str,
+                "address": addr_lookup.get(pid_str, ""),
                 "approval_probability": round(prob, 3),
                 "zoning_code": str(parcel_row.get("primary_zoning") or ""),
-                "district": str(parcel_row.get("districts") or ""),
+                "district": district_val,
+                "ward": "",
             }
+            # Ward detection from district
+            if district_val and state.zba_df is not None and 'zoning_district' in state.zba_df.columns:
+                from api.routes.prediction import _auto_detect_ward
+                detected_ward = _auto_detect_ward(district_val)
+                if detected_ward:
+                    result["ward"] = detected_ward
             if hasattr(parcel_row, 'geometry') and parcel_row.geometry:
                 centroid = parcel_row.geometry.centroid
                 result["lat"] = round(centroid.y, 6)

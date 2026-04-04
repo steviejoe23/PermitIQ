@@ -228,6 +228,17 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
             logger.info("ML model loaded (%s, AUC: %.4f, %d features)", model_name, auc, n_features)
         except Exception as e:
             logger.warning("No trained model found, using fallback logic: %s", e)
+
+        # Pre-cache SHAP TreeExplainer (avoids expensive per-request creation)
+        if state.model_package and 'model' in state.model_package:
+            try:
+                import shap
+                shap_model = state.model_package.get('base_model', state.model_package['model'])
+                state.shap_explainer = shap.TreeExplainer(shap_model)
+                logger.info("SHAP TreeExplainer cached at startup")
+            except Exception as shap_err:
+                logger.warning("Could not cache SHAP explainer: %s", shap_err)
+
         gc.collect()
     _log_memory("after model")
 
