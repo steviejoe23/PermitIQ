@@ -24,6 +24,16 @@ router = APIRouter(prefix="/attorneys", tags=["Attorneys"])
 _zba_df = None
 _VARIANCE_TYPES = []
 
+
+def _safe_ward(w):
+    """Convert ward value to clean string, handling NaN/float."""
+    if pd.isna(w):
+        return None
+    try:
+        return str(int(float(w)))
+    except (ValueError, TypeError):
+        return None
+
 # Simple TTL cache
 _cache = {}
 CACHE_TTL = 3600
@@ -201,13 +211,6 @@ def attorney_profile(attorney_name: str):
     # --- Cases by ward ---
     ward_breakdown = []
     if 'ward' in cases.columns:
-        def _safe_ward(w):
-            if pd.isna(w):
-                return None
-            try:
-                return str(int(float(w)))
-            except (ValueError, TypeError):
-                return None
         cases['_ward'] = cases['ward'].apply(_safe_ward)
         ward_groups = cases[cases['_ward'].notna()].groupby('_ward')
         for ward, grp in ward_groups:
