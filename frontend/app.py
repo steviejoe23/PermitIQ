@@ -1317,7 +1317,21 @@ if st.session_state.parcel_data:
                         )
 
                     # Auto-populate detected variances for Step 4 prediction
-                    _detected_vars = [v.replace('_', ' ').title() for v in variances_needed]
+                    _var_name_map = {
+                        "far": "FAR (Floor Area Ratio)",
+                        "height": "Height",
+                        "lot_area": "Lot Area",
+                        "lot_frontage": "Lot Frontage",
+                        "front_setback": "Front Setback",
+                        "rear_setback": "Rear Setback",
+                        "side_setback": "Side Setback",
+                        "parking": "Parking",
+                        "conditional_use": "Conditional Use",
+                        "open_space": "Open Space",
+                        "density": "Density",
+                        "nonconforming": "Nonconforming",
+                    }
+                    _detected_vars = [_var_name_map.get(v, v.replace('_', ' ').title()) for v in variances_needed]
                     st.session_state['detected_variances'] = _detected_vars
 
                     # Show historical rates for these variances
@@ -2407,13 +2421,14 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
 
                 # Timeline for this ward
                 try:
-                    tl_res = requests.get(f"{API_URL}/timeline_stats", timeout=10)
+                    tl_res = requests.get(f"{API_URL}/timeline_stats", params={"ward": ward_input}, timeout=10)
                     if tl_res.status_code == 200:
                         tl_data = tl_res.json()
-                        for tw in tl_data.get("by_ward", []):
-                            if tw["ward"] == ward_input:
-                                st.caption(f"Median decision timeline for Ward {ward_input}: {tw['median_days']} days ({tw['cases']} cases)")
-                                break
+                        ward_tl = tl_data.get("ward", {})
+                        if ward_tl and "phases" in ward_tl:
+                            ftd = ward_tl["phases"].get("filing_to_decision", {})
+                            if ftd:
+                                st.caption(f"Median decision timeline for Ward {ward_input}: {ftd['median_days']} days ({ftd['cases_used']} cases)")
                 except Exception:
                     pass
 

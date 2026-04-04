@@ -156,6 +156,7 @@ def normalize_address(addr):
     addr = re.sub(r'\bnorth\b', 'n', addr)
     addr = re.sub(r'\bsouth\b', 's', addr)
     addr = re.sub(r'\bsaint\b', 'st', addr)
+    addr = re.sub(r'\bmount\b', 'mt', addr)
 
     # Collapse whitespace
     addr = re.sub(r'\s+', ' ', addr).strip()

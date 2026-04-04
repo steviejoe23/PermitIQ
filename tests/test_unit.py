@@ -66,6 +66,10 @@ class TestNormalizeAddress:
         result = normalize_address(None)
         assert result == ""
 
+    def test_mount_normalization(self):
+        """Mount and MT should normalize to the same thing."""
+        assert normalize_address("9 Mount Everett St") == normalize_address("9 MT EVERETT ST")
+
 
 class TestSafeHelpers:
     def test_safe_float_valid(self):
