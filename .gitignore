@@ -1,4 +1,6 @@
-# PermitIQ .gitignore
+# PermitIQ .gitignore — TRANSFER BRANCH
+# This branch includes data, docs, and configs for full project transfer.
+# Files over GitHub's 100MB limit are excluded (use cloud storage for those).
 
 # Python
 __pycache__/
@@ -9,26 +11,30 @@ dist/
 build/
 *.egg
 
-# Virtual environment
+# Virtual environment (rebuild with: pip install -r requirements.txt)
 zoning-env/
 
-# Data files (large — not tracked in git)
-*.csv
-*.geojson
-*.pkl
-*.pkl.gz
-*.json
-!.claude/launch.json
-!package.json
-!.env.example
+# ---- FILES OVER 100MB (transfer via cloud storage) ----
+# building_permits.csv          253MB
+# zba_model_v2.pkl              219MB
+# api/zba_model.pkl             219MB (copy of zba_model_v2.pkl)
+# boston_parcels_zoning.geojson   81MB
+# property_assessment_fy2026.csv 76MB
+# pdfs/                         4.2GB
+# model_history/                1.7GB
+# parcels_2025/                  91MB
+# parcels_2025_clean/           118MB
+building_permits.csv
+zba_model_v2.pkl
+api/zba_model.pkl
+boston_parcels_zoning.geojson
+property_assessment_fy2026.csv
 pdfs/
-ocr_output/
-ocr_checkpoint.json
+model_history/
+parcels_2025/
+parcels_2025_clean/
 
-# Zip archives
-*.zip
-
-# GIS shapefiles
+# GIS shapefiles (raw source data — in parcels dirs above)
 *.shp
 *.shx
 *.dbf
@@ -41,14 +47,12 @@ Boston Zoning GCOD Clean/
 Coastal Flood Resilience Overlay District Clean/
 boston_zoning_district_clean/
 
-# Jupyter
+# Zip archives (raw downloads — can re-download)
+*.zip
+
+# Jupyter checkpoints (auto-generated)
 .ipynb_checkpoints/
 .virtual_documents/
-*.ipynb
-
-# Model artifacts
-model_history/
-model_diagnostics.png
 
 # IDE
 .vscode/
@@ -61,39 +65,32 @@ model_diagnostics.png
 .DS_Store
 Thumbs.db
 
-# Environment
+# Environment secrets (never commit)
 .env
 .env.local
 
 # Logs
 *.log
 overnight_log.txt
+overnight_log.txt~
 
-# Test
+# Test cache
 .pytest_cache/
 htmlcov/
 .coverage
 
-# Docker
+# Docker overrides
 docker-compose.override.yml
 
-# Claude / AI context (not for public repos)
-CLAUDE.md
-.claude/
-memory/
-
-# Internal planning & ops docs
-TASKS.md
-REFACTOR_PLAN.md
-DEMO_SCRIPT.md
-
-# Leads / sales (private)
-leads/
-
-# One-off scripts & artifacts
+# Generated artifacts
 calibration_report.png
 calibration_report.txt
+model_diagnostics.png
 dashboard.html
 
 # Auth usage logs
 api/usage.log
+
+# OCR intermediates
+ocr_output/
+ocr_checkpoint.json

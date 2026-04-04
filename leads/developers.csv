@@ -1,0 +1,322 @@
+name,total_cases,wins,losses,success_rate,uses_attorney_pct,common_attorneys,top_wards,top_variance_types,most_recent_filing,sample_addresses
+John Pulgini,85,83,2,97.6,32.0,"John Pulgini, Kevin M Cloutier","19, 20, 18","conditional_use, parking, far, height, lot_area",2026-01-23,"29779, 70022, 75349"
+George Morancy,80,75,5,93.8,15.0,"Charles McCarthy, George Morancy, ESQ","7, 6, 22","parking, conditional_use, height, far, open_space",2026-01-30,"88429, 98054, 90195"
+James Christopher,54,50,4,92.6,46.0,"James  Christopher, James Christopher","16, 13, 6","conditional_use, parking, side_setback, far, rear_setback",2026-02-13,"36369, 53178, 22205"
+Derric Small,50,49,1,98.0,20.0,"derric small, Derric Small","18, 14, 12","parking, conditional_use, far, side_setback, open_space",2025-10-24,"53091, 66938, 20105"
+Timothy Johnson,46,44,2,95.7,20.0,"TIMOTHY JOHNSON, George Morancy, ESQ","7, 6, 16","parking, height, lot_area, conditional_use, far",2025-12-19,"51164, 52033, 96317"
+Timothy Burke,39,39,0,100.0,38.0,Timothy Burke,"3, 19, 11","conditional_use, far, rear_setback, parking, side_setback",2026-03-13,"21875, 99404, 46868"
+Marc Lacasse,36,32,4,88.9,39.0,"Marc LaCasse, Ryan Spitz","4, 1, 5","conditional_use, height, rear_setback, side_setback, parking",2026-03-20,"31601, 45795, 21513"
+Eric Zachrison,27,27,0,100.0,19.0,Eric Zachrison,"12, 1, 14","side_setback, height, parking, lot_area, conditional_use",2025-12-19,"10209, 96128, 74858"
+Joseph Holland,27,27,0,100.0,44.0,Joseph Holland,"4, 3, 5","conditional_use, far, rear_setback, height, side_setback",2026-01-23,"56767, 76263, 73991"
+"Duane Boyce, Norfolk Design & Construction",24,24,0,100.0,0.0,Jeffrey Drago,"14, 15, 17","conditional_use, lot_area, lot_frontage, far, front_setback",2023-03-24,"30670, 30692, 30677"
+"Trichilo Development, Llc",24,23,1,95.8,17.0,Richard Lynds,1,"conditional_use, parking, height, far, side_setback",2024-05-24,"12172, 61678, 59282"
+Richard Liriano,21,21,0,100.0,0.0,Manuel Torres,14,"lot_area, parking, conditional_use, height, front_setback",2023-05-26,"64376, 64391, 64380"
+Vernon Woodworth,21,18,3,85.7,38.0,Vernon Woodworth,"13, 15, 17","side_setback, far, parking, front_setback, rear_setback",2025-08-01,"81973, 04660, 30507"
+Ralph Parent,20,20,0,100.0,0.0,Ralph Parent,"14, 17","parking, lot_area, lot_frontage, far, front_setback",,"06954, 06956, 06972"
+Timothy Sheehan,19,18,1,94.7,11.0,Timothy Sheehan,"2, 3","height, far, conditional_use, rear_setback, side_setback",,"30850, 30851, 35571"
+Antonio Ferrara,18,17,1,94.4,33.0,"Antonio Ferrara, John Pulgini","20, 19, 18","parking, lot_area, lot_frontage, far, rear_setback",2025-12-26,"75242, 41344, 17047"
+Andrew Litchfield,17,16,1,94.1,24.0,Andrew Litchfield,"17, 19, 10","parking, conditional_use, lot_area, height, front_setback",2024-10-25,"44871, 71408, 71411"
+Mark Little,16,16,0,100.0,12.0,Mark Little,"7, 6, 16","conditional_use, height, parking, lot_area, rear_setback",2024-07-16,"27690, 69883, 53384"
+Lee Goodman,15,15,0,100.0,7.0,Lee Goodman,"11, 19","parking, conditional_use, height, rear_setback, open_space",2024-10-18,"97959, 07600, 07594"
+Sean George,15,15,0,100.0,73.0,"Sean George, Ryan Spitz","17, 13, 6","conditional_use, rear_setback, far, parking, lot_area",2025-08-22,"13252, 13247, 23617"
+On The Dot Llc,15,0,15,0.0,20.0,"Joseph Hanley, c/o Joseph Hanley, Esq.",7,"parking, conditional_use, rear_setback",,"59531, 59548, 59546"
+John Walsh,15,14,1,93.3,53.0,"John Walsh, Andry Rezende","21, 5, 20","parking, conditional_use, height, rear_setback, far",2025-10-17,"03140, 09103, 62602"
+Jeremy Sears,15,13,2,86.7,0.0,Jeremy Sears,"8, 7, 12","parking, height, conditional_use, far, rear_setback",2023-04-14,"57542, 19514, 48137"
+John Barry,15,12,3,80.0,0.0,"John Barry , John Barry","18, 15, 7","parking, height, far, rear_setback, side_setback",,"60268, 93501, 68377"
+Norfolk Design & Construction,14,14,0,100.0,36.0,"Jeffrey Drago, Matthew Eckel","12, 15, 14","height, front_setback, rear_setback, lot_area, side_setback",2024-06-14,"61863, 76380, 76381"
+Cesar Dasilva,13,10,3,76.9,31.0,Cesar DaSilva,"17, 1, 18","conditional_use, parking, far, side_setback, rear_setback",2025-04-04,"06420, 90291, 07818"
+Gregory Mccarthy,12,12,0,100.0,33.0,Gregory McCarthy,"8, 3, 4","conditional_use, rear_setback, lot_area, height, parking",2025-06-06,"92098, 97174, 76209"
+"George Morancy, Esq",12,12,0,100.0,100.0,"George Morancy, ESQ","21, 7, 6","conditional_use, height, parking, rear_setback, lot_area",2026-01-30,"11722, 16929, 25948"
+John Roche Aia,12,11,1,91.7,0.0,John Roche AIA,"17, 13, 20","far, height, rear_setback, side_setback, open_space",,"76244, 76239, 76235"
+Derick Joyner,11,9,2,81.8,0.0,"Derick Joyner, Richard Lynds","17, 18, 12","parking, conditional_use, height, lot_area, far",2024-03-08,"56135, 85550, 03302"
+Alfonso Sira,11,8,3,72.7,0.0,"Alfonso Sira, derric small","18, 14, 19","conditional_use, far, lot_area, parking, open_space",2024-02-23,"95189, 85053, 54070"
+Kevin Joyce,11,11,0,100.0,18.0,"Kevin  Joyce, Kevin Joyce","2, 3","conditional_use, far, rear_setback, open_space, lot_area",2024-08-26,"08249, 56234, 97093"
+Ivan Hernandez,11,11,0,100.0,45.0,Ivan Hernandez,"20, 19, 9","conditional_use, side_setback, height, far, front_setback",2025-09-26,"29941, 33227, 65204"
+David Winick,10,10,0,100.0,60.0,David Winick,"6, 7","height, conditional_use, lot_area, rear_setback, side_setback",2025-03-14,"52834, 74434, 76558"
+Cameron Merrill,9,9,0,100.0,33.0,Cameron Merrill,"5, 21, 2","conditional_use, height, parking, open_space, far",2025-11-07,"42680, 24488, 46157"
+Mai Phung,9,6,3,66.7,0.0,"Mai Phung, Tam Nguyen","15, 19, 11","conditional_use, front_setback, height, far, side_setback",2023-04-14,"60388, 30258, 64586"
+Fred Manigat,9,9,0,100.0,0.0,Fred Manigat,"12, 17, 20","conditional_use, lot_area, open_space, side_setback, parking",2024-01-19,"09386, 38154, 73515"
+Chris Drew,9,9,0,100.0,0.0,"Chris Drew, James  Christopher","7, 13, 16","side_setback, parking, rear_setback, height, conditional_use",2023-09-29,"12139, 46198, 47898"
+Anthony Monahan,9,8,1,88.9,56.0,"Ryan Spitz, Anthony Monahan","6, 7, 16","conditional_use, parking, lot_area, front_setback, side_setback",2025-09-05,"81099, 09380, 02440"
+David Gillies,9,9,0,100.0,100.0,David Gillies,19,"rear_setback, parking, conditional_use, height, lot_area",2024-10-04,"05958, 66516, 66520"
+Josh Fetterman,9,8,1,88.9,89.0,"George Morancy, ESQ, Josh Fetterman","22, 11, 21","conditional_use, rear_setback, height, parking, open_space",2025-12-26,"71240, 38069, 71314"
+Casa Borinquen Apartments Limited Partnership,9,9,0,100.0,100.0,Nina Schwarzschild,"9, 3","conditional_use, far, parking, open_space",2025-01-24,"77859, 34585, 34584"
+Joseph Federico,8,6,2,75.0,25.0,Joseph Federico,"11, 18","parking, far, conditional_use, lot_area, rear_setback",2025-03-14,"77515, 48924, 41057"
+"Ejs Investments, Inc.",8,8,0,100.0,25.0,"Jeffrey Drago, Marguerite Roberts","14, 12","far, lot_area, parking, open_space, front_setback",2024-07-15,"93050, 93053, 97311"
+Peter Vanko,8,4,4,50.0,25.0,Peter Vanko,"7, 14, 12","parking, open_space, height, conditional_use, far",2024-04-26,"63450, 63449, 23258"
+Dean Laprade,8,0,8,0.0,100.0,Dean LaPrade,1,"far, rear_setback, parking, conditional_use, open_space",2025-08-15,"77881, 77882"
+Codman Square Neighborhood Development Corp.,8,8,0,100.0,25.0,"Dominica Man, Matthew Lawlor","14, 17","height, far, parking, side_setback, conditional_use",,"38331, 85544, 38330"
+Sing Ming Chan,8,8,0,100.0,38.0,"Xhaklina Desmond, Sing Ming Chan","2, 6, 7","height, parking, rear_setback, open_space, conditional_use",2025-06-27,"04433, 94946, 21204"
+Joey Arcari,8,8,0,100.0,0.0,"Michael DelleFave, Charles McCarthy","15, 6","height, far, parking, open_space, rear_setback",,"61240, 56470, 56475"
+Ulson Lucien,8,5,3,62.5,62.0,"Ulson  Lucien , Ulson Lucien",18,"side_setback, conditional_use, height, far, lot_area",2024-10-11,"16347, 16343, 24720"
+Armando Hernandez,8,3,5,37.5,12.0,"Armando Hernandez, Alessandro Goncalves","9, 5","conditional_use, far, lot_area, open_space, front_setback",2025-11-07,"90706, 78077, 78073"
+Patrick Mahoney Esq.,7,7,0,100.0,100.0,Patrick Mahoney Esq.,"16, 7","far, lot_area, rear_setback, parking, open_space",,"22360, 22400, 50584"
+Derek Thomas,7,7,0,100.0,0.0,Derek Thomas,19,"far, lot_area, side_setback, parking, conditional_use",2023-07-07,"27946, 27944"
+Odessit Capital,7,7,0,100.0,14.0,Jeffrey Drago,"22, 1, 21","height, side_setback, parking, conditional_use, lot_frontage",2023-10-06,"97973, 97967, 59568"
+Scott Kirkwood,7,7,0,100.0,0.0,Scott Kirkwood,"15, 8","far, side_setback, parking, height, lot_area",,"06343, 20466, 06336"
+David Sokol,7,7,0,100.0,29.0,David Sokol,3,"parking, conditional_use",2025-09-12,"96180, 40851, 72467"
+Douglas Stefanov,7,6,1,85.7,29.0,Douglas Stefanov,"6, 7, 3","conditional_use, lot_area, far, side_setback, lot_frontage",2024-12-27,"23815, 06982, 29391"
+Pamela Bardhi,7,3,4,42.9,0.0,Pamela Bardhi,"18, 20","lot_frontage, far, rear_setback, parking, lot_area",,"30362, 73949, 73954"
+Juan Rojas,7,6,1,85.7,43.0,"Juan Rojas, Thomas Miller","18, 19, 6","conditional_use, rear_setback, height, front_setback, parking",2025-02-07,"2025, 63273, 44863"
+"Hvv Massachusetts, Inc.",7,7,0,100.0,0.0,Jeffrey Drago,"1, 21","conditional_use, nonconforming, parking",2023-10-27,"16018, 04516, 02410"
+Brian Radomski,7,7,0,100.0,0.0,Brian Radomski,"2, 5, 6","conditional_use, height, parking, far",2023-08-18,"73196, 52495, 46108"
+Travis Lee,7,7,0,100.0,0.0,Travis Lee,"15, 14, 17","height, parking, rear_setback, far, front_setback",2023-10-06,"73828, 73831, 23382"
+Stephon Gillings,7,7,0,100.0,57.0,stephon gillings,18,"front_setback, side_setback, conditional_use",2025-06-06,"69983, 51005"
+John Mcdonough,7,7,0,100.0,0.0,John McDonough,5,conditional_use,2023-06-09,"42391, 42390"
+"Ebcpac Development, Llc, Eoin Barry",6,6,0,100.0,0.0,Xhaklina Desmond,18,"height, front_setback, conditional_use, open_space, lot_area",2023-01-06,"48878, 48881, 48885"
+Beth Mcdougal,6,1,5,16.7,0.0,Beth McDougal,"18, 7, 1","lot_area, parking, height, lot_frontage, front_setback",,"31456, 31442, 79045"
+"Michael P. Ross, Esq.",6,6,0,100.0,100.0,"Chayla White, Lesley Hawkins","10, 18, 14","parking, conditional_use, height, far, open_space",2023-09-29,"35582, 17476, 26452"
+Stuart Mullally,6,6,0,100.0,0.0,Xhaklina Desmond,"7, 6","height, rear_setback, conditional_use, lot_area, parking",2024-01-26,"81733, 28422, 05494"
+Michael Stuchins,6,6,0,100.0,0.0,Jeffrey Drago,1,"height, far, lot_area, parking, conditional_use",2023-08-11,"60901, 27827, 95028"
+Stuart Schrier,6,6,0,100.0,0.0,Stuart Schrier,14,"lot_area, height, far, rear_setback, side_setback",2023-09-22,"11034, 05452, 63740"
+Peter Mcloughin,6,6,0,100.0,0.0,Marc LaCasse,4,"height, far, nonconforming",,"72104, 72105"
+Darren Swain,6,4,2,66.7,0.0,Darren Swain,16,"height, side_setback, parking, conditional_use, open_space",,"43750, 60586, 61336"
+Nancy Lo,6,6,0,100.0,0.0,Nancy Lo,"3, 4","conditional_use, parking",2023-05-19,"21272, 53771, 44548"
+Jonathan Lee,6,6,0,100.0,0.0,Jonathan Lee,5,height,,"50980, 50982, 50983"
+Nicholas Landry,6,6,0,100.0,83.0,Nicholas Landry,"6, 2, 7","conditional_use, height, parking, lot_area, front_setback",2026-01-23,"33651, 63313, 33648"
+"Pulgini & Norton, Llp",6,4,2,66.7,0.0,Alec Bonelli,"22, 18, 2","parking, lot_area, height, front_setback, side_setback",,"94502, 52924, 97598"
+William Mead,6,6,0,100.0,100.0,William  Mead ,12,"rear_setback, parking, conditional_use, lot_area, lot_frontage",2024-12-13,"90677, 21090"
+Rosa Design And Construction Llc,6,6,0,100.0,0.0,Eileen Rosa,"18, 16, 17","conditional_use, rear_setback, height, side_setback, front_setback",2023-05-12,"59819, 91093, 82316"
+David Choi,6,4,2,66.7,0.0,David Choi,"1, 15","parking, far, side_setback, rear_setback, height",,"33492, 71906, 33544"
+Melissa Darosa,6,6,0,100.0,0.0,Melissa DaRosa,13,"lot_area, conditional_use, lot_frontage, rear_setback, side_setback",2024-01-05,"17694, 35538"
+Joseph Scarfo,5,5,0,100.0,0.0,Gregory McCarthy,"3, 4","far, conditional_use, height, rear_setback, parking",,"76087, 46098, 89749"
+Nicholas Saraf,5,5,0,100.0,100.0,Vikram Kumar,4,conditional_use,2025-07-18,"19023, 19017"
+Gary Webster,5,5,0,100.0,100.0,Gary Webster,18,"height, far, lot_area, lot_frontage, conditional_use",2026-02-13,"82719, 86074, 86077"
+Ashley Tan,5,5,0,100.0,0.0,Ashley  Tan,"1, 5","height, parking, front_setback, rear_setback, side_setback",,"07041, 99054, 66935"
+Patrick Mahoney,5,3,2,60.0,0.0,"Jeremy Sears, Patrick Mahoney",2,"conditional_use, parking, height, rear_setback, open_space",,"48915, 93574, 23600"
+Jason Zube,5,4,1,80.0,80.0,"jason zube, Jason Robert Zube","5, 3",conditional_use,2025-12-05,"55641, 55712, 56729"
+"George Morancy, Esq.",5,4,1,80.0,100.0,"Charles McCarthy, George Morancy, ESQ","7, 16, 18","conditional_use, height, parking, rear_setback, lot_area",2024-12-06,"36406, 64287, 73705"
+Alfredo Correeia,5,5,0,100.0,0.0,Alfredo Correia,2,"conditional_use, side_setback, parking, open_space",,"81925, 81921"
+Vazberg Properties,5,5,0,100.0,100.0,Jeffrey Drago,"13, 7","parking, conditional_use, far, height, side_setback",2025-04-18,"50517, 88563, 03160"
+Alpine Advisory Services,5,5,0,100.0,80.0,John Moran,4,"conditional_use, rear_setback",2024-07-26,"65797, 21373, 65805"
+Oxford Properties Group,5,5,0,100.0,0.0,"Oxford Properties Group, Daniel Brennan","3, 4",conditional_use,2023-09-15,"80844, 85145"
+Harold Raymond,5,5,0,100.0,60.0,"Harold Raymond, Anthony Watford","18, 13, 7","conditional_use, rear_setback, open_space, far, side_setback",2025-08-22,"95809, 72787, 46888"
+Heather Carbone,5,5,0,100.0,0.0,"Ryan Spitz, Frank Knippenberg","6, 7","conditional_use, height, lot_area, lot_frontage, front_setback",2023-09-08,"44979, 63952"
+Joshua Lapan,5,5,0,100.0,60.0,Joshua LaPan,"12, 22, 19","conditional_use, rear_setback, lot_area, lot_frontage, front_setback",2024-08-26,"52344, 54097, 90443"
+Hezekiah Pratt,5,4,1,80.0,40.0,Hezekiah Pratt,"9, 12, 5","conditional_use, far, parking, height, lot_area",2024-06-07,"58847, 52647, 30052"
+"Volnay Capital, Llc",5,5,0,100.0,0.0,Jeffrey Drago,"15, 13","height, far, side_setback, parking, conditional_use",,"30429, 52950"
+Rebecca Rutenberg,5,5,0,100.0,20.0,"Rebecca Rutenberg, Michael Ross","3, 2, 18","conditional_use, parking",2024-07-08,"18572, 55509, 68388"
+"Richard Crespo, Crespo Group",5,2,3,40.0,0.0,Jeffrey Drago,1,"lot_area, side_setback, parking, conditional_use, rear_setback",2023-10-27,"90225, 90229, 90226"
+"Lightning Realty, Llc",5,5,0,100.0,0.0,Richard Lynds,1,"lot_area, rear_setback, parking, conditional_use, open_space",2023-03-24,"15291, 64910"
+"Timothy Fraser, Esq.",5,5,0,100.0,100.0,"Timothy Fraser, Esq.","14, 8","conditional_use, open_space, far, lot_area, rear_setback",2023-11-24,"23749, 23744, 23713"
+Massvibe Homes Project,5,5,0,100.0,100.0,Coreen Morisset,"17, 14","height, side_setback, parking, conditional_use, lot_area",2025-02-21,"81304, 81301, 81313"
+Thomas Geraghty,5,2,3,40.0,0.0,"Thomas Geraghty, Erica Swartz","22, 18, 20","parking, conditional_use, lot_area, front_setback, rear_setback",2023-01-13,"77902, 16622, 77908"
+Melissa Novaco,5,5,0,100.0,0.0,Jeffrey Drago,"13, 1","height, parking, rear_setback, side_setback, far",,"97303, 15328"
+"Dlg Holdings, Llc",5,5,0,100.0,0.0,Jeffrey Drago,1,"parking, conditional_use",,25452
+Pure Oasis Llc,5,5,0,100.0,0.0,Pure Oasis LLC,"3, 14, 22","conditional_use, nonconforming",2022-12-23,"50004, 73599, 27953"
+Bonnie Tan,5,5,0,100.0,60.0,JCBT Architect,"3, 15, 22","height, conditional_use, far, lot_area, front_setback",2025-02-28,"43116, 22743, 28646"
+Greg Lewis,5,5,0,100.0,100.0,Greg Lewis,20,"lot_area, side_setback, parking, conditional_use, height",2025-09-26,"08487, 08481"
+Matthew Brett Homegrown Builders Llc,5,5,0,100.0,0.0,Matthew Brett Homegrown Builders LLC,"6, 7","height, rear_setback, parking, conditional_use, far",2023-11-03,"93135, 12482, 93138"
+Stephen Siuda,5,4,1,80.0,0.0,Stephen Siuda,"12, 17","parking, height, lot_area, lot_frontage, front_setback",,"21088, 30340, 91361"
+Edgar Carrere,5,5,0,100.0,0.0,"Edgar Carrere, Richard Lynds","12, 14, 1","height, conditional_use, rear_setback, far, parking",,"46894, 46900, 92361"
+Richard Lynds,4,4,0,100.0,100.0,Richard Lynds,"3, 1","conditional_use, height, lot_area, parking, open_space",2025-05-30,"75304, 02747"
+Joseph Feaster,4,3,1,75.0,0.0,Joseph Feaster,"14, 15, 8","conditional_use, height, lot_area, front_setback, rear_setback",,"70542, 93715, 98409"
+Nicolas Beaujean,4,4,0,100.0,0.0,Ryan Spitz,18,"height, far, parking, conditional_use, open_space",2023-08-11,47018
+Peter Vanderweil,4,4,0,100.0,75.0,Peter Vanderweil,3,"conditional_use, height",2024-08-09,"62179, 65038, 82748"
+Matthew Pennino,4,4,0,100.0,75.0,Matthew  Pennino,"22, 21","height, conditional_use, parking, lot_area, rear_setback",2024-11-08,"47146, 09149, 48966"
+"Rosa Design & Construction, Llc",4,4,0,100.0,0.0,Joseph Feaster,18,"height, lot_area, front_setback, lot_frontage, rear_setback",,"56045, 56028"
+"Krt Holdings, Llc",4,0,4,0.0,0.0,KRT Holdings LLC,5,parking,,07099
+Kevin Gonzalez,4,4,0,100.0,100.0,Kevin Gonzalez,13,conditional_use,2024-10-11,03914
+Matthew Wood,4,4,0,100.0,50.0,"John Barry , Charles McCarthy",2,"conditional_use, open_space, parking",2024-09-06,"11971, 11976, 21013"
+Marcos Llc,4,4,0,100.0,0.0,Jeffrey Drago,15,"far, rear_setback, side_setback, parking, conditional_use",2023-07-07,"60820, 60817"
+Kathleen Smith,4,4,0,100.0,100.0,James  Christopher,16,"lot_area, lot_frontage, parking, conditional_use, height",2025-08-15,"30659, 30651"
+"Marc Lacasse, Esq.",4,4,0,100.0,100.0,Marc LaCasse,"14, 17, 1","parking, conditional_use, far, rear_setback, lot_area",2024-06-28,"43137, 01918, 35105"
+Neil Gulden,4,4,0,100.0,0.0,"Neil Gulden, Nicholas Zozula","6, 15","lot_area, rear_setback, side_setback, parking, conditional_use",2023-05-19,"53868, 53857, 59303"
+Michael Ahern,4,4,0,100.0,25.0,AHERN MICHAEL,"7, 6","conditional_use, height, side_setback, lot_area, parking",2025-09-26,"18302, 85988, 07026"
+Paul Lewis,4,0,4,0.0,0.0,Paul Lewis,5,parking,,07085
+Joe Hassell,4,4,0,100.0,25.0,Joe Hassell,"22, 6","parking, height, front_setback, rear_setback, conditional_use",2024-06-28,"51073, 21943"
+Michael Feldman,4,4,0,100.0,0.0,"FELDMAN SURVEYORS, Lucien Belanger",8,conditional_use,,"71445, 71418"
+"Realty, Llc",4,4,0,100.0,0.0,Richard Lynds,1,"far, parking, open_space",,68974
+Kiseok Kim,4,4,0,100.0,100.0,KiSeok Kim,21,conditional_use,2024-07-26,"47593, 47592"
+Mainsail Management Inc.,4,4,0,100.0,0.0,John Moran,"5, 4","conditional_use, height, far, rear_setback, side_setback",2023-07-07,"38215, 50446"
+Michael Keane,4,4,0,100.0,50.0,"Michael Keane, Anthony Ross",20,"side_setback, height, far, conditional_use",2024-04-09,"96565, 90582"
+Michael Mcgough,4,4,0,100.0,0.0,Michael McGough,"6, 19","far, rear_setback, side_setback, lot_area, lot_frontage",2023-06-16,"83277, 79255"
+Luis Santana,4,4,0,100.0,50.0,Luis Santana,"9, 13, 10","conditional_use, height, lot_area, parking, open_space",2025-09-12,"30722, 68342, 63070"
+Lawrence Bastianelli,4,4,0,100.0,100.0,Lawrence Bastianelli,20,"lot_area, parking, conditional_use, lot_frontage, front_setback",2024-05-24,"42562, 65767"
+Rise Construction,4,4,0,100.0,0.0,"Rise Construction, RISE Construction","6, 21","parking, conditional_use, height, open_space, lot_area",2024-03-22,"48018, 72384, 02802"
+Adenike John,4,4,0,100.0,25.0,"Adenike John, Rebecca Rutenberg",2,conditional_use,2024-07-08,"92536, 32691"
+Patrick Lee,4,4,0,100.0,100.0,Patrick Lee,22,"conditional_use, nonconforming",2024-04-12,47506
+"Mandrell Company, Llc, Willie Mandrell",4,4,0,100.0,0.0,Jeffrey Drago,15,"height, far, lot_area, lot_frontage, front_setback",,58629
+"A Limited Liability Company, Llc",4,3,1,75.0,0.0,Jeffrey Drago,"1, 18, 21","height, rear_setback, parking, open_space, lot_area",,"37713, 74188, 14112"
+Joe Consalvo,4,4,0,100.0,50.0,Joe Consalvo,"4, 18","conditional_use, parking, rear_setback, side_setback",2024-06-28,"63167, 55995"
+Darlene Musto,4,4,0,100.0,100.0,darlene musto,19,"lot_area, side_setback, parking, conditional_use, nonconforming",2025-10-24,"85960, 01024"
+Tommy Tran,4,1,3,25.0,0.0,Tommy Tran,16,"far, side_setback, conditional_use",2023-04-07,"07253, 49903"
+Citizens Bank,4,4,0,100.0,0.0,Rebecca A. Lee,14,"parking, conditional_use, open_space",,"42905, 42982, 42993"
+Claudia Sierra,4,4,0,100.0,0.0,Claudia  Sierra,1,"height, rear_setback, side_setback",,50908
+"Coliseum Development Advisors, Inc.",4,3,1,75.0,25.0,"Coliseum Development Advisors, Inc","2, 1","height, conditional_use, far, front_setback, parking",2024-04-26,"47328, 64728, 79637"
+Cpc Ericsson Street Llc,4,4,0,100.0,0.0,Rise Construction,16,"height, conditional_use, parking, far, front_setback",,"95867, 95870, 95864"
+Daniel Brennan,4,4,0,100.0,100.0,Daniel Brennan,"3, 5",conditional_use,2025-05-30,"84879, 04531"
+Tim Longden,4,4,0,100.0,25.0,Tim Longden,"12, 16","far, front_setback, parking, side_setback, rear_setback",2026-02-13,"54854, 69729, 69726"
+Edgar J. Carrere,4,4,0,100.0,0.0,Edgar Carrere,14,"height, front_setback, conditional_use",,"52642, 52640"
+David Higgins,4,4,0,100.0,50.0,David Higgins,"18, 16","lot_area, front_setback, open_space, height, far",2024-07-16,"78198, 61387, 84796"
+David Mcgrath,4,3,1,75.0,50.0,david mcgrath,"9, 3, 6","height, conditional_use, rear_setback",2025-05-13,"74856, 41125, 42188"
+"The Newt, Llc",4,4,0,100.0,0.0,Pawel Wojcik,4,parking,,90432
+Joao Dasilva,4,4,0,100.0,0.0,Joao DaSilva,8,"far, lot_area, rear_setback, side_setback, parking",2023-10-27,"86207, 01503"
+"Terrace Bravo, Llc, Kirby Liu",4,4,0,100.0,0.0,Steven Meyer,10,conditional_use,,"49236, 49238"
+"E.K. Sanford Builders, Inc.",4,4,0,100.0,0.0,Eleni Kaplan,10,"parking, conditional_use, open_space, rear_setback",2023-08-04,"44618, 44614"
+Carlos Ferreira,4,4,0,100.0,100.0,Carlos Ferreira,14,"height, far, front_setback, rear_setback, side_setback",2024-10-11,87883
+Cahill Karen Mary,4,0,4,0.0,0.0,CAHILL KAREN MARY,16,"conditional_use, side_setback, parking",,"34634, 34628"
+Trichilo Development Llc,4,4,0,100.0,25.0,Richard Lynds,1,"height, far, rear_setback, side_setback, parking",2024-07-26,"89719, 18171"
+Brodrick Egodogbare,4,2,2,50.0,0.0,Brodrick  EGODOGBARE,"14, 18","lot_area, conditional_use, height, far, front_setback",2023-03-17,"20471, 19480, 53337"
+Two M. Realty Trust,4,4,0,100.0,0.0,Richard Lynds,1,"height, parking, far, lot_area, rear_setback",2024-01-26,"76876, 76878"
+Boston Housing Authority,4,4,0,100.0,0.0,"Mathieu Zahler, Anser Advisory","8, 6","height, far, parking, open_space, density",,"59025, 64514"
+Urbanica Inc.,4,4,0,100.0,50.0,Vernon Woodworth,"22, 8","conditional_use, parking, density, height, lot_area",2025-07-18,"09354, 09357, 59889"
+"Bcg-Cg Harbor Property, Llc",4,4,0,100.0,0.0,Jordan Smith,6,"lot_area, parking, conditional_use, open_space",,83248
+"Bay Colony Associates, Llc",4,4,0,100.0,100.0,"Matthew Lawlor, Matthew J. Lawlor",16,"height, far, rear_setback, parking, conditional_use",2023-05-19,"33779, 50412"
+Arthur D. Ullian,4,0,4,0.0,0.0,Eliot Hotel Associates LP Arthur D. Ullian,5,"far, parking",,07095
+Anthony Virgilio,4,4,0,100.0,100.0,Anthony Virgilio,"3, 6","conditional_use, height, rear_setback, nonconforming, lot_area",2025-10-31,"19123, 02850, 59625"
+Anthony Jean Baptiste,4,3,1,75.0,25.0,Anthony Jean Baptiste,"15, 18","height, far, lot_area, front_setback, rear_setback",,"60540, 15434"
+Anne Arlauskas,4,4,0,100.0,0.0,ANNE ARLAUSKAS,6,"parking, height, far, lot_area, lot_frontage",2023-09-06,"68696, 68697"
+William Callahan,4,4,0,100.0,50.0,William Callahan,17,"height, far, front_setback, side_setback, parking",2025-03-21,"61858, 72609, 72612"
+Alexander Lisek,4,4,0,100.0,0.0,Alexander Lisek,18,"far, lot_area, rear_setback, parking, conditional_use",2024-02-16,"91034, 02246"
+William Mohan,4,3,1,75.0,0.0,William Mohan,"2, 6","height, conditional_use, lot_area, parking, rear_setback",2023-03-17,"07403, 89700"
+"Willow Baker, Llc",4,4,0,100.0,0.0,John Gorman,7,"height, far, rear_setback, parking, conditional_use",,"01368, 01370, 01366"
+"Eagle Street Development, Llc",4,4,0,100.0,0.0,Jeffrey Drago,1,"height, far, lot_area, front_setback, parking",,71307
+Donna Martin,4,4,0,100.0,100.0,Donna Martin,18,"parking, conditional_use, lot_frontage, side_setback, rear_setback",2024-04-22,"26183, 26179"
+Elaine Scales,4,4,0,100.0,50.0,Elaine Scales,11,"far, lot_area, front_setback, side_setback, parking",,"12536, 12531"
+"Silver Therapeutics, Inc.",4,4,0,100.0,100.0,"Michael Ross, Esq.",18,"height, conditional_use",,98430
+Jinglin Zhou,4,4,0,100.0,100.0,Jeffrey Drago,8,"height, far, lot_area, rear_setback, side_setback",2026-03-06,"08916, 08911, 09764"
+Jennifer Matarazzo,4,4,0,100.0,100.0,Jeffrey Drago,3,"height, conditional_use, nonconforming",2024-06-28,75468
+Jeanclaude Jean-Baptiste,4,4,0,100.0,100.0,JeanClaude Jean-Baptiste,17,"lot_area, side_setback, parking, conditional_use, open_space",2024-05-31,"64951, 66270"
+Royal Smith,4,4,0,100.0,100.0,Royal Smith,12,conditional_use,2024-09-20,09099
+Russell Forsberg,4,4,0,100.0,0.0,Russell Forsberg,"18, 22","parking, conditional_use, lot_area",2023-12-01,"61380, 89690"
+"Goal Line Realty, Llc",4,4,0,100.0,0.0,Richard Lynds,1,"parking, conditional_use, height, rear_setback, side_setback",2023-08-04,"66729, 66726, 66722"
+Scott Marder,4,4,0,100.0,0.0,Scott Marder,22,"lot_area, open_space, rear_setback, parking, side_setback",,"92843, 92873, 92938"
+Gillian Niles,4,4,0,100.0,100.0,Gillian Niles,17,conditional_use,2025-09-12,57736
+Seaverns Brown Realty Trust,4,3,1,75.0,0.0,joseph  Hanley,19,"far, lot_area, side_setback, parking, open_space",,"50628, 50630, 50947"
+Silvano Malafaia,4,4,0,100.0,0.0,Silvano Malafaia,22,"height, conditional_use",2023-12-29,15265
+Sandra Bonito,4,4,0,100.0,0.0,Ian Fox,1,"parking, conditional_use, height, lot_area, lot_frontage",2023-03-10,"03651, 88536"
+Nidify Studio,4,4,0,100.0,100.0,Nidify Studio,20,"height, lot_area, rear_setback, side_setback, conditional_use",2025-06-27,"97509, 97197"
+Steven Deering,4,4,0,100.0,50.0,"John Moran, Steven Deering","6, 3","parking, conditional_use, height, lot_area, front_setback",2024-11-22,"68765, 49258"
+Frankselio Dasilva,4,4,0,100.0,100.0,Frankselio Dasilva,17,"rear_setback, side_setback, conditional_use, far, parking",2025-11-28,"32175, 09606"
+Wally Ramos,3,3,0,100.0,0.0,Wally Ramos,1,"lot_area, parking, conditional_use",2023-04-21,23407
+Sweet Pea And Sage Llc,3,3,0,100.0,0.0,Richard Lynds,11,conditional_use,2023-11-17,50082
+Rose Locke,3,3,0,100.0,100.0,Rose Locke,2,"height, conditional_use, far, side_setback",2024-06-28,"48361, 42426"
+Pat Kinsel And Jill Ozzie,3,3,0,100.0,0.0,Marc LaCasse,3,"far, rear_setback, side_setback, parking, conditional_use",,58260
+"Rosa Design And Construction, Llc",3,3,0,100.0,0.0,"Eileen Rosa, derric small","12, 18, 20","far, conditional_use, open_space, height, side_setback",,"55711, 44283, 53082"
+P.I.C. Entertainment Llc,3,3,0,100.0,0.0,Nicholas Zozula,6,"parking, conditional_use",,64575
+"Rooted In, Llc",3,3,0,100.0,0.0,"Tyshania Dismond, ROOTED IN LLC","5, 12","conditional_use, nonconforming",,"07908, 03994"
+Obrian Stadhard,3,3,0,100.0,0.0,obrian stadhard,"18, 17","height, lot_area, rear_setback, parking, open_space",,"59605, 79668"
+"Wave Capital Mgt., Ryan Maguire, Principal",3,3,0,100.0,0.0,Ryan Spitz,7,"height, far, lot_area, front_setback, rear_setback",,80780
+Stephanie Soriano,3,2,1,66.7,0.0,Stephanie Soriano,11,"parking, conditional_use",2023-04-07,"22640, 80637"
+Welcome Home Harvard Street Llc,3,3,0,100.0,100.0,Marie Morisset,17,"height, far, lot_area, front_setback, rear_setback",2024-06-28,"88457, 88450, 88549"
+Pwn Development,3,3,0,100.0,0.0,PWN Development,12,"front_setback, conditional_use, height, lot_frontage, side_setback",,"20884, 20876, 20877"
+"Nubian Ascend Partners, Llc",3,3,0,100.0,0.0,"Andrew  Kara, Rubin and Rudman LLP",8,"height, rear_setback, conditional_use, parking",,"41538, 41524, 41518"
+Rory Clune,3,3,0,100.0,0.0,Bond Worthington,6,"height, side_setback, parking, conditional_use",2023-07-14,42810
+Stephen Payne,3,2,1,66.7,33.0,Stephen Payne,5,"rear_setback, parking, conditional_use",2024-12-20,"00486, 75065, 99900"
+Roman Catholic Archdiocese Of Boston,3,2,1,66.7,0.0,Richard Lynds,1,"lot_area, rear_setback, side_setback, parking, conditional_use",2023-09-08,"93355, 75285"
+"Star Property Holdings, Llc",3,3,0,100.0,0.0,Jeffrey Drago,1,"height, far, rear_setback, side_setback, parking",2023-07-21,"85219, 32095"
+"Pf Supreme, Llc D.B.A. Planet Fitness",3,3,0,100.0,0.0,Erica Swartz,21,conditional_use,2023-05-26,82453
+Tyler Winder,3,3,0,100.0,33.0,"Stephen Butcher, Anat Beck-Nachtigal","7, 2","side_setback, conditional_use, front_setback, rear_setback",2024-05-31,"66165, 15681"
+Shannon Ishmael,3,3,0,100.0,0.0,Matthew Mueller,14,"height, far, lot_area, front_setback, rear_setback",,45715
+Thomas Falcucci,3,3,0,100.0,0.0,Xhaklina Desmond,1,"height, far, lot_area, front_setback, rear_setback",,76325
+Richard Mcdermott,3,3,0,100.0,0.0,Richard McDermott,20,"height, nonconforming, rear_setback, side_setback, parking",2023-07-14,"50407, 65948"
+Stefanov Architects,3,3,0,100.0,0.0,Douglas Stefanov,9,conditional_use,2023-03-17,91029
+The Boston Tattoo Company,3,3,0,100.0,0.0,The Boston Tattoo Company,5,conditional_use,2023-04-07,31633
+Peter Bryson,3,3,0,100.0,33.0,Peter Bryson,"14, 13","lot_area, front_setback, parking, open_space, lot_frontage",2025-11-28,"23491, 94405"
+"Sawjng, Llc",3,3,0,100.0,0.0,Rise Construction,1,"height, far, front_setback, rear_setback, side_setback",,"28936, 28949"
+"Travis Blake, For Dana Van Fleet",3,3,0,100.0,0.0,Dennis Quilty,5,conditional_use,,27849
+Robert Mellowes & Paladino,3,3,0,100.0,0.0,Robert Mellowes & Paladino,5,conditional_use,2023-11-03,18865
+"Rasta Rootz, Llc",3,3,0,100.0,0.0,Vantage Builders``,3,"height, conditional_use",,40570
+Robert Nichols,3,3,0,100.0,0.0,Robert Nichols,"19, 12, 16","conditional_use, lot_area, front_setback, side_setback, rear_setback",2024-02-02,"37868, 99702, 48961"
+Robert Tambi,3,3,0,100.0,0.0,"Top Pro Construction, Inc.",18,conditional_use,,69408
+Patrick Mckenna,3,3,0,100.0,33.0,Ryan Spitz,"22, 21","height, conditional_use, front_setback, parking, far",2025-05-13,"90482, 46390, 22753"
+Samantha Rivas,3,3,0,100.0,0.0,Samantha Rivas,15,conditional_use,,61636
+Sam Naylor,3,0,3,0.0,0.0,Sam Naylor,9,"height, far, lot_area, front_setback, rear_setback",2023-07-07,"96093, 96094, 96092"
+Ryan Hunt,3,3,0,100.0,0.0,Ryan Hunt,6,"height, front_setback, rear_setback, side_setback",,21328
+"Jsip Braintree Street, Llc",3,3,0,100.0,0.0,Nicholas Zozula,22,"height, far, rear_setback, open_space",,16892
+New England Genealogical Society,3,3,0,100.0,0.0,Louis C. Miller,5,"far, rear_setback, conditional_use",,88669
+Federal Investments Incorporated,3,3,0,100.0,0.0,Xhaklina Desmond,3,"far, rear_setback, parking, conditional_use, open_space",2023-10-13,"76097, 76095, 76094"
+David Cohen,3,2,1,66.7,33.0,David Cohen,4,"far, rear_setback, conditional_use, nonconforming",,"26334, 26834"
+Dermot Doyne,3,3,0,100.0,0.0,Dermot Doyne,20,"height, front_setback, parking, conditional_use, nonconforming",,83368
+Donald Coleman,3,3,0,100.0,67.0,donald coleman,20,"front_setback, conditional_use, lot_frontage, side_setback",2025-07-25,"15093, 92668"
+Dorchester Design Collaborative,3,3,0,100.0,100.0,Matthew Mueller,14,"height, lot_area, front_setback, side_setback, parking",2024-07-26,"96034, 96026, 96032"
+Douglas Macdonald,3,1,2,33.3,0.0,"Linda Neshamkin, Douglas MacDonald",2,"rear_setback, conditional_use, side_setback, parking, far",2024-03-08,"35768, 70456, 70451"
+Dvm Consulting Corporation,3,3,0,100.0,0.0,Dariela Villon-Maga,14,"height, far, rear_setback, parking, conditional_use",2023-04-07,"29513, 29511, 29507"
+Eighty-Four Moore Street Trust,3,3,0,100.0,0.0,Richard Lynds,1,"height, far, front_setback, rear_setback, side_setback",,26344
+Estefany Benitez,3,3,0,100.0,100.0,Estefany Benitez,9,"height, conditional_use",2024-04-26,48022
+"Falcucci Properties, Llc",3,3,0,100.0,0.0,Jeffrey Drago,18,"rear_setback, lot_frontage",,"67473, 67470, 67475"
+Five Iron Golf By Daniel Brennan,3,3,0,100.0,0.0,Ryan Gazda,3,conditional_use,,24583
+Curtis Clemons,3,3,0,100.0,100.0,Robert Nichols,11,"far, lot_area, side_setback, parking, conditional_use",2025-07-18,19499
+Fl Development Llc,3,3,0,100.0,0.0,Jeffrey Drago,1,"height, far, rear_setback, side_setback, parking",2023-03-17,61465
+Francisco Fuentes,3,3,0,100.0,0.0,"francisco fuentes, derric small",1,"front_setback, nonconforming, parking, conditional_use",,"80213, 59936"
+Frank Knippenberg,3,3,0,100.0,33.0,Frank Knippenberg,"7, 6","conditional_use, lot_area, parking",2024-11-22,"60656, 38281"
+Fraser Allan,3,3,0,100.0,100.0,"Fraser Allan, Nicholas Zozula","6, 2, 5","conditional_use, parking, height, density, rear_setback",2025-02-28,"2024, 81050, 70783"
+French Cultural Center,3,3,0,100.0,0.0,Chris Taylor,5,"far, height, lot_area, nonconforming",,72918
+Garrett Clinton,3,3,0,100.0,0.0,Garrett Clinton,4,"parking, conditional_use",2023-07-07,38826
+Gary Martell,3,3,0,100.0,0.0,Robert Reissfelder,11,"height, lot_frontage, parking, conditional_use",2023-11-09,77631
+"Gavin Foundation, Inc",3,3,0,100.0,0.0,Paul McDonald,17,"conditional_use, far, height, lot_area",,13919
+Gerald Patton,3,3,0,100.0,0.0,Gerald Patton,"20, 17","parking, conditional_use, height, rear_setback, side_setback",2023-07-07,"93487, 47970, 48134"
+Dave Moynihan,3,2,1,66.7,0.0,Xhaklina Desmond,6,"far, lot_area, rear_setback, side_setback, open_space",,"31883, 93016"
+Courtney Avery Ii,3,3,0,100.0,0.0,Courtney Avery II,14,"far, lot_area, side_setback, open_space, front_setback",,"26886, 26884"
+Global Reach Evangelical Missionary Church,3,3,0,100.0,100.0,Carine Demosthene,14,"far, lot_area, front_setback, rear_setback, side_setback",2024-07-05,"60985, 62110"
+Bcp Beat Property Llc,3,3,0,100.0,0.0,"BCP BEAT PROPERTY LLC, Matthew Fitzgerald",13,conditional_use,2023-11-09,"13689, 96104"
+Ahmed Nur,3,3,0,100.0,67.0,ahmed nur,"8, 10","parking, conditional_use, height, open_space, lot_area",2024-09-27,"65094, 65102, 92764"
+Alex Graora,3,3,0,100.0,0.0,ALEX GRAORA,1,"height, rear_setback, parking, conditional_use",,44731
+Alpine Advisory Service,3,3,0,100.0,0.0,"John Moriarty, John Moran","5, 4","far, height",,"20204, 29365"
+Andrea Dietrich,3,3,0,100.0,0.0,Andrea Dietrich,17,"rear_setback, conditional_use, height, front_setback, side_setback",2024-01-19,"99265, 08144"
+Andrew Brassard,3,3,0,100.0,0.0,Andrew Brassard,8,"height, far, rear_setback, parking, conditional_use",,46711
+Andrew Enright,3,3,0,100.0,0.0,Andrew Enright,7,parking,,64448
+Andrew Lederer,3,3,0,100.0,0.0,Mai Phung,15,"far, lot_area, rear_setback, conditional_use, height",,"39067, 39059"
+Andry Rezende,3,3,0,100.0,100.0,Andry Rezende,"6, 1","side_setback, conditional_use, nonconforming",2025-08-29,"05492, 99266"
+Arisleyda Veras,3,3,0,100.0,100.0,Edward Honeycutt,"18, 20","side_setback, parking, conditional_use, rear_setback, lot_area",2025-11-28,"09737, 09736"
+Benjamin Franklin Institute Of Technology,3,3,0,100.0,0.0,Zuki Mahmuljin,8,"height, lot_area, conditional_use",,08425
+Corey Realty Ventures Nominee Trust,3,3,0,100.0,100.0,"c/o Joseph Hanley, Esq.",21,"height, far, front_setback, rear_setback, parking",,04672
+Blerina Idrizi,3,3,0,100.0,33.0,Jeffrey Drago,"19, 16","far, parking, conditional_use, open_space, height",,"62160, 27633"
+Boston College High School,3,3,0,100.0,0.0,Paula Devereaux,13,"conditional_use, height, parking, open_space",2023-06-02,"92224, 81020"
+Boston Pinnacle Properties,3,3,0,100.0,100.0,"George Morancy, ESQ",3,conditional_use,2024-06-07,73221
+Bradiey Apone,3,3,0,100.0,0.0,Bradley Apone,4,conditional_use,2023-09-22,66403
+Brown Rudnick Llp,3,3,0,100.0,0.0,Rachel Feiden Brown Rudnick LLP,8,"height, far, parking, conditional_use",2022-12-23,92478
+Caprio L. Fermin,3,2,1,66.7,0.0,Carpio L. Fermin,12,"far, side_setback, conditional_use, rear_setback",,"47867, 47872"
+"Centre Trust, Llc",3,3,0,100.0,0.0,Erica L. Swartz,20,parking,,91923
+Chi Bang,3,3,0,100.0,100.0,chi bang,5,conditional_use,2024-07-16,69956
+"Coliseum Development Advisors, Inc",3,3,0,100.0,0.0,"Coliseum Development Advisors, Inc",1,"height, side_setback",,04690
+Glen Hoffman,3,3,0,100.0,0.0,Glen Hoffman,6,parking,,22487
+Hector Martinez,3,3,0,100.0,0.0,Hector Martinez,1,conditional_use,2023-09-15,64901
+Morrissey Construction Corp.,3,3,0,100.0,0.0,Michael Morrissey,22,conditional_use,,34757
+Merchantile Wharf Associates Lp,3,3,0,100.0,0.0,John Gorman,3,conditional_use,,46292
+Low Key Dispensary,3,3,0,100.0,0.0,Low Key Dispensary,17,conditional_use,,05295
+Lu Mcpherson,3,2,1,66.7,0.0,LUCIAN MCPHERSON,"18, 17","parking, lot_area, lot_frontage, front_setback, side_setback",,"60563, 81513"
+Manuel Marinez,3,3,0,100.0,0.0,Juan Rojas,19,"far, lot_area, rear_setback, side_setback, parking",,46931
+Marc Savatsky,3,3,0,100.0,33.0,Marc Savatsky,"16, 6","height, far, side_setback, conditional_use, lot_area",2026-03-13,"06137, 72069"
+Marguerite Roberts,3,3,0,100.0,100.0,Marguerite Roberts,"15, 18, 7","side_setback, parking, conditional_use, height, front_setback",2024-11-29,"02152, 45854, 71194"
+Mark Mclaughlin,3,3,0,100.0,0.0,Mark McLaughlin,20,"front_setback, side_setback, conditional_use",,76325
+Matt Henzy,3,3,0,100.0,100.0,Matt Henzy,14,"far, lot_area, parking, conditional_use, front_setback",2024-10-11,"01654, 01598, 01605"
+Matthew Brett - Homegrown Builders Llc,3,3,0,100.0,0.0,Matthew Brett Homegrown Builders LLC,6,"lot_area, rear_setback, side_setback, parking, conditional_use",2023-04-21,23542
+Matthew Hayes,3,3,0,100.0,0.0,Matthew Hayes,19,"far, rear_setback, parking, height, lot_area",,"68506, 68509"
+Michael Clark,3,3,0,100.0,0.0,Michael Clark,6,conditional_use,2024-03-08,54122
+"Lancaster Parking, Llc.",3,3,0,100.0,0.0,David Gottlieb,3,"parking, conditional_use",,"60299, 60527, 60297"
+Michael Ross,3,3,0,100.0,67.0,"Marguerite Roberts, Chayla White","16, 18","conditional_use, height, lot_area, front_setback, side_setback",2024-10-18,"96801, 92433"
+Michelle Hediger,3,3,0,100.0,67.0,Michelle Hediger,"5, 4",conditional_use,2025-12-05,"31956, 85891, 64200"
+Michelle Pierre-Vilmont,3,3,0,100.0,0.0,Michelle Pierre-Vilmont,18,"lot_area, side_setback, parking, front_setback, rear_setback",,"86247, 90415"
+Miguel Gomes,3,3,0,100.0,100.0,Miguel Gomes,14,"far, lot_area, parking, conditional_use, open_space",2025-03-21,69646
+Mike Costa,3,3,0,100.0,100.0,Nick Schiffer,6,"height, rear_setback, conditional_use",2025-06-13,91822
+Mike Kenny,3,3,0,100.0,0.0,Mike Kenny,14,"far, lot_area, side_setback, parking, conditional_use",2023-02-03,48170
+Modern Contracting Inc.,3,3,0,100.0,100.0,Hoang Huynh,"15, 16","far, conditional_use, lot_area, front_setback, side_setback",2024-07-15,"00548, 59314"
+Mohammad Osmani,3,3,0,100.0,0.0,Jeffrey Drago,22,"lot_area, rear_setback, side_setback, parking, conditional_use",2023-04-21,"58616, 58611, 58613"
+"Momo Ventures, Inc",3,3,0,100.0,100.0,"MOMO Ventures, Inc.",22,"rear_setback, conditional_use",2024-05-31,63736
+"Leovofs, Llc",3,2,1,66.7,0.0,Jeffrey Drago,"21, 22","height, lot_area, parking, open_space, far",,"83043, 97293"
+"Lancaster Parking, Llc",3,3,0,100.0,100.0,Edward Gottlieb,3,"parking, conditional_use",2024-04-05,"52616, 52610, 52599"
+Herion Karbunara,3,3,0,100.0,33.0,Herion Karbunara,"14, 12","far, lot_area, parking, conditional_use, open_space",2024-05-20,"63712, 29009"
+John Moran,3,2,1,66.7,67.0,John Moran,"3, 22, 8","height, rear_setback, conditional_use, front_setback, side_setback",2025-12-05,"44076, 99328, 49460"
+Highline Development,3,3,0,100.0,0.0,Highline Development,"11, 4, 3","conditional_use, far, lot_area, lot_frontage, side_setback",2023-11-24,"41023, 53731, 55307"
+"Homegrown Builders, Llc",3,2,1,66.7,0.0,Matthew Brett Homegrown Builders LLC,6,"far, rear_setback, side_setback, lot_area, parking",,"72719, 72724"
+"Imstar, Llc",3,3,0,100.0,0.0,Richard Lynds,1,"lot_area, parking, conditional_use, open_space, far",2023-04-21,"92166, 53092"
+"Inquilinos Boricuas En Accion, Inc.",3,3,0,100.0,0.0,Vanessa Calderon-Rosado,9,"height, far, rear_setback, conditional_use, nonconforming",2023-05-19,42155
+Israel Pacheco,3,3,0,100.0,0.0,Israel Pacheco,15,conditional_use,,24646
+Jamaica Plain Neighborhood Development Corp.,3,3,0,100.0,0.0,"Teronda Ellis, Toranda Ellis",12,"height, far, parking, lot_area, front_setback",,"66732, 66736, 66730"
+James Kingston,3,3,0,100.0,0.0,james kingston,"2, 7","conditional_use, open_space, side_setback, parking, height",2023-04-14,"09593, 53478"
+James Mccabe,3,3,0,100.0,33.0,"anthony Diletizia, James McCabe","19, 18","height, far, side_setback, conditional_use",2024-10-11,"27266, 13797"
+Jason Cunningham,3,3,0,100.0,0.0,Jason Cunningham,20,conditional_use,,37306
+John Moriarty,3,3,0,100.0,67.0,John Moriarty,"2, 3",conditional_use,2024-05-01,"54377, 76349"
+"Kinvarra Capitol, Llc",3,3,0,100.0,0.0,Jeffrey Drago,1,"height, front_setback, rear_setback, side_setback, parking",,32018
+"John Pulgini, Esq.",3,3,0,100.0,100.0,John Pulgini,"7, 2","side_setback, conditional_use, front_setback, height, parking",2024-04-05,"40540, 52479"
+Jonathan Sanchez,3,3,0,100.0,0.0,Richard Lynds,1,"conditional_use, height, far, lot_area, lot_frontage",2023-12-22,"61338, 61351, 61358"
+Joseph Vitale,3,3,0,100.0,0.0,Richard Lynds,1,"height, lot_area, rear_setback, parking, open_space",,69837
+Josh Crowe,3,2,1,66.7,0.0,Josh Crowe,6,"far, lot_area, side_setback, parking, open_space",,"06082, 79390"
+Josh White,3,3,0,100.0,33.0,Josh White,"1, 6","height, parking, conditional_use, nonconforming",2025-08-01,"93417, 22181"
+Joshua Thompson,3,3,0,100.0,100.0,Ryan Spitz,"16, 7","height, rear_setback, parking, conditional_use, far",2024-04-22,"38435, 40541"
+Juan Cano,3,3,0,100.0,100.0,Juan Cano,3,conditional_use,2025-08-29,06519
+Judith Brennan,3,3,0,100.0,0.0,Meghan King,2,"height, lot_area, rear_setback, parking, conditional_use",2023-10-27,84677
+Kakada Ly,3,3,0,100.0,0.0,Kakada Ly,3,conditional_use,2023-05-12,21227
+Zuelma Flores,3,2,1,66.7,0.0,Richard Lynds,1,"height, far, rear_setback, side_setback, parking",2023-03-24,"11304, 13818"

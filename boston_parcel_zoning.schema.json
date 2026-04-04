@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.example.com/boston_parcel_zoning/1.0.0.json",
+  "title": "Boston Parcel Zoning",
+  "description": "Canonical zoning schema for Boston parcels",
+  "type": "object",
+  "required": [
+    "parcel_id",
+    "primary_zoning",
+    "all_zoning_codes",
+    "districts",
+    "article",
+    "volume",
+    "multi_zoning",
+    "zoning_count",
+    "summary"
+  ],
+  "properties": {
+    "parcel_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "primary_zoning": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "all_zoning_codes": {
+      "type": "string"
+    },
+    "districts": {
+      "type": "string"
+    },
+    "article": {
+      "type": "string"
+    },
+    "volume": {
+      "type": "string"
+    },
+    "multi_zoning": {
+      "type": "boolean"
+    },
+    "zoning_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "summary": {
+      "type": "string"
+    },
+    "geometry": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "GeoJSON geometry object"
+    }
+  },
+  "additionalProperties": false
+}
