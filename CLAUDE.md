@@ -1,507 +1,277 @@
-# PermitIQ — Boston Zoning Board of Appeals Prediction Platform
+# PermitIQ — Boston Zoning Intelligence Platform
 
-## Project Vision
-PermitIQ predicts whether the Boston Zoning Board of Appeals (ZBA) will approve a development project — before the developer files. Developers currently spend $30–100K on permitting with no idea if they'll get approved. PermitIQ quantifies that risk using ML trained on every real ZBA decision from 2020–2026.
+## GOLDEN RULES — Read These First
 
-Competitors (UrbanForm, Zoneomics) tell you the zoning rules. PermitIQ tells you if you'll win.
+1. **Never deploy or present a degraded version without warning Steven.** If Railway light mode is missing features, SAY SO before he discovers it. Compare deployed vs local capabilities explicitly.
 
-## What Exists Today
-- **262 ZBA decision PDFs** scraped from boston.gov (OCR'd via Tesseract into structured data)
-- **7,500+ unique ZBA cases** with 69 engineered features each
-- **FastAPI backend** with ML prediction, parcel lookup, address search, and what-if scenario comparison
-- **Streamlit frontend** — polished, demo-ready UI with stats dashboard, interactive maps, prediction panel, and downloadable reports
-- **Trained ML model** (Gradient Boosting / Random Forest / Logistic Regression — best is auto-selected by AUC)
-- **External data integration** — Boston property assessments (184K parcels), building permits (718K records), ZBA tracker (15K records)
-- **98,510 Boston parcels** with zoning data from GeoJSON
+2. **Every variance, every case, every stat must show historical data.** Never display a plain list like "Height — Your proposed building height." Always enrich with approval rates and case counts from `/variance_stats` (e.g., "Height: 91% approval, 4,240 ZBA cases"). This is the entire point of PermitIQ.
 
-## Architecture & File Map
+3. **Test the full flow before calling anything done.** Address search → zoning details → compliance check → ML prediction. If any step breaks, the product is broken.
 
-### Data Pipeline (runs in sequence)
-```
-262 PDFs (pdfs/*.pdf)
-    → zba_pipeline/extract_text.py    (OCR via PyMuPDF + Tesseract, 300 DPI, 400 DPI retry)
-    → zba_pipeline/parse_cases.py     (split PDFs into individual BOA cases)
-    → zba_pipeline/build_dataset.py   (orchestrator with checkpointing → zba_cases_dataset.csv)
-    → rebuild_dataset.py              (dedup + clean decisions → zba_cases_cleaned.csv)
-        → reextract_features.py       (regex feature extraction from raw_text: addresses, variances, votes, articles, provisos)
-        → integrate_external_data.py  (merge ZBA Tracker + Property Assessment + Building Permits via case# and address)
-        → fuzzy_match_properties.py   (fuzzy address matching for unmatched cases)
-    → train_model_v2.py               (train 3 models, pick best → zba_model_v2.pkl + api/zba_model.pkl)
-```
+4. **Steven expects autonomous execution.** Do the work, don't ask permission. He tests by clicking through the UI immediately — bugs are found fast.
 
-### Application Stack (Refactored — Session 8)
+5. **Maps must render.** The GeoJSON has Point centroids, NOT polygon boundaries. Use ScatterplotLayer for Points, PolygonLayer for Polygons. Check `geometry.type` before rendering.
+
+6. **Never lose context.** If you're unsure of the current state, read the memory files and check git log before making changes. The memory system exists specifically to prevent context loss.
+
+7. **The deployed product must match local quality.** If it can't, say what's missing and propose a fix — don't ship it silently.
+
+## What Is PermitIQ?
+
+PermitIQ predicts whether the Boston Zoning Board of Appeals (ZBA) will approve a development project — before the developer files. Developers spend $30–100K on permitting with no idea if they'll get approved. PermitIQ quantifies that risk using ML trained on every real ZBA decision from 2020–2026.
+
+**Competitors** (UrbanForm, Zoneomics) tell you the zoning rules. **PermitIQ tells you if you'll win.**
+
+**Key pitch:** "13,300+ real ZBA decisions, 85 ML features, no data leakage. We tell you if you'll win."
+
+## Domain Glossary
+
+| Term | Meaning |
+|------|---------|
+| **ZBA** | Zoning Board of Appeals — the 7-member Boston board that grants/denies variances and conditional use permits |
+| **BOA** | Board of Appeals — same as ZBA. Case numbers start with "BOA-" |
+| **Variance** | Permission to deviate from zoning code (e.g., build taller than allowed). 12 types: height, FAR, lot_area, lot_frontage, front/rear/side setback, parking, conditional_use, open_space, density, nonconforming |
+| **Conditional Use** | A use allowed by zoning code only with ZBA approval (less risky than a variance) |
+| **FAR** | Floor Area Ratio — total floor area ÷ lot area. Key density control |
+| **Setback** | Required distance between building and lot line (front, rear, side) |
+| **Subdistrict** | Granular zoning zone (e.g., "EBR-3" not just "3A-3C"). 286 unique from BPDA data |
+| **Overlay District** | Additional rules layered on top of base zoning. We track: GCOD (Groundwater Conservation), Coastal Flood |
+| **Building Appeal** | Appeal of ISD building code decision — only 58% approval vs 91% for zoning cases. Major risk factor |
+| **BPDA** | Boston Planning & Development Agency — reviews large projects (Article 80) |
+| **Proviso** | Condition attached to an approval (e.g., "must submit revised plans") |
+| **Tracker** | City of Boston's ZBA case tracking system (data.boston.gov) — has filing dates, hearing dates, descriptions |
+
+## Live Deployments
+
+| Component | Platform | URL |
+|-----------|----------|-----|
+| **API** | Railway (1GB, LIGHT MODE) | https://overflowing-education-production-548c.up.railway.app |
+| **Frontend** | Streamlit Cloud | https://permitiq-boston.streamlit.app |
+| **Local** | Full features | API :8000, Frontend :8501 |
+| **GitHub** | Private repo | https://github.com/steviejoe23/PermitIQ |
+
+**CRITICAL: Railway is severely degraded.** Light mode (`PERMITIQ_LIGHT_MODE=1`) skips GeoJSON, ML model (507MB), property assessment, and tracker stats. It's a skeleton, not the real product. Local is the gold standard.
+
+## Architecture
+
+### Application Stack
 ```
 api/
-  main.py              — App shell: FastAPI creation, middleware, startup, router includes (200 lines)
+  main.py              — App shell: FastAPI, middleware, startup, router includes (195 lines)
   state.py             — Shared mutable state: gdf, zba_df, model_package, etc. (24 lines)
   utils.py             — Pure functions: normalize_address, safe_float/int/str, haversine (162 lines)
   constants.py         — VARIANCE_TYPES, PROJECT_TYPES, FEATURE_LABELS, DISCLAIMER (115 lines)
   api_models.py        — Pydantic request/response models (92 lines)
   services/
-    data_loader.py     — Startup data loading, timeline stats, case coordinate index (211 lines)
-    feature_builder.py — FEATURE_COLS list (shared with training pipeline)
-    zoning_code.py     — Zoning requirements lookup table
-    database.py        — PostGIS queries
-    model_classes.py   — Custom model class definitions for pickle deserialization
+    data_loader.py     — Startup data loading, timeline stats, address index (266 lines)
+    feature_builder.py — FEATURE_COLS: 85 features, shared with train_model_v2.py (132 lines)
+    zoning_code.py     — Zoning requirements lookup by subdistrict (330 lines)
+    database.py        — PostGIS queries, spatial index (145 lines)
+    model_classes.py   — Custom model class definitions for pickle deserialization (95 lines)
+    auth.py            — API key authentication middleware (370 lines)
+    recommendations.py — Site selection scoring logic (809 lines)
   routes/
-    parcels.py         — GET /parcels, /nearby_cases, /geocode (273 lines)
-    search.py          — GET /search, /address/cases, /autocomplete (230 lines)
-    zoning.py          — GET /zoning, POST /compliance, /full_analysis, /variance_analysis (721 lines)
-    prediction.py      — POST /analyze_proposal, /batch_predict, /compare + feature building (882 lines)
-    platform.py        — GET /stats, /health, /model_info, /data_status (168 lines)
-    recommend.py       — GET /recommend (122 lines)
+    search.py          — Address search, case history, autocomplete (231 lines)
+    parcels.py         — Parcel lookup, nearby cases, geocode (277 lines)
+    zoning.py          — Zoning details, compliance check, variance analysis (721 lines)
+    prediction.py      — ML prediction, batch predict, what-if compare (1,029 lines)
+    platform.py        — Stats, health, model info, data status (175 lines)
+    recommend.py       — Site selection: "Where should I build?" (127 lines)
     market_intel.py    — 12 market intelligence endpoints (465 lines)
     attorneys.py       — Attorney search, profile, similar cases (413 lines)
-frontend/app.py        — Streamlit frontend (port 8501), 2,759 lines
-api/zba_model.pkl      — Serialized model package (model + feature_cols + ward/zoning rates + metadata)
+frontend/
+  app.py               — Streamlit frontend, dark theme, 4-step flow (~2,800 lines)
+  requirements.txt     — Lightweight deps (streamlit, requests, pandas, pydeck)
 ```
 
-### Other Project Files
+### Data Pipeline
 ```
-landing/index.html       — Static landing page / marketing site (1,290 lines)
-normalize_decisions.py   — Decision normalization utility (180 lines)
-README.md                — Project README (115 lines)
-TASKS.md                 — Task tracking and backlog (34 lines)
-memory/                  — Structured context files for AI assistants
-  glossary.md            — Domain terminology (36 lines)
-  context/company.md     — Company context (28 lines)
-  people/michael-winston.md — Stakeholder notes (13 lines)
-  projects/permitiq.md   — Project summary (24 lines)
-docs/
-  API_GUIDE.md           — Customer-facing API quick-start guide
-  DEPLOYMENT.md          — Deployment and infrastructure guide
+262 PDFs → OCR (PyMuPDF + Tesseract) → parse cases → build dataset
+    → clean + dedup → extract features (regex) → integrate external data → fuzzy match
+    → train model (stacking ensemble) → deploy to api/zba_model.pkl
 ```
 
-### Automation Scripts
+### Key Data Files
+| File | Size | Description |
+|------|------|-------------|
+| zba_cases_cleaned.csv | 30MB | 7,500+ cases, 85 features each |
+| boston_parcels_zoning.geojson | 147MB | 98,510 parcels with **Point centroids** (NOT polygons) |
+| api/zba_model.pkl | ~219MB | Stacking ensemble model package |
+| property_assessment_fy2026.csv | 80MB | Boston property tax assessments (184K records) |
+| building_permits.csv | 259MB | All Boston building permits (718K records) |
+| zba_tracker.csv | 6MB | ZBA case tracker from data.boston.gov (15,932 records) |
+
+## API Endpoints (34 total)
+
+### Search (3)
+- `GET /search?q=<address>` — Fuzzy address search with approval rates, case counts, parcel_ids
+- `GET /address/{address}/cases` — Full ZBA case history
+- `GET /autocomplete?q=<prefix>` — Address autocomplete from 175K property records
+
+### Parcels (3)
+- `GET /parcels/{parcel_id}` — Zoning details + Point geometry for mapping
+- `GET /parcels/{parcel_id}/nearby_cases` — ZBA cases within 0.5 miles, sorted by distance
+- `GET /geocode?address=<addr>` — Address → parcel_id
+
+### Zoning & Compliance (4)
+- `GET /zoning/{parcel_id}` — Subdistrict requirements, allowed uses, area approval rate, auto-detected `parcel_issues`
+- `POST /zoning/check_compliance` — Proposal vs zoning limits → `parcel_level_variances` + `proposal_level_variances` with historical rates
+- `POST /zoning/full_analysis` — Combined zoning + compliance
+- `POST /zoning/variance_analysis` — Deep variance type analysis
+
+### Prediction (3)
+- `POST /analyze_proposal` — Core ML prediction: probability, confidence interval, SHAP drivers, similar cases, recommendations, variance_history
+- `POST /compare` — What-if scenarios (4-6 scenario cards with probability deltas)
+- `POST /batch_predict` — Batch predictions (up to 50)
+
+### Market Intelligence (12)
+- `GET /variance_stats` — Per-variance approval rates and case counts (**used by frontend for enrichment**)
+- `GET /project_type_stats` — Rates by project type
+- `GET /trends` — Yearly approval trends (2021-2026)
+- `GET /neighborhoods` — 26 zoning districts ranked
+- `GET /denial_patterns` — Denied vs approved distinguishing factors
+- `GET /voting_patterns` — Vote distribution analysis
+- `GET /proviso_stats` — Common approval conditions
+- `GET /timeline_stats` — Filing-to-decision timeline (median 142 days)
+- `GET /wards/{ward_id}/stats` — Ward-level stats
+- `GET /wards/all` — All ward stats in one call
+- `GET /wards/{ward_id}/trends` — Ward trends over time
+- `GET /wards/{ward_id}/top_attorneys` — Top attorneys per ward
+
+### Attorneys (4)
+- `GET /attorneys/search?q=<name>` — Fuzzy attorney search
+- `GET /attorneys/{name}/profile` — Win rate, wards, specialties, vs-average comparison
+- `GET /attorneys/{name}/similar_cases` — Filtered by ward/variance
+- `GET /attorneys/leaderboard` — Top attorneys ranked
+
+### Platform (4)
+- `GET /stats` — Dashboard stats
+- `GET /health` — Model status, AUC, uptime
+- `GET /model_info` — Model metadata, calibration buckets with trust ratings
+- `GET /data_status` — Data freshness, pipeline status
+
+### Site Selection (1)
+- `GET /recommend?use_type=<type>&project_type=<type>` — ML-ranked parcels
+
+## ML Model
+
+- **Architecture:** Stacking ensemble — XGBoost_Deep + Gradient Boosting + Random Forest, balanced Logistic Regression meta-learner, 5-fold out-of-fold
+- **85 features** across 14 categories (see `api/services/feature_builder.py` for full list)
+- **Test AUC:** 0.7998 | **Honest CV AUC:** 0.7921 | **Denial Recall:** 69.7% | **ECE:** 1.0%
+- **Calibration:** Platt scaling on separate holdout. 90-100% bucket: predicted 95.8%, actual 95.4%
+- **Size:** 219MB (too large for Railway 1GB — needs lightweight retrain or paid plan)
+- **CRITICAL: No post-hearing features.** 14 features removed for data leakage (see `feature_builder.py` REMOVED_FEATURES list)
+
+## Frontend: 4-Step Flow
+
+Each step unlocks the next:
+
+1. **Address Search** → Color-coded results (green/yellow/red by approval rate), expandable case history, parcel_id linking
+2. **Zoning & Parcel Details** → Subdistrict requirements, PyDeck map (ScatterplotLayer for Points), auto-detected parcel issues with historical rates, nearby ZBA cases
+3. **Compliance Check** → User enters proposal → violations with parcel-level vs proposal-level breakdown, each enriched with approval rate + case count
+4. **ML Prediction** → Probability gauge, confidence interval, SHAP drivers (top 8, human-readable labels), stratified similar cases (includes denied), what-if scenarios, downloadable HTML report
+
+**Other sections:** Ward Insights, Market Intelligence (5 tabs), Attorney Lookup (search + profile + CSV export), Site Selection
+
+## Common Pitfalls — Things That Have Gone Wrong Before
+
+### Map Crashes
+The GeoJSON contains **Point** centroids, not Polygon boundaries. Code that does `coordinates[0][0]` will crash with `'float' object is not subscriptable`. Always check `geometry.type` first:
+- Point → `lon, lat = coords[0], coords[1]` → ScatterplotLayer
+- Polygon → `coords[0]` is a ring of [lon, lat] pairs → PolygonLayer
+
+### Variance Display
+Never show variances as plain text. Every variance mention in the UI must include its historical approval rate and case count from `/variance_stats`. This applies to:
+- Auto-detected parcel issues (Step 2)
+- Proposal-dependent checks (Step 2)
+- Compliance violations (Step 3)
+- Variance selection hints (Step 4)
+
+### Railway Light Mode
+The 507MB model + 147MB GeoJSON + 80MB property data = OOM on Railway's 1GB. Light mode disables all of these. The fallback heuristic prediction is NOT the real model. Don't present Railway output as if it has real ML predictions.
+
+### Feature Leakage
+The model uses ONLY pre-hearing features. If you're tempted to add a feature, ask: "Would a developer know this BEFORE the hearing?" If not, it's leakage. See `feature_builder.py` for the safe/removed lists.
+
+### Compliance Checker Parsing
+`/zoning/check_compliance` accepts either flat params or a nested `proposal` object. If you change the API contract, test both formats. Previously, nested proposals silently caught 1/6 violations.
+
+### Address Normalization
+`normalize_address()` in `utils.py` handles: "Ave" vs "Av", city/zip suffixes, directionals (East→E), suffix letters (18R), em-dashes, range addresses (55-57). If you touch this function, you affect geocoding for 7,451 addresses.
+
+### Frontend API URL
+```python
+_DEFAULT_API = "https://overflowing-education-production-548c.up.railway.app"
+API_URL = os.environ.get("PERMITIQ_API_URL") or st.secrets.get("PERMITIQ_API_URL", _DEFAULT_API)
 ```
-auto_scrape_decisions.py  — Scrapes boston.gov for new ZBA decision PDFs (Google Drive + direct links)
-auto_update_data.py       — Pulls fresh data from data.boston.gov CKAN API (weekly cron)
-overnight_rebuild.py      — Full pipeline: OCR all PDFs → rebuild → retrain (run before bed)
-```
+For local dev: `export PERMITIQ_API_URL=http://127.0.0.1:8000` or start the API and it'll use the Railway URL.
 
-## Key Files in Detail
+## How to Run
 
-### api/main.py (FastAPI Backend)
-- **Endpoints (13 total, tagged in Swagger docs at /docs):**
-  - **Search:** `GET /search?q=<address>` — Fuzzy address search with LRU cache (256 entries), pre-computed address normalization
-  - **Search:** `GET /address/{address}/cases` — Full ZBA case history for an address
-  - **Parcels:** `GET /parcels/{parcel_id}` — Parcel zoning details + geometry for mapping
-  - **Prediction:** `POST /analyze_proposal` — Core ML prediction with confidence intervals, probability range, feature contribution analysis (top_drivers)
-  - **Prediction:** `POST /compare` — What-if scenario analysis (tests 4–6 scenarios with real probability deltas)
-  - **Market Intel:** `GET /wards/{ward_id}/stats` — Ward-level approval statistics
-  - **Market Intel:** `GET /variance_stats` — Approval rates by variance type
-  - **Market Intel:** `GET /project_type_stats` — Approval rates by project type
-  - **Market Intel:** `GET /neighborhoods` — Approval rates by zoning district/neighborhood (26 districts)
-  - **Market Intel:** `GET /attorneys/leaderboard` — Top attorneys ranked by ZBA win rate
-  - **Market Intel:** `GET /trends` — Approval rate trends by year (2021–2026)
-  - **Platform:** `GET /stats` — Overall platform statistics for dashboard
-  - **Platform:** `GET /health` — Model status, dataset counts, AUC
-- **Interactive API docs** at `http://127.0.0.1:8000/docs` (Swagger) and `/redoc` (ReDoc)
-- **Feature builder** (`build_features()`) constructs a 69-dimensional feature vector from pre-hearing data only (no data leakage)
-- **Loads on startup:** GeoJSON (98K parcels), zba_cases_cleaned.csv, zba_model.pkl, pre-computed address normalization
-- **Structured logging** with timestamps, request timing middleware (logs method, path, status, ms)
-- Uses Pydantic `ProposalInput` model for input validation; accepts `proposed_use`, `use_type`, or `use` field names
-- Safe type helpers (`safe_float`, `safe_int`, `safe_str`) prevent crashes on NaN/None
-
-### frontend/app.py (Streamlit UI)
-- **Stats dashboard** — ZBA decisions count, parcels mapped, avg approval rate, wards covered, ML features
-- **Clickable sidebar** — Demo addresses and parcels are buttons that auto-load results
-- **Address search** — Color-coded approval rates (green ≥70%, yellow 40-70%, red <40%) with expandable case history drill-down
-- **Parcel lookup** — Zoning details + interactive PyDeck map with parcel boundaries
-- **Prediction panel** — Full input form (parcel, use type, project type, variances, ward, attorney, units, stories)
-  - Variance approval hints shown when selecting variances (historical rates)
-  - Output: probability, probability range (confidence interval), confidence badge, proposal summary, key factors, similar cases
-  - Model Explainability section — top 8 feature drivers for this specific prediction
-- **What-If scenarios** — Model-computed scenario cards with color-coded deltas
-- **Report export** — Downloadable HTML report (styled, professional) + plain text fallback
-- **Ward Insights** — Compare approval rates by ward
-- **Market Intelligence** (expandable section with 5 tabs):
-  - Approval Trends — bar chart by year
-  - Variance Success Rates — color-coded approval rates for all 12 variance types
-  - Project Type Rates — approval rates by project type
-  - Attorney Leaderboard — top attorneys by win rate with W-L records
-  - Neighborhoods — 26 zoning districts ranked by approval rate
-- Dark theme (#1a1a2e), custom CSS, animated buttons, responsive layout
-- XSS protection — all API data HTML-escaped before rendering
-- `API_URL` configurable via `PERMITIQ_API_URL` env var (defaults to `http://127.0.0.1:8000`)
-
-### train_model_v2.py (ML Training)
-- **69 features across 14 categories:**
-  - Variance types (13): height, FAR, lot_area, setbacks, parking, conditional_use, etc.
-  - Violation types (5): excessive_far, insufficient_lot/frontage/yard/parking
-  - Use type (2): is_residential, is_commercial
-  - Representation (4): has_attorney, community_process, has_opposition, no_opposition_noted
-  - Planning (3): planning_proviso, bpda_involved, planning_support
-  - Project types (12): demolition, new_construction, addition, conversion, renovation, etc.
-  - Political (5): councilor_involved, mayors_office, support/opposition/non-opposition letters
-  - Legal (7): article_7/8/51/65/80, is_conditional_use, is_variance
-  - Scale (2): proposed_units, proposed_stories
-  - Location (2): ward_approval_rate, zoning_approval_rate (smoothed target encoding)
-  - Complexity (4): text_length_log, num_articles, num_sections, year_recency
-  - Deferrals (2): has_deferrals, num_deferrals
-  - Property (6): lot_size_sf, total_value, property_age, living_area, is_high_value, value_per_sqft
-  - Permits (2): prior_permits, has_prior_permits
-- **3 models trained:** Gradient Boosting (with sample weights for class imbalance), Random Forest (class_weight='balanced'), Logistic Regression (class_weight='balanced')
-- **Temporal train/test split:** Trains on older years, tests on most recent year (honest evaluation)
-- **Confusion matrix output** for each model
-- **5-fold cross-validation** on best model
-- Best model auto-selected by AUC, saved to zba_model_v2.pkl + api/zba_model.pkl
-
-### reextract_features.py (Feature Extraction)
-- 398 lines of regex-based feature extraction from OCR raw_text
-- Extracts: addresses (multi-pattern), applicant names, permit numbers, votes, zoning articles, units/stories, filing dates
-- 12 variance type patterns, 8 proviso types
-- Outputs enhanced columns in zba_cases_cleaned.csv
-
-### integrate_external_data.py (Data Integration)
-- Merges 3 external Boston datasets:
-  - ZBA Tracker (15,932 records) — matched by BOA case number
-  - Property Assessment FY2026 (184,552 records) — matched by normalized address
-  - Building Permits (718,721 records) — aggregated prior permits per address
-- Adds: lot_size_sf, total_value, property_age, living_area, value_per_sqft, prior_permits, has_prior_permits, is_high_value
-
-### fuzzy_match_properties.py (Address Matching)
-- Handles edge cases: range addresses (85-99 St), suffix letters (18R St), directionals (East→E), city/zip in address
-- Fills ~10-15% more property data via variant matching
-
-### overnight_rebuild.py (Full Pipeline Runner)
-- Steps: OCR all PDFs → rebuild dataset → retrain model → deploy to API
-- **Checkpointing:** Saves progress after each PDF in ocr_checkpoint.json. Can resume with `python3 overnight_rebuild.py` (no --fresh). Fresh run: `python3 overnight_rebuild.py --fresh`
-- **No timeouts** — runs until complete
-- OCR at 300 DPI with 400 DPI retry on empty pages
-
-## Current Status (March 24, 2026)
-
-### What's Running Right Now
-- OCR rebuild is running (`overnight_rebuild.py --fresh`) — processing all 262 PDFs from scratch
-- As of last check, ~32/262 PDFs done, ~2 min per scanned OCR PDF, ~0s per hybrid PDF
-- Checkpoint file saves progress after each PDF — safe to resume if interrupted
-
-### Recent Changes Made Today
-
-**Earlier today (before this session):**
-1. Bug fix: `district` variable undefined in `build_features()` — fixed
-2. Bug fix: Three silent `except: pass` blocks now show errors
-3. Model: Added temporal train/test split, class imbalance handling, confusion matrices
-4. OCR: Added progress indicators (every 25 pages)
-5. Pipeline: Added checkpoint system for overnight_rebuild.py
-
-**This session — API improvements:**
-6. Structured logging — all print→logger with timestamps, request timing middleware
-7. LRU search cache (256 entries) + pre-computed address normalization at startup
-8. Fixed `/compare` crash on non-numeric input (safe_int)
-9. Fixed `use_type` alias not recognized in `/analyze_proposal` and `/compare`
-10. Added confidence intervals (`probability_range`) to prediction response
-11. Added feature contribution analysis (`top_drivers`) to prediction response
-12. Fixed inconsistent error response formats (dict→HTTPException)
-13. Fixed hardcoded `text_length_log`/`year_recency` in `build_features()`
-14. Tagged all 13 endpoints for Swagger docs (`/docs`, `/redoc`)
-
-**This session — new API endpoints:**
-15. `GET /attorneys/leaderboard` — top attorneys by win rate
-16. `GET /trends` — approval rate trends by year
-17. `GET /neighborhoods` — 26 districts ranked by approval rate
-
-**This session — frontend improvements:**
-18. XSS fix — all API data HTML-escaped before rendering
-19. `API_URL` env-configurable via `PERMITIQ_API_URL`
-20. Clickable sidebar — demo addresses/parcels are buttons that auto-load results
-21. Case history drill-down — expandable case list under each search result
-22. Variance approval hints — historical rates shown when selecting variances
-23. Model Explainability section — top 8 feature drivers for each prediction
-24. Market Intelligence section (5 tabs): Trends, Variance Rates, Project Types, Attorney Leaderboard, Neighborhoods
-25. HTML report export — professional styled report alongside plain text
-
-**This session — training pipeline (train_model_v2.py):**
-26. Fixed target encoding data leakage — ward/zoning rates now computed from training data only
-27. Added calibration metrics (Brier score, log loss, calibration curves)
-28. Added threshold optimization (sweeps 0.3–0.7, finds optimal F1)
-29. Switched to stratified 5-fold CV
-30. Saves `model_diagnostics.png` (ROC curves, calibration curves, feature importance)
-31. Model package now includes `brier_score`, `optimal_threshold`
-
-**This session — cleanup:**
-32. Deleted orphaned `api/analyzer.py` and `api/model_loader.py`
-
-**Session 2 — CRITICAL: Feature Leakage Fix:**
-33. REMOVED 14 post-hearing features from training + API (has_opposition, no_opposition_noted, planning_support, planning_proviso, community_process, support_letters, opposition_letters, non_opposition_letter, councilor_involved, mayors_office_involved, hardship_mentioned, has_deferrals, num_deferrals, text_length_log)
-34. Fixed calibration — now uses separate calibration holdout (was calibrating on test set)
-35. Added 3-way split: train/test/calibration
-36. Fixed has_attorney regex — was catching 1% of cases, now catches ~24%
-37. Added attorney_win_rate as new feature (smoothed target encoding from training data)
-38. Added case deduplication to training pipeline
-39. Added decision recovery from raw_text (fixes ~34% missing decisions)
-
-**Session 2 — New Features:**
-40. `GET /wards/all` — single endpoint replacing 22 sequential calls
-41. `GET /recommend` — Site selection: find best parcels for your project type
-42. `GET /denial_patterns` — What distinguishes denied vs approved cases
-43. `GET /voting_patterns` — Vote distribution analysis
-44. `GET /proviso_stats` — Common conditions attached to approvals
-45. `GET /timeline_stats` — Filing-to-decision timeline analysis
-46. `GET /autocomplete` — Address autocomplete from 175K property records
-47. `GET /model_info` — Full model metadata and version info
-48. `GET /data_status` — Data freshness and OCR pipeline status
-49. `POST /batch_predict` — Batch predictions (up to 50)
-
-**Session 2 — Infrastructure:**
-50. API key authentication (optional, set PERMITIQ_API_KEY env var)
-51. Rate limiting (configurable via RATE_LIMIT_PER_MINUTE, default 60/min)
-52. Shared feature_builder.py module (single source of truth for feature list)
-53. Market intel router (api/routes/market_intel.py) extracted from monolith
-54. Frontend startup caching (@st.cache_data, batched API calls)
-55. Model versioning — saves to model_history/ with JSONL training log + auto-comparison
-56. Docker Compose improved (env vars, restart policy, 2 workers)
-57. Makefile: added `make retrain-clean`, `make audit`, `make docker`
-58. OCR quality audit script (audit_ocr_quality.py) — scored 35/100
-59. OCR cleanup script (cleanup_ocr.py) — address normalization, decision recovery, dedup
-60. 63 tests passing (up from 33)
-
-**Session 2 — Product Reframing:**
-61. Rebranded from "prediction" to "risk assessment" throughout UI and API
-62. Comprehensive liability disclaimers on all prediction outputs and reports
-63. API version bumped to 3.0
-
-**Session 3 — Foundational Fixes (March 25, 2026):**
-64. CRITICAL: Removed 14 post-hearing features from training + API (data leakage fix)
-65. Fixed model calibration — Platt scaling on separate holdout (was calibrating on test set)
-66. Fixed has_attorney regex — was catching 1%, now catches ~24%
-67. Added attorney_win_rate as new feature (smoothed target encoding)
-68. Added case deduplication to training pipeline
-69. OCR quality audit script (audit_ocr_quality.py) — scored 35/100
-70. 3-way split: train/test/calibration holdout
-
-**Session 3 — Infrastructure:**
-71. GitHub repo: https://github.com/steviejoe23/PermitIQ (private)
-72. PostGIS: 88,839 parcels imported, spatial indexes, API queries DB first
-73. API monolith split: market_intel router extracted (794 lines removed, main.py 2,027 → 1,600)
-74. Shared feature_builder.py module (single source of truth)
-75. API key auth on prediction endpoints (optional via PERMITIQ_API_KEY)
-76. Docker Compose with PostGIS service
-77. 75 tests passing (up from 63)
-78. Post-OCR retrain script (post_ocr_retrain.sh)
-
-**Session 3 — New Features:**
-79. Site Selection panel in frontend ("Where should I build?")
-80. /recommend endpoint with ML-ranked parcels
-81. /denial_patterns — what distinguishes denied vs approved
-82. /timeline_stats — filing-to-decision analysis
-83. /wards/all — single call replaces 22 sequential calls
-84. /stats, /autocomplete, /model_info restored after monolith split
-
-**Session 4 — Model Accuracy Improvements (March 28, 2026):**
-85. Downloaded 11 missing PDFs from boston.gov (275 total, up from 263)
-86. OCR processing 11 new PDFs (~700+ new cases)
-87. XGBoost added as model candidate (pip install xgboost)
-88. Composite model selection: 0.6*AUC + 0.4*DenialRecall (prevents "everything approved" models)
-89. `is_building_appeal` feature — Building appeals 58% vs Zoning 91% approval (#5 feature)
-90. Full year coverage from tracker dates — year_recency went from 55% → 100% coverage
-91. Broader project type patterns for tracker descriptions (change of occupancy, erect, etc.)
-92. Better units/stories extraction from tracker descriptions (1,235 units, 1,718 stories extracted)
-93. 3 meta-features: project_complexity, total_violations, num_features_active
-94. Smart dedup: OCR cases preferred over tracker (richer features)
-95. Feature richness weighting: tracker cases get 0.3x weight
-96. Model improved: AUC 0.7269 → 0.7665, CV AUC 0.7320 → 0.7706, Brier 0.0957 → 0.0912
-97. 61 features (up from 57), 13,308 unique cases, Gradient Boosting winner
-
-**Session 5 — Model Architecture & Honest Evaluation (March 28, 2026):**
-98. Stacking ensemble — XGBoost_Deep + GB + RF with balanced LR meta-learner, 5-fold OOF
-99. Feature selection — removes 22 noise features (<0.002 importance), auto-retrains
-100. XGBoost_Deep variant — deeper trees (max_depth=7), more regularization
-101. Honest CV — recomputes target encoding within each fold (reveals 0.06 inflation in simple CV)
-102. Simple CV AUC: 0.8284, **Honest CV AUC: 0.7686** (the true generalizable performance)
-103. **Test AUC: 0.7728** (stacking ensemble, +0.0063 over best individual model)
-104. **Denial Recall: 63.2%** (catches 2/3 of denials, up from 56.7% individual model)
-105. Brier Score: 0.0906 (well-calibrated after Platt scaling)
-106. Manual Platt scaling fallback for custom model classes
-107. API updated: contact_win_rate, ward_zoning_rate, year_ward_rate now served from model package
-108. feature_builder.py synced to 70 features (was 65)
-109. New features: prior_permits_log, contact_x_appeal, attorney_x_building, many_variances, has_property_data
-110. Model package now saves all rate dictionaries (contact_win_rates, ward_zoning_rates, year_ward_rates)
-111. Tested and rejected: LOO target encoding (killed signal — AUC dropped to 0.58), higher smoothing (reduced signal)
-
-**Session 6 — Data Quality & Product Polish (March 29, 2026):**
-112. Scraped 1,485 ZBA hearing agendas from boston.gov (scrape_zba_agendas.py) — pre-hearing variance data
-113. Improved variance extraction for denied cases (reextract_denied_variances.py) — +159 denied cases filled
-114. Inferred variances from tracker descriptions + zoning limits (infer_denied_variances.py) — +461 denied cases
-115. Variance coverage: 47% → 69% overall, denied 44% → 74%
-116. **Model: AUC 0.7727 → 0.7987 (+0.026), Honest CV 0.7686 → 0.7910, Denial Recall 63.2% → 69.7%**
-117. Downloaded BPDA Zoning Subdistricts (1,640 polygons, 286 unique subdistricts)
-118. Rebuilt boston_parcels_zoning.geojson with granular subdistricts (EBR-3 not "3A-3C")
-119. /zoning/{parcel_id} now returns subdistrict, subdistrict_type, neighborhood, data_source
-120. /zoning/check_compliance rewritten — uses SAME subdistrict requirements as /zoning endpoint (was inconsistent)
-121. _get_parcel_zoning() — single source of truth for all zoning endpoints
-122. Overlay districts: GCOD (10,069 parcels) and Coastal Flood (9,195 parcels) flagged in GeoJSON and API
-123. /zoning/check_compliance returns overlay_warnings for GCOD and Coastal Flood
-124. key_factors computed from REAL historical data (was hardcoded "~18%", "68%")
-125. SHAP labels human-readable: "Recent approval trend in this ward" not "Year Ward Rate"
-126. Similar cases: stratified sampling includes 1-2 denied cases for contrast
-127. variance_history integrated into /analyze_proposal response (real rates for exact combo)
-128. Actionable recommendations in /analyze_proposal — "hire attorney", "reduce units", "add parking", etc.
-129. Timeline from real tracker data — median 142 days, by phase (filing→hearing→decision), by ward
-130. Frontend: historical analysis section, subdistrict display, color-coded similar cases, SHAP labels
-131. Tested and rejected: agenda features in model (added noise, AUC dropped 0.006 — rolled back)
-
-### Known Issues / TODO
-- ~~Frontend `API_URL` is hardcoded to localhost~~ → FIXED
-- ~~No structured logging anywhere~~ → FIXED
-- ~~No caching for address searches~~ → FIXED
-- ~~Model doesn't save diagnostic plots~~ → FIXED
-- ~~`analyzer.py` and `model_loader.py` orphaned~~ → FIXED
-- ~~Target encoding data leakage~~ → FIXED
-- ~~No rate limiting on API~~ → FIXED (configurable, 120/min, exempt localhost)
-- ~~14 post-hearing features leaking~~ → FIXED (removed from training + API)
-- ~~Calibration on test set~~ → FIXED (separate calibration holdout)
-- ~~has_attorney catching only 1%~~ → FIXED (broader regex, ~24%)
-- ~~No model versioning~~ → FIXED (model_history/ with JSONL log)
-- ~~No API authentication~~ → FIXED (optional API key)
-- ~~Ward heatmap 22 API calls~~ → FIXED (/wards/all single endpoint)
-- ~~No site selection feature~~ → FIXED (/recommend + frontend panel)
-- ~~API monolith too large~~ → FIXED (market_intel router, 794 lines extracted)
-- ~~No PostGIS~~ → FIXED (88K parcels, spatial index, API uses DB first)
-- ~~No version control~~ → FIXED (GitHub private repo)
-- ~~AUC will drop after retrain with clean features~~ → Settled at honest test AUC 0.7728, honest CV 0.7686
-- ~~CV AUC inflated by target encoding leakage~~ → FIXED (honest CV recomputes TE within folds)
-- ~~Model ceiling ~0.77 AUC~~ → Pushed to **0.7987** with enriched denial data
-- ~~Zoning districts too coarse (3A-3C)~~ → FIXED (286 granular subdistricts from BPDA)
-- ~~Q1/Q2 inconsistency~~ → FIXED (_get_parcel_zoning single source of truth)
-- ~~Hardcoded key_factors~~ → FIXED (computed from real historical data)
-- ~~Cryptic SHAP labels~~ → FIXED (human-readable FEATURE_LABELS dict)
-- ~~Similar cases all APPROVED~~ → FIXED (stratified sampling includes denied)
-- ~~Timeline hardcoded 120 days~~ → FIXED (real tracker data, by phase, by ward)
-- ~~No overlay district awareness~~ → FIXED (GCOD + Coastal Flood flagged)
-- ~~No actionable recommendations~~ → FIXED (attorney, units, parking, project type advice)
-**Session 7 — Full Audit, Testing & Product Hardening (March 31, 2026):**
-132. CRITICAL FIX: nearby_cases endpoint structural bug — geographic results with distances were being skipped due to indentation error, falling through to district fallback with None distances
-133. CRITICAL FIX: Compliance checker not parsing nested `proposal` objects — was catching 1/6 violations, now catches all (FAR, height, stories, lot_area, parking, conditional_use, setbacks)
-134. CRITICAL FIX: Geocoder normalization — "ave" vs "av", city/zip suffixes, directionals, suffix letters, em-dashes. Geocode rate: **34.9% → 83.9%** (6,253/7,451 addresses)
-135. CRITICAL FIX: Variance historical rates in compliance response was empty `{}` — now returns real data (e.g., "height: 91% approval, 4,240 cases")
-136. Full audit: tested all 7,451 addresses × 7 questions. **Q6 prediction: 100.0%**, Q1-Q5/Q7: 97.2%
-137. **119 integration tests** (tests/test_integration.py) covering every endpoint, edge case, security (SQL injection, XSS, unicode), and concurrency
-138. **Calibration analysis** — ECE 1.0% (excellent). 90-100% bucket: predicted 95.8%, actual 95.4%. Probabilities are trustworthy. Report at calibration_report.png/txt
-139. Calibration warnings added to API — low probability (<50%) and building appeal cases get explicit warnings
-140. Model calibration data exposed in /model_info endpoint with bucket-level trust ratings
-141. Frontend: "How trustworthy is this number?" expander with calibration explanation and trust badges
-142. **Attorney router** (api/routes/attorneys.py) — 3 new endpoints: search, profile (win rate, wards, specialties, recent cases, vs-average comparison), similar cases filtered by ward/variance
-143. Frontend: Attorney Lookup section with search, profile display, ward/variance/yearly tabs, CSV export
-144. OCR address cleanup (clean_addresses.py) — 4,328 garbage addresses nulled, 7,855 cleaned. 15 cleaning rules.
-145. Added `proposed_parking_spaces` alias in compliance checker
-146. Refactoring plan created (REFACTOR_PLAN.md) — module split strategy for main.py (3,500 lines)
-147. Auto-filled lot data no longer triggers false violations in compliance checker
-148. Compliant projects correctly return compliant:true with empty variances
-
-**Session 8 — API Refactoring (April 1, 2026):**
-149. MAJOR: Executed REFACTOR_PLAN.md — split main.py (3,550 lines) into 12 focused modules
-150. main.py: 3,550 → 200 lines (app shell only: FastAPI, middleware, startup, router includes)
-151. New shared modules: state.py (24 lines), utils.py (162), constants.py (115), api_models.py (92)
-152. New data loader: services/data_loader.py (211 lines) — extracted startup logic
-153. 6 route modules: parcels.py (273), search.py (213), zoning.py (588), prediction.py (882), platform.py (168), recommend.py (122)
-154. normalize_address isolated in utils.py — a regex bug there can no longer crash every endpoint
-155. Deleted 6 dead files: schema.py, config.py, models.py, data_loader.py (old), zoning_rules.py, boston_parcel_zoning.schema.json
-156. 33 endpoints confirmed in OpenAPI spec with correct tags
-157. 19/19 smoke tests passed, 119/119 integration tests passed
-158. No behavior changes — pure structural refactor
-
-**Session 9 — Auto-Detect Parcel Issues & Product Polish (April 1, 2026):**
-159. PRODUCT FIX: Compliance checker was suppressing auto-filled lot_area/frontage violations — now flags them with source annotation
-160. NEW: `_detect_parcel_issues()` — auto-detects zoning violations from public records (lot size vs minimums) before any proposal is entered
-161. NEW: `/zoning/{parcel_id}` now returns `parcel_issues` section: auto-detected variances, violations with sources, and proposal-dependent check list
-162. NEW: Compliance response separates `parcel_level_variances` (always needed) from `proposal_level_variances` (triggered by proposal)
-163. NEW: Search results enriched with `parcel_id` from property assessment geocoder — enables seamless search→zoning→compliance flow
-164. FIX: Range address matching in search results (e.g., "55-57 Centre St" → parcel_id for "57 Centre St")
-165. Frontend: "Parcel-Level Zoning Issues" expander with auto-detected violations, source attribution, red severity styling
-166. Frontend: Compliance violations now show parcel-level vs proposal-level breakdown with color-coded badges
-167. Frontend: Auto-loads parcel data when single search result has parcel_id (eliminates extra click)
-168. Frontend: "View Parcel" button label when parcel_id available (vs "Find Parcel" when geocode needed)
-169. All 14 compliance tests pass, 46/46 zoning/search/prediction tests pass
-
-### Known Issues / TODO
-- 490 denied cases still have no variance data (no tracker description, no OCR text)
-- `proj_*` columns not in current CSV (will be added after OCR retrain)
-- Need manual OCR quality audit (sample 50 cases vs original PDFs)
-- ~~main.py still ~3,500 lines — REFACTOR_PLAN.md has the extraction strategy~~ → FIXED (200 lines)
-- ~~Auto-filled lot data not flagging violations~~ → FIXED (now auto-detects with source annotation)
-- Building appeal predictions are ~10pp overconfident (calibration warning added)
-- Predictions below 50% have limited calibration data (31 test cases in bucket)
-- No lot_frontage data in property assessment CSV — can't auto-detect frontage violations (need additional data source or parcel polygon boundaries)
-- Customer segment and pricing model undefined (business decision)
-- Boston-only TAM too small for venture scale (expansion strategy needed)
-- PostgreSQL 18 runs on port 5432 (installed at /Library/PostgreSQL/18), password in PGPASSWORD env var
-- ~~Attorney/Market intel routers fail to load (module import path issue with `routes.` prefix)~~ → FIXED
-
-## How to Run Everything
-
-### Quick start (Makefile):
-```bash
-cd ~/Desktop/Boston\ Zoning\ Project
-make run          # Starts API + Frontend
-make test         # Run 119 tests (requires API running)
-make retrain      # Retrain model from existing dataset
-make retrain-clean # Clean OCR → audit → retrain (after OCR completes)
-make audit        # Run OCR quality audit
-make status       # Check OCR progress + data freshness
-make docker       # Start with Docker Compose
-make push         # Commit and push to GitHub
-# Or after OCR: bash post_ocr_retrain.sh
-```
-
-### Manual start:
+### Quick Start
 ```bash
 cd ~/Desktop/Boston\ Zoning\ Project
 source zoning-env/bin/activate
+make run          # Starts API + Frontend (ports 8000 + 8501)
+```
 
+### Manual Start
+```bash
 # Terminal 1: API
-cd api && uvicorn main:app --reload --port 8000
+cd ~/Desktop/Boston\ Zoning\ Project/api
+uvicorn main:app --reload --port 8000
 
 # Terminal 2: Frontend
 cd ~/Desktop/Boston\ Zoning\ Project/frontend
 streamlit run app.py --server.port 8501
 ```
 
-### After OCR finishes (CRITICAL — run in order):
+### Other Commands
 ```bash
-python3 cleanup_ocr.py           # Fix OCR artifacts, recover decisions
-python3 audit_ocr_quality.py     # Check quality score
-python3 train_model_v2.py        # Retrain with clean features
-# Or: make retrain-clean
+make test           # 119 integration tests (API must be running)
+make retrain        # Retrain model from existing dataset
+make retrain-clean  # Clean OCR → audit → retrain
+make docker         # Start with Docker Compose (includes PostGIS)
+make push           # Commit and push to GitHub
+python3 train_model_v2.py  # Retrain and save to model_history/ with auto-comparison
 ```
 
-### Full rebuild from scratch:
+### Update Data
 ```bash
-caffeinate -s make rebuild
+python3 auto_update_data.py       # Pull fresh CSVs from boston.gov CKAN API
+python3 auto_scrape_decisions.py  # Scrape new ZBA decision PDFs
 ```
 
-### Just retrain the model:
-```bash
-python3 train_model_v2.py        # Saves to model_history/ with auto-comparison
-```
-
-### Update data from boston.gov:
-```bash
-python3 auto_update_data.py      # pulls fresh CSVs from CKAN API
-python3 auto_scrape_decisions.py  # scrapes new decision PDFs
-```
-
-## Key Data Files
-| File | Size | Description |
-|------|------|-------------|
-| zba_cases_dataset.csv | 40MB | Raw OCR output (all cases from all PDFs) |
-| zba_cases_cleaned.csv | 30MB | Cleaned + feature-enriched dataset |
-| zba_model_v2.pkl | 2MB | Trained model package |
-| api/zba_model.pkl | 2MB | Copy deployed to API |
-| boston_parcels_zoning.geojson | 147MB | All 98,510 Boston parcels with zoning |
-| property_assessment_fy2026.csv | 80MB | Boston property tax assessments |
-| building_permits.csv | 259MB | All Boston building permits |
-| zba_tracker.csv | 6MB | ZBA case tracker from boston.gov |
-| ocr_checkpoint.json | varies | Checkpoint file (deleted on completion) |
-
-## Python Environment
-- **Virtual env:** `zoning-env/` (Python 3.9 via CommandLineTools)
-- **Key packages:** fastapi, uvicorn, streamlit, scikit-learn, pandas, numpy, pymupdf (fitz), pytesseract, pydeck, requests, beautifulsoup4, joblib, pydantic
-- **Tesseract path:** `/opt/homebrew/bin/tesseract`
+## Environment
+- **Python:** 3.9 (virtual env: `zoning-env/`)
+- **Key packages:** fastapi, uvicorn, streamlit, scikit-learn, xgboost, pandas, numpy, pymupdf, pytesseract, pydeck, requests, beautifulsoup4, joblib, pydantic
+- **Tesseract:** `/opt/homebrew/bin/tesseract`
+- **PostgreSQL 18:** port 5432, password in PGPASSWORD env var (PostGIS optional — API falls back to in-memory GeoJSON)
+- **Git LFS:** Not installed. LFS hooks removed from `.git/hooks/`. Don't add files >100MB to git.
 
 ## Demo Info
 - **Demo addresses:** 75 Tremont St (14 cases, 62%), 1081 River St (13 cases, 73%), 58 Burbank St (10 cases, 44%)
-- **Sample parcel IDs:** 0100001000 (East Boston, 3A-3C), 0302951010 (South Boston), 1000358010 (Jamaica Plain)
-- **Key pitch:** "7,500+ real ZBA decisions, 69 features, no data leakage. We tell you if you'll win."
-- **Business case:** Developers spend $30-100K with no idea of outcome. PermitIQ quantifies the risk before filing.
+- **Sample parcel IDs:** 0100001000 (East Boston), 0302951010 (South Boston), 1000358010 (Jamaica Plain)
+
+## Testing Checklist
+
+Before calling any change "done," verify:
+- [ ] Address search returns results with approval rates (not empty or error)
+- [ ] Parcel lookup shows zoning details and map renders (ScatterplotLayer for Points)
+- [ ] Auto-detected parcel issues show historical approval rates (not plain text)
+- [ ] Compliance check returns violations with parcel-level + proposal-level breakdown
+- [ ] Prediction returns probability, SHAP drivers, similar cases (includes denied)
+- [ ] What-if scenarios render with color-coded deltas
+- [ ] All variance displays enriched with approval rate + case count
+- [ ] No Python tracebacks in the Streamlit UI
+- [ ] If deploying: compare Railway vs local output — flag any missing features
+
+## Known Issues (April 2026)
+- Railway deployment missing most features (light mode) — needs smaller model or paid plan
+- GeoJSON has Point centroids only — no parcel polygon boundaries
+- Building appeal predictions ~10pp overconfident (calibration warning added)
+- 490 denied cases have no variance data
+- No lot_frontage in property assessment — can't auto-detect frontage violations
+- Predictions below 50% have limited calibration data (31 test cases)
+- Customer segment and pricing model undefined
+- Boston-only TAM may be too small for venture scale

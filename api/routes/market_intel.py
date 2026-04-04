@@ -248,13 +248,15 @@ def attorney_leaderboard(min_cases: int = 5, limit: int = 20):
     """Top attorneys by ZBA approval rate."""
     def _compute():
         df = _require_data()
+        # Use 'contact' (attorney/representative) not 'applicant_name' (the person applying)
+        _atty_col = 'contact' if 'contact' in df.columns else 'applicant_name'
         df = df[
             (df['decision_clean'].notna()) &
-            (df['applicant_name'].notna()) &
-            (df['applicant_name'].str.len() > 3)
+            (df[_atty_col].notna()) &
+            (df[_atty_col].str.len() > 3)
         ].copy()
 
-        grouped = df.groupby('applicant_name').agg(
+        grouped = df.groupby(_atty_col).agg(
             total=('decision_clean', 'count'),
             approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
         ).reset_index()
@@ -265,14 +267,14 @@ def attorney_leaderboard(min_cases: int = 5, limit: int = 20):
         ).head(limit)
 
         qualified['total_cases'] = qualified['total']
-        results = qualified.rename(columns={'applicant_name': 'name'}).to_dict('records')
+        results = qualified.rename(columns={_atty_col: 'name'}).to_dict('records')
 
         has_attorney = df[df['has_attorney'] == 1] if 'has_attorney' in df.columns else pd.DataFrame()
         no_attorney = df[df['has_attorney'] == 0] if 'has_attorney' in df.columns else pd.DataFrame()
 
         return {
             "attorneys": results,
-            "total_unique_applicants": int(df['applicant_name'].nunique()),
+            "total_unique_attorneys": int(df[_atty_col].nunique()),
             "attorney_approval_rate": round(float((has_attorney['decision_clean'] == 'APPROVED').mean()), 3) if len(has_attorney) > 0 else None,
             "no_attorney_approval_rate": round(float((no_attorney['decision_clean'] == 'APPROVED').mean()), 3) if len(no_attorney) > 0 else None,
         }
@@ -308,8 +310,15 @@ def approval_trends():
 @router.get("/denial_patterns")
 def denial_patterns():
     """What distinguishes denied cases from approved ones?"""
-    df = _require_data()
-    df = df[df['decision_clean'].notna()].copy()
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        return _compute_denial_patterns(df)
+    return _cached("denial_patterns", _compute)
+
+
+def _compute_denial_patterns(df):
+    """Core denial patterns logic."""
     approved = df[df['decision_clean'] == 'APPROVED']
     denied = df[df['decision_clean'] == 'DENIED']
 
@@ -369,8 +378,14 @@ def denial_patterns():
 @router.get("/voting_patterns")
 def voting_patterns():
     """Analyze vote distributions across ZBA decisions."""
-    df = _require_data()
-    df = df[df['decision_clean'].notna()].copy()
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        return _compute_voting(df)
+    return _cached("voting_patterns", _compute)
+
+
+def _compute_voting(df):
     result = {}
 
     if 'votes_in_favor' in df.columns and 'votes_opposed' in df.columns:
@@ -397,6 +412,67 @@ def voting_patterns():
         result["split_approval_rate"] = round(float((split['decision_clean'] == 'APPROVED').mean()), 3) if len(split) > 0 else 0
 
     return result
+
+
+@router.get("/wards/{ward_id}/trends")
+def ward_trends(ward_id: str):
+    """Yearly approval rate trends for a specific ward."""
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        ward_str = str(int(float(ward_id))) if ward_id.replace('.', '').isdigit() else ward_id.strip()
+        ward_df = df[df['ward'].astype(str).str.strip() == ward_str]
+        if len(ward_df) == 0:
+            return {"ward": ward_str, "years": [], "note": "No cases found for this ward"}
+
+        if '_year' not in ward_df.columns:
+            ward_df['_year'] = pd.to_datetime(ward_df.get('date', pd.NaT), errors='coerce').dt.year
+
+        grouped = ward_df[ward_df['_year'].notna()].groupby('_year').agg(
+            total=('decision_clean', 'count'),
+            approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+        ).reset_index()
+        grouped['denied'] = grouped['total'] - grouped['approved']
+        grouped['approval_rate'] = (grouped['approved'] / grouped['total']).round(3)
+        grouped['year'] = grouped['_year'].astype(int)
+
+        years = grouped.drop(columns=['_year']).sort_values('year').to_dict('records')
+        return {
+            "ward": ward_str,
+            "total_cases": int(len(ward_df)),
+            "years": years,
+        }
+    return _cached(f"ward_trends_{ward_id}", _compute)
+
+
+@router.get("/wards/{ward_id}/top_attorneys")
+def ward_top_attorneys(ward_id: str, limit: int = 10):
+    """Top attorneys by win rate in a specific ward."""
+    def _compute():
+        df = _require_data()
+        df = df[df['decision_clean'].notna()].copy()
+        ward_str = str(int(float(ward_id))) if ward_id.replace('.', '').isdigit() else ward_id.strip()
+        _atty_col = 'contact' if 'contact' in df.columns else 'applicant_name'
+        ward_df = df[
+            (df['ward'].astype(str).str.strip() == ward_str) &
+            (df[_atty_col].notna()) &
+            (df[_atty_col].str.len() > 3)
+        ]
+        if len(ward_df) == 0:
+            return {"ward": ward_str, "attorneys": []}
+
+        grouped = ward_df.groupby(_atty_col).agg(
+            total=('decision_clean', 'count'),
+            approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+        ).reset_index()
+        grouped['approval_rate'] = (grouped['approved'] / grouped['total']).round(3)
+        qualified = grouped[grouped['total'] >= 2].sort_values(
+            ['approval_rate', 'total'], ascending=[False, False]
+        ).head(limit)
+
+        results = qualified.rename(columns={_atty_col: 'name'}).to_dict('records')
+        return {"ward": ward_str, "attorneys": results}
+    return _cached(f"ward_top_attorneys_{ward_id}_{limit}", _compute)
 
 
 @router.get("/proviso_stats")

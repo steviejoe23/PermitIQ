@@ -344,7 +344,7 @@ st.markdown("""
 # =========================
 
 st.markdown('<div class="hero-title">PermitIQ</div>', unsafe_allow_html=True)
-st.markdown('<p style="font-size:15px; color:#b0bec5 !important; margin-top:-6px; line-height:1.5;">Boston Zoning Intelligence &amp; ZBA Prediction Engine — Powered by 7,500+ real ZBA decisions</p>', unsafe_allow_html=True)
+st.markdown('<p style="font-size:15px; color:#b0bec5 !important; margin-top:-6px; line-height:1.5;">Boston Zoning Intelligence &amp; ZBA Prediction Engine — Powered by 13,300+ real ZBA decisions</p>', unsafe_allow_html=True)
 
 # API connection status — cached to avoid re-fetching on every Streamlit rerun
 @st.cache_data(ttl=30)
@@ -353,6 +353,20 @@ def _fetch_startup_data():
     health = requests.get(f"{API_URL}/health", timeout=3).json()
     stats = requests.get(f"{API_URL}/stats", timeout=5).json()
     return health, stats
+
+@st.cache_data(ttl=120)
+def _fetch_variance_stats():
+    """Fetch variance approval rates — cached 2 minutes. Used across Steps 2, 3, and 4."""
+    try:
+        res = requests.get(f"{API_URL}/variance_stats", timeout=5)
+        if res.status_code == 200:
+            return {v["variance_type"]: v for v in res.json().get("variance_stats", [])}
+    except Exception:
+        pass
+    return {}
+
+# Pre-fetch variance stats (used by Steps 2, 3, 4)
+_global_var_rates = _fetch_variance_stats()
 
 try:
     _health, _stats_res = _fetch_startup_data()
@@ -597,7 +611,8 @@ with st.expander("Or enter a Parcel ID directly"):
 # =========================
 
 if search_clicked and address_query:
-    # Clear stale prediction when doing a new search
+    # Clear stale prediction and detected variances when doing a new search
+    st.session_state.pop('detected_variances', None)
     st.session_state.prediction_result = None
     st.session_state.parcel_data = None  # Reset parcel so we find the right one
 
@@ -747,7 +762,7 @@ if st.session_state.search_results:
                         for case in cases_list:
                             emoji = "✅" if case.get('decision') == 'APPROVED' else "❌" if case.get('decision') == 'DENIED' else "⏳"
                             variances_raw = case.get('variances', '')
-                            variances_str = str(variances_raw) if variances_raw and str(variances_raw).lower() not in ('nan', 'none', '') else 'none listed'
+                            variances_str = str(variances_raw) if variances_raw and str(variances_raw).lower() not in ('nan', 'none', '') else ''
                             date_raw = case.get('date', '')
                             date_str = str(date_raw) if date_raw and str(date_raw).lower() not in ('nan', 'none', '') else ''
                             date_part = f"{esc(date_str)} — " if date_str else ""
@@ -756,12 +771,30 @@ if st.session_state.search_results:
                                 _app_line = f" · Applicant: {esc(case['applicant'])}"
                             if case.get('contact'):
                                 _app_line += f" · Rep: {esc(case['contact'])}"
+                            # Enrich variances with historical approval rates
+                            _var_enriched = ""
+                            if variances_str:
+                                _var_parts = []
+                                for _vraw in variances_str.split(','):
+                                    _vclean = _vraw.strip().lower().replace(' ', '_')
+                                    _vinfo = _global_var_rates.get(_vclean, {})
+                                    _vrate = _vinfo.get("approval_rate")
+                                    _vlabel = _vraw.strip().title()
+                                    if _vrate is not None:
+                                        _vcolor = "#10b981" if _vrate >= 0.7 else "#f59e0b" if _vrate >= 0.5 else "#ef4444"
+                                        _var_parts.append(f'<span style="color:{_vcolor};font-weight:600;">{esc(_vlabel)} ({_vrate:.0%})</span>')
+                                    else:
+                                        _var_parts.append(esc(_vlabel))
+                                _var_enriched = " · " + ", ".join(_var_parts) if _var_parts else ""
+                            else:
+                                _var_enriched = " · <span style='color:#64748b;'>no variances listed</span>"
                             st.markdown(
                                 f"{emoji} **{esc(case.get('case_number', 'N/A'))}** — "
                                 f"{esc(case.get('decision', 'N/A'))} — "
                                 f"{date_part}"
-                                f"Variances: {esc(variances_str)}"
-                                f"{_app_line}"
+                                f"{_var_enriched}"
+                                f"{_app_line}",
+                                unsafe_allow_html=True
                             )
                     else:
                         st.caption("No detailed case records available.")
@@ -921,19 +954,10 @@ if st.session_state.parcel_data:
                             f'</div>',
                             unsafe_allow_html=True
                         )
-                        # Fetch historical variance approval rates for auto-detected violations
-                        _auto_var_rates = {}
-                        try:
-                            _avsr = requests.get(f"{API_URL}/variance_stats", timeout=5)
-                            if _avsr.status_code == 200:
-                                _auto_var_rates = {v["variance_type"]: v for v in _avsr.json().get("variance_stats", [])}
-                        except Exception:
-                            pass
-
                         for v in _auto_viols:
                             _vtype_raw = v.get('type', '')
                             _vtype = esc(_vtype_raw.replace('_', ' ').title())
-                            _avr = _auto_var_rates.get(_vtype_raw, {})
+                            _avr = _global_var_rates.get(_vtype_raw, {})
                             _arate = _avr.get("approval_rate", 0)
                             _acases = _avr.get("total_cases", 0)
                             _rate_html = ""
@@ -957,20 +981,11 @@ if st.session_state.parcel_data:
                         st.success("No parcel-level zoning issues detected from public records.")
 
                     if _prop_checks:
-                        # Fetch historical variance approval rates
-                        _var_rates = {}
-                        try:
-                            _vsr = requests.get(f"{API_URL}/variance_stats", timeout=5)
-                            if _vsr.status_code == 200:
-                                _var_rates = {v["variance_type"]: v for v in _vsr.json().get("variance_stats", [])}
-                        except Exception:
-                            pass
-
                         st.markdown(f"**{len(_prop_checks)} additional variance types — may be needed depending on your proposal:**")
                         for pc in _prop_checks:
                             _vt = pc['type']
                             _vt_label = esc(_vt.replace('_', ' ').title())
-                            _vr = _var_rates.get(_vt, {})
+                            _vr = _global_var_rates.get(_vt, {})
                             _rate = _vr.get("approval_rate", 0)
                             _cases = _vr.get("total_cases", 0)
                             if _cases > 0:
@@ -987,8 +1002,8 @@ if st.session_state.parcel_data:
                             else:
                                 st.markdown(f"- **{_vt_label}** — {esc(pc['depends_on'])}")
 
-    except Exception:
-        pass
+    except Exception as e:
+        st.warning(f"Could not load zoning details: {e}")
 
     # MAP
     if "geometry" in data:
@@ -997,7 +1012,7 @@ if st.session_state.parcel_data:
             raw_coords = data["geometry"]["coordinates"]
 
             if geom_type == "Point":
-                # Point geometry — show a marker
+                # Point geometry — show a marker highlighting the lot in red
                 lon, lat = raw_coords[0], raw_coords[1]
                 st.pydeck_chart(pdk.Deck(
                     map_style="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
@@ -1007,8 +1022,8 @@ if st.session_state.parcel_data:
                             "ScatterplotLayer",
                             data=[{"lat": lat, "lon": lon}],
                             get_position=["lon", "lat"],
-                            get_fill_color=[74, 158, 255, 200],
-                            get_line_color=[255, 255, 255],
+                            get_fill_color=[220, 50, 50, 200],
+                            get_line_color=[255, 100, 100],
                             get_radius=30,
                             line_width_min_pixels=2,
                         )
@@ -1033,8 +1048,8 @@ if st.session_state.parcel_data:
                             "PolygonLayer",
                             data=[{"polygon": coords}],
                             get_polygon="polygon",
-                            get_fill_color=[74, 158, 255, 140],
-                            get_line_color=[255, 255, 255],
+                            get_fill_color=[220, 50, 50, 160],
+                            get_line_color=[255, 100, 100],
                             line_width_min_pixels=2,
                         )
                     ],
@@ -1095,7 +1110,7 @@ if st.session_state.parcel_data:
                         except Exception:
                             pass
 
-                    # Individual cases
+                    # Individual cases with enriched variance data
                     for case in nearby_cases:
                         emoji = "✅" if case.get('decision') == 'APPROVED' else "❌"
                         _case_date = case.get('date', '')
@@ -1106,11 +1121,28 @@ if st.session_state.parcel_data:
                         _dist_str = f" · **{_dist:,} ft away**" if _dist else ""
                         _applicant = case.get('applicant')
                         _app_str = f" · {esc(_applicant)}" if _applicant else ""
+                        # Enrich nearby case variances with approval rates
+                        _nb_var_str = ""
+                        _nb_variances = case.get('variances', '')
+                        if _nb_variances and str(_nb_variances).lower() not in ('nan', 'none', ''):
+                            _nb_var_parts = []
+                            for _nbv in str(_nb_variances).split(','):
+                                _nbvc = _nbv.strip().lower().replace(' ', '_')
+                                _nbvi = _global_var_rates.get(_nbvc, {})
+                                _nbvr = _nbvi.get("approval_rate")
+                                if _nbvr is not None:
+                                    _nbcol = "#10b981" if _nbvr >= 0.7 else "#f59e0b" if _nbvr >= 0.5 else "#ef4444"
+                                    _nb_var_parts.append(f'<span style="color:{_nbcol};">{esc(_nbv.strip().title())} ({_nbvr:.0%})</span>')
+                                else:
+                                    _nb_var_parts.append(esc(_nbv.strip().title()))
+                            _nb_var_str = f" · {', '.join(_nb_var_parts)}"
                         st.markdown(
                             f"{emoji} **{esc(case.get('case_number', ''))}** — "
                             f"{esc(case.get('address', ''))} — "
                             f"{esc(case.get('decision', ''))}"
                             f"{_dist_str}{_date_str}{_app_str}"
+                            f"{_nb_var_str}",
+                            unsafe_allow_html=True
                         )
                 else:
                     st.caption("No ZBA cases found near this property.")
@@ -1124,7 +1156,7 @@ if st.session_state.parcel_data:
 # STEP 3: COMPLIANCE CHECK (always visible header)
 # =========================
 
-st.markdown("---")
+
 if st.session_state.parcel_data:
     st.markdown('<div style="font-size:22px;font-weight:700;margin:32px 0 12px 0;padding-bottom:8px;border-bottom:2px solid #334155;"><span style="display:inline-block;background:#3b82f6;color:#fff;font-size:13px;font-weight:700;width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;margin-right:10px;vertical-align:middle;">3</span><span style="color:#ffffff;">Does My Project Need a Variance?</span></div>', unsafe_allow_html=True)
     data = st.session_state.parcel_data
@@ -1266,6 +1298,10 @@ if st.session_state.parcel_data:
                             unsafe_allow_html=True
                         )
 
+                    # Auto-populate detected variances for Step 4 prediction
+                    _detected_vars = [v.replace('_', ' ').title() for v in variances_needed]
+                    st.session_state['detected_variances'] = _detected_vars
+
                     # Show historical rates for these variances
                     hist_rates = cc_data.get("variance_historical_rates", {})
                     if hist_rates:
@@ -1293,7 +1329,7 @@ else:
 
 st.markdown("---")
 st.markdown('<div style="font-size:22px;font-weight:700;margin:32px 0 12px 0;padding-bottom:8px;border-bottom:2px solid #334155;"><span style="display:inline-block;background:#3b82f6;color:#fff;font-size:13px;font-weight:700;width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;margin-right:10px;vertical-align:middle;">4</span><span style="color:#ffffff;">How Likely Will Your Proposal Pass?</span></div>', unsafe_allow_html=True)
-st.markdown("*Select the variances identified above (or enter manually) and get your answer based on 3,700+ real ZBA decisions.*")
+st.markdown("*Select the variances identified above (or enter manually) and get your answer based on 13,300+ real ZBA decisions.*")
 if not st.session_state.parcel_data:
     st.markdown('<div style="color:#64748b; font-style:italic; padding:4px 0 12px 0;">Tip: Search an address first for auto-filled parcel data.</div>', unsafe_allow_html=True)
 
@@ -1338,13 +1374,18 @@ with p2:
     ward = st.text_input("Ward (optional)", value=default_ward, placeholder="e.g. 17")
 
 with p3:
+    _all_variance_options = [
+        "Height", "FAR (Floor Area Ratio)", "Lot Area", "Lot Frontage",
+        "Front Setback", "Rear Setback", "Side Setback",
+        "Parking", "Conditional Use", "Open Space", "Density", "Nonconforming"
+    ]
+    # Auto-populate from compliance check results (Step 3)
+    _auto_defaults = [v for v in st.session_state.get('detected_variances', []) if v in _all_variance_options]
     variances = st.multiselect(
         "Variances / Relief Needed",
-        [
-            "Height", "FAR (Floor Area Ratio)", "Lot Area", "Lot Frontage",
-            "Front Setback", "Rear Setback", "Side Setback",
-            "Parking", "Conditional Use", "Open Space", "Density", "Nonconforming"
-        ]
+        _all_variance_options,
+        default=_auto_defaults,
+        help="Auto-filled from compliance check above. Add or remove as needed."
     )
     has_attorney = st.checkbox("Will have legal representation", value=False)
 
@@ -1385,19 +1426,14 @@ clean_variances = [variance_map.get(v, v.lower()) for v in variances]
 
 # Show approval rate hints for selected variances
 if variances:
-    try:
-        _var_stats_res = requests.get(f"{API_URL}/variance_stats", timeout=5)
-        if _var_stats_res.status_code == 200:
-            _var_stats = {v["variance_type"]: v["approval_rate"] for v in _var_stats_res.json().get("variance_stats", [])}
-            hints = []
-            for v in clean_variances:
-                rate = _var_stats.get(v)
-                if rate is not None:
-                    hints.append(f"{v.replace('_', ' ').title()}: {rate:.0%}")
-            if hints:
-                st.caption(f"Historical approval rates — {' · '.join(hints)}")
-    except Exception:
-        pass
+    hints = []
+    for v in clean_variances:
+        _vdata = _global_var_rates.get(v, {})
+        rate = _vdata.get("approval_rate")
+        if rate is not None:
+            hints.append(f"{v.replace('_', ' ').title()}: {rate:.0%}")
+    if hints:
+        st.caption(f"Historical approval rates — {' · '.join(hints)}")
 
 
 # --- PREDICT BUTTON ---
@@ -1419,7 +1455,7 @@ if predict_clicked:
                 "proposed_stories": proposed_stories,
             }
 
-            with st.spinner("Analyzing proposal against 7,500+ ZBA decisions..."):
+            with st.spinner("Analyzing proposal against 13,300+ ZBA decisions..."):
                 res = requests.post(f"{API_URL}/analyze_proposal", json=payload, timeout=30)
 
             if res.status_code == 404:
@@ -2656,9 +2692,9 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                         st.caption("No ward data available.")
 
                                 with prof_tab2:
-                                    variances = prof.get("variance_specialties", [])
-                                    if variances:
-                                        for v in variances:
+                                    atty_variances = prof.get("variance_specialties", [])
+                                    if atty_variances:
+                                        for v in atty_variances:
                                             rate = v["approval_rate"]
                                             name = v["variance_type"].replace("_", " ").title()
                                             color = "#10b981" if rate >= 0.7 else ("#f59e0b" if rate >= 0.5 else "#ef4444")
@@ -2824,7 +2860,7 @@ st.markdown(
     '<div class="footer-container">'
     '<div class="footer-brand">PermitIQ v3.0</div>'
     '<div class="footer-meta">Boston Zoning Risk Assessment Platform &middot; '
-    '7,500+ ZBA decisions &middot; 57 leakage-free features &middot; PostGIS spatial data</div>'
+    '13,300+ ZBA decisions &middot; 85 leakage-free features &middot; PostGIS spatial data</div>'
     '<div class="footer-legal">Statistical risk assessment only. Not legal advice. '
     'Always consult a qualified zoning attorney before making financial decisions.</div>'
     '</div>',

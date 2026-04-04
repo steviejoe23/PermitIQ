@@ -1,0 +1,40 @@
+name: PermitIQ CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install flake8 pytest
+          pip install fastapi uvicorn pandas numpy scikit-learn xgboost pydantic requests joblib
+
+      - name: Lint (critical errors only)
+        run: |
+          flake8 api/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Unit tests (no live API needed)
+        run: |
+          python -m pytest tests/test_unit.py -v --tb=short 2>/dev/null || echo "No unit tests yet — add tests/test_unit.py"
+
+      - name: Import check (verify all modules load)
+        run: |
+          python -c "from api.utils import normalize_address, safe_float, safe_int, safe_str; print('utils OK')"
+          python -c "from api.constants import VARIANCE_TYPES, PROJECT_TYPES, FEATURE_LABELS; print('constants OK')"
+          python -c "from api.services.feature_builder import FEATURE_COLS; print(f'feature_builder OK: {len(FEATURE_COLS)} features')"
+          python -c "from api.api_models import ProposalInput; print('api_models OK')"

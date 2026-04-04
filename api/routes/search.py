@@ -211,6 +211,60 @@ def get_address_cases(address: str, limit: int = 20):
     return {"address": address, "cases": cases, "total": len(cases)}
 
 
+@router.get("/case/{case_number}", tags=["Search"])
+def get_case(case_number: str):
+    """Look up a single ZBA case by BOA case number. Returns full case details."""
+    if state.zba_df is None:
+        raise HTTPException(status_code=503, detail="Dataset not loaded")
+
+    # Normalize case number format (handle BOA-1234567 or just 1234567)
+    q = case_number.strip().upper()
+    mask = state.zba_df['case_number'].astype(str).str.upper().str.strip() == q
+    if mask.sum() == 0 and not q.startswith('BOA-'):
+        mask = state.zba_df['case_number'].astype(str).str.upper().str.strip() == f"BOA-{q}"
+    if mask.sum() == 0:
+        # Try partial match
+        q_escaped = re.escape(q)
+        mask = state.zba_df['case_number'].astype(str).str.upper().str.contains(q_escaped, na=False)
+
+    if mask.sum() == 0:
+        raise HTTPException(status_code=404, detail=f"Case {case_number} not found")
+
+    row = state.zba_df[mask].iloc[0]
+
+    variance_types = ['height', 'far', 'lot_area', 'lot_frontage',
+                      'front_setback', 'rear_setback', 'side_setback',
+                      'parking', 'conditional_use', 'open_space', 'density', 'nonconforming']
+    project_types = ['demolition', 'new_construction', 'addition', 'conversion',
+                     'renovation', 'subdivision', 'adu', 'roof_deck', 'parking',
+                     'single_family', 'multi_family', 'mixed_use']
+
+    variances = [vt for vt in variance_types if row.get(f'var_{vt}', 0) == 1]
+    projects = [pt for pt in project_types if row.get(f'proj_{pt}', 0) == 1]
+
+    result = {
+        "case_number": safe_str(row.get('case_number')),
+        "address": safe_str(row.get('address_clean')),
+        "decision": safe_str(row.get('decision_clean')),
+        "date": _format_date(row.get('date')),
+        "ward": safe_str(row.get('ward')),
+        "zoning_district": safe_str(row.get('zoning_clean') or row.get('zoning_district')),
+        "applicant": safe_str(row.get('applicant_name')),
+        "contact": safe_str(row.get('contact')),
+        "has_attorney": bool(row.get('has_attorney', False)),
+        "variances": variances,
+        "project_types": projects,
+        "is_building_appeal": bool(row.get('is_building_appeal', False)),
+        "proposed_units": safe_int(row.get('proposed_units')),
+        "proposed_stories": safe_int(row.get('proposed_stories')),
+        "is_residential": bool(row.get('is_residential', False)),
+        "is_commercial": bool(row.get('is_commercial', False)),
+        "lot_size_sf": row.get('lot_size_sf') if pd.notna(row.get('lot_size_sf')) else None,
+        "total_value": row.get('total_value') if pd.notna(row.get('total_value')) else None,
+    }
+    return result
+
+
 @router.get("/autocomplete", tags=["Search"])
 def autocomplete(q: str = "", limit: int = 10):
     """Address autocomplete from 175K property records."""

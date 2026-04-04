@@ -75,7 +75,11 @@ Consult a qualified zoning attorney before making financial decisions.
 _allowed_origins = os.environ.get("PERMITIQ_CORS_ORIGINS", "").split(",")
 _allowed_origins = [o.strip() for o in _allowed_origins if o.strip()]
 if not _allowed_origins:
-    _allowed_origins = ["http://localhost:8501", "http://127.0.0.1:8501"]  # Streamlit frontend only
+    _allowed_origins = [
+        "http://localhost:8501",
+        "http://127.0.0.1:8501",
+        "https://permitiq-boston.streamlit.app",
+    ]
 
 app.add_middleware(
     CORSMiddleware,
