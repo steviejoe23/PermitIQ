@@ -6,6 +6,7 @@ Includes feature building, similar cases, variance history, recommendations.
 import re
 import logging
 import traceback
+import datetime
 import numpy as np
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Depends
@@ -85,8 +86,9 @@ def build_features(parcel_row, proposed_use: str, variances: list,
         zoning_group = zoning if zoning in top_zoning_list else 'other'
         zoning_rate = zoning_rates.get(zoning_group, overall_rate)
 
-    # Property data
+    # Property data + prior permits (single lookup, not two)
     lot_size = total_value = property_age = living_area = is_high_value = value_per_sqft = 0
+    prior_permits = has_prior_permits = 0
     if parcel_row is not None and state.zba_df is not None:
         parcel_id = str(parcel_row.get('parcel_id', ''))
         if parcel_id:
@@ -99,15 +101,6 @@ def build_features(parcel_row, proposed_use: str, variances: list,
                 living_area = float(rec.get('living_area', 0) or 0)
                 is_high_value = int(total_value > 1_000_000)
                 value_per_sqft = total_value / lot_size if lot_size > 0 else 0
-
-    # Prior permits
-    prior_permits = has_prior_permits = 0
-    if state.zba_df is not None and parcel_row is not None:
-        parcel_id = str(parcel_row.get('parcel_id', ''))
-        if parcel_id:
-            pa_match = state.zba_df[state.zba_df['pa_parcel_id'].astype(str) == parcel_id]
-            if not pa_match.empty:
-                rec = pa_match.iloc[0]
                 prior_permits = float(rec.get('prior_permits', 0) or 0)
                 has_prior_permits = int(prior_permits > 0)
 
@@ -153,7 +146,7 @@ def build_features(parcel_row, proposed_use: str, variances: list,
         'contact_win_rate': contact_win_rate,
         'ward_zoning_rate': ward_zoning_rate,
         'year_ward_rate': year_ward_rate,
-        'year_recency': max(0, __import__('datetime').datetime.now().year - 2020),
+        'year_recency': max(0, datetime.datetime.now().year - 2020),
         'lot_size_sf': lot_size,
         'total_value': total_value,
         'property_age': property_age,
@@ -654,7 +647,7 @@ def analyze_proposal(payload: dict):
                         "feature": label,
                         "feature_name": col,
                         "shap_value": round(float(shap_val), 4),
-                        "input_value": round(input_val, 3) if abs(input_val) > 1 else int(input_val),
+                        "input_value": int(input_val) if input_val == int(input_val) else round(float(input_val), 3),
                         "direction": direction,
                     })
                 contributions.sort(key=lambda x: -abs(x["shap_value"]))
@@ -709,18 +702,29 @@ def analyze_proposal(payload: dict):
             except Exception as smart_err:
                 logger.warning("Smart recommendations failed: %s", smart_err)
 
+            # Build warnings list
+            _warnings = []
+            if parcel_row is None:
+                _warnings.append("Parcel not found — property data unavailable, prediction may be less accurate")
+            if not top_drivers or (top_drivers and top_drivers[0].get('direction') == 'important factor'):
+                _warnings.append("SHAP explainability unavailable — using feature importance as fallback")
+
             return {
                 "parcel_id": parcel_id,
                 "zoning": zoning,
                 "district": district,
+                "ward": ward,
                 "proposed_use": proposed_use,
                 "project_type": project_type or "not specified",
                 "variances": variances,
                 "has_attorney": has_attorney,
+                "proposed_units": proposed_units,
+                "proposed_stories": proposed_stories,
                 "approval_probability": round(prob, 3),
                 "probability_range": [round(prob_low, 3), round(prob_high, 3)],
                 "confidence": confidence,
                 "calibration_warnings": calibration_warnings if calibration_warnings else None,
+                "warnings": _warnings if _warnings else None,
                 "based_on_cases": total_similar,
                 "ward_approval_rate": round(approval_rate_similar, 3) if total_similar > 0 else None,
                 "key_factors": key_factors,
@@ -881,12 +885,21 @@ def compare_scenarios(payload: dict):
         scenarios.append({"scenario": scenario_name, "name": scenario_name, "probability": round(alt_prob, 3), "difference": round(diff, 3), "delta": round(diff, 3), "description": f"{scenario_name} would change probability by {diff:+.1%}"})
 
         if len(variances) > 1:
-            fewer = variances[:max(1, len(variances) - 1)]
-            fewer_features = build_features(parcel_row, proposed_use, fewer, project_type, ward, has_attorney, proposed_units, proposed_stories)
-            fewer_prob = predict_prob(fewer_features)
-            diff = fewer_prob - base_prob
-            scenario_name = f"With {len(fewer)} variance(s) instead of {len(variances)}"
-            scenarios.append({"scenario": scenario_name, "name": scenario_name, "probability": round(fewer_prob, 3), "difference": round(diff, 3), "delta": round(diff, 3), "description": f"Reducing variances would change probability by {diff:+.1%}"})
+            # Try removing each variance individually, pick the one whose removal helps most
+            best_removal = None
+            best_removal_prob = base_prob
+            for i, v in enumerate(variances):
+                trial = variances[:i] + variances[i+1:]
+                trial_features = build_features(parcel_row, proposed_use, trial, project_type, ward, has_attorney, proposed_units, proposed_stories)
+                trial_prob = predict_prob(trial_features)
+                if trial_prob > best_removal_prob:
+                    best_removal = (v, trial, trial_prob)
+                    best_removal_prob = trial_prob
+            if best_removal:
+                removed_var, fewer, fewer_prob = best_removal
+                diff = fewer_prob - base_prob
+                scenario_name = f"Remove {removed_var} variance ({len(fewer)} remaining)"
+                scenarios.append({"scenario": scenario_name, "name": scenario_name, "probability": round(fewer_prob, 3), "difference": round(diff, 3), "delta": round(diff, 3), "description": f"Removing {removed_var} variance changes probability by {diff:+.1%}", "changed": f"removed {removed_var}"})
 
         if len(variances) >= 3:
             single = variances[:1]
@@ -905,13 +918,26 @@ def compare_scenarios(payload: dict):
                 scenarios.append({"scenario": scenario_name, "name": scenario_name, "probability": round(add_prob, 3), "difference": round(diff, 3), "delta": round(diff, 3), "description": f"As addition: probability changes by {diff:+.1%}"})
 
         if proposed_units > 1:
-            fewer_units = max(1, proposed_units - 1)
+            # Scale reduction: -1 for small projects, -30% for large ones
+            if proposed_units <= 5:
+                fewer_units = max(1, proposed_units - 1)
+            else:
+                fewer_units = max(1, int(proposed_units * 0.7))
             fewer_u_features = build_features(parcel_row, proposed_use, variances, project_type, ward, has_attorney, fewer_units, proposed_stories)
             fewer_u_prob = predict_prob(fewer_u_features)
             diff = fewer_u_prob - base_prob
             if abs(diff) > 0.001:
                 scenario_name = f"With {fewer_units} unit(s) instead of {proposed_units}"
-                scenarios.append({"scenario": scenario_name, "name": scenario_name, "probability": round(fewer_u_prob, 3), "difference": round(diff, 3), "delta": round(diff, 3), "description": f"Fewer units: probability changes by {diff:+.1%}"})
+                scenarios.append({"scenario": scenario_name, "name": scenario_name, "probability": round(fewer_u_prob, 3), "difference": round(diff, 3), "delta": round(diff, 3), "description": f"Fewer units: probability changes by {diff:+.1%}", "changed": f"units {proposed_units} → {fewer_units}"})
+
+        # Article 80 threshold scenario (15 units or 4+ stories triggers BPDA review)
+        if proposed_units > 15:
+            art80_features = build_features(parcel_row, proposed_use, variances, project_type, ward, has_attorney, 15, min(proposed_stories, 4))
+            art80_prob = predict_prob(art80_features)
+            diff = art80_prob - base_prob
+            if abs(diff) > 0.001:
+                scenario_name = "Below Article 80 threshold (15 units, 4 stories)"
+                scenarios.append({"scenario": scenario_name, "name": scenario_name, "probability": round(art80_prob, 3), "difference": round(diff, 3), "delta": round(diff, 3), "description": f"Avoiding BPDA large project review: probability changes by {diff:+.1%}", "changed": f"units {proposed_units} → 15, stories {proposed_stories} → 4"})
 
         if proposed_stories > 2:
             fewer_s = proposed_stories - 1

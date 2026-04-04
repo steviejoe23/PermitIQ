@@ -1240,7 +1240,8 @@ if st.session_state.parcel_data:
         _cc_payload = {k: v for k, v in _cc_payload.items() if v is not None}
 
         try:
-            _cc_res = requests.post(f"{API_URL}/zoning/check_compliance", json=_cc_payload, timeout=10)
+            with st.spinner("Checking zoning compliance..."):
+                _cc_res = requests.post(f"{API_URL}/zoning/check_compliance", json=_cc_payload, timeout=10)
             if _cc_res.status_code == 200:
                 cc_data = _cc_res.json()
 
@@ -1876,7 +1877,8 @@ if st.session_state.prediction_result:
             "proposed_units": proposed_units,
             "proposed_stories": proposed_stories,
         }
-        compare_res = requests.post(f"{API_URL}/compare", json=compare_payload, timeout=15)  # noqa
+        with st.spinner("Computing what-if scenarios..."):
+            compare_res = requests.post(f"{API_URL}/compare", json=compare_payload, timeout=15)
         if compare_res.status_code == 200:
             compare_data = compare_res.json()
             scenarios = compare_data.get("scenarios", [])
@@ -2296,8 +2298,8 @@ Probabilities reflect historical patterns, not guarantees.
 with st.expander("Ward Insights — Compare approval rates across Boston"):
     # Ward heatmap — all wards at a glance
     try:
-        _all_wards_res = requests.get(f"{API_URL}/wards/all", timeout=10)
-        all_ward_data = _all_wards_res.json().get("wards", []) if _all_wards_res.status_code == 200 else []
+        _all_wards_json = _fetch_market_intel("wards/all")
+        all_ward_data = _all_wards_json.get("wards", []) if _all_wards_json else []
 
         if all_ward_data:
             st.markdown("**All Boston Wards -- Approval Rates**")

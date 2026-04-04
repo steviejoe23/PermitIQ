@@ -374,8 +374,19 @@ def zoning_compliance_check(payload: dict):
     variances_needed = []
     compliant = True
 
+    # Coerce all proposal values to floats (handles string input from JSON)
+    proposed_far = safe_float(proposal.get('proposed_far', 0))
+    proposed_height = safe_float(proposal.get('proposed_height_ft', 0))
+    proposed_stories = safe_float(proposal.get('proposed_stories', 0))
+    proposed_units = safe_float(proposal.get('proposed_units', 0))
+    lot_size_input = safe_float(proposal.get('lot_size_sf', 0))
+    frontage_input = safe_float(proposal.get('lot_frontage_ft', 0))
+    lot_coverage = safe_float(proposal.get('lot_coverage_pct', 0))
+    front_setback = safe_float(proposal.get('front_setback_ft', 0))
+    side_setback = safe_float(proposal.get('side_setback_ft', 0))
+    rear_setback = safe_float(proposal.get('rear_setback_ft', 0))
+
     # FAR check
-    proposed_far = proposal.get('proposed_far', 0)
     max_far = reqs.get('max_far')
     if proposed_far and max_far and proposed_far > max_far:
         compliant = False
@@ -383,7 +394,6 @@ def zoning_compliance_check(payload: dict):
         variances_needed.append("far")
 
     # Height check
-    proposed_height = proposal.get('proposed_height_ft', 0)
     max_height = reqs.get('max_height_ft')
     if proposed_height and max_height and proposed_height > max_height:
         compliant = False
@@ -391,7 +401,6 @@ def zoning_compliance_check(payload: dict):
         variances_needed.append("height")
 
     # Stories check
-    proposed_stories = proposal.get('proposed_stories', 0)
     max_stories = reqs.get('max_stories')
     if proposed_stories and max_stories and proposed_stories > max_stories:
         compliant = False
