@@ -10,28 +10,57 @@ git checkout transfer
 
 This gives you ALL source code, scripts, notebooks, docs, memory files, leads, and data files under 100MB.
 
-## Step 2: Download Large Files from Google Drive
+## Step 2: Download Large Files
 
-Go to: https://drive.google.com → `PermitIQ-Complete-Transfer` folder
+Large files are hosted in two places. Download ALL of them.
 
-Download these and place in the project root:
+### From Google Drive (`PermitIQ-Complete-Transfer` folder)
+
+These 4 files are already uploaded to Google Drive:
 
 | File | Size | Where to put it |
 |------|------|-----------------|
 | `building_permits.csv` | 253MB | project root |
 | `zba_model_v2.pkl` | 219MB | project root |
+| `zba_model.pkl` | 219MB | project root (same as zba_model_v2.pkl) |
 | `boston_parcels_zoning.geojson` | 81MB | project root |
-| `property_assessment_fy2026.csv` | 76MB | project root |
-| `api/zba_model.pkl` | 219MB | `api/` subfolder (copy of zba_model_v2.pkl) |
-| `pdfs/` | 4.2GB | project root (274 PDF files) |
-| `model_history/` | 1.7GB | project root (50 model versions) |
-| `parcels_2025/` | 91MB | project root |
-| `parcels_2025_clean/` | 118MB | project root |
 
-**Shortcut for api/zba_model.pkl:** If you have zba_model_v2.pkl, just copy it:
+**Copy the model to the api folder:**
 ```bash
 cp zba_model_v2.pkl api/zba_model.pkl
 ```
+
+### From Gofile.io (download links)
+
+These files and archives are on gofile.io. Click each link, then click the download button:
+
+| File | Link | Where to put it |
+|------|------|-----------------|
+| `property_assessment_fy2026.csv` (76MB) | https://gofile.io/d/rVaSIy | project root |
+| `zba_cases_cleaned.csv` (34MB) | https://gofile.io/d/NaYJ9d | project root |
+| `zba_cases_cleaned.backup.20260331_212800.csv` (34MB) | https://gofile.io/d/HRfWOk | project root |
+| `zba_cases_dataset.csv` (24MB) | https://gofile.io/d/4crOxr | project root |
+| `zba_tracker.csv` (6MB) | https://gofile.io/d/XamkWC | project root |
+| `zba_agendas.csv` (1MB) | https://gofile.io/d/vzQupM | project root |
+| `memory.tar.gz` (tiny) | https://gofile.io/d/4RP7uL | extract to project root |
+| `leads.tar.gz` (tiny) | https://gofile.io/d/5e2wdm | extract to project root |
+| `parcels_2025.tar.gz` (11MB) | https://gofile.io/d/MjfS6n | extract to project root |
+| `parcels_2025_clean.tar.gz` (27MB) | https://gofile.io/d/e4sLC9 | extract to project root |
+| `model_history.tar.gz` (635MB) | https://gofile.io/d/izkFHr | extract to project root |
+| `pdfs.tar.gz` (3.7GB) | https://gofile.io/d/76EXjV | extract to project root |
+
+**To extract .tar.gz files on Windows:**
+```bash
+# Using Git Bash, WSL, or 7-Zip:
+tar -xzf memory.tar.gz
+tar -xzf leads.tar.gz
+tar -xzf parcels_2025.tar.gz
+tar -xzf parcels_2025_clean.tar.gz
+tar -xzf model_history.tar.gz
+tar -xzf pdfs.tar.gz
+```
+
+**IMPORTANT:** Gofile links expire after ~10 days of inactivity. Download them soon.
 
 ## Step 3: Set Up Python Environment
 
@@ -109,25 +138,24 @@ Boston Zoning Project/
 │   ├── main.py             # App entry point
 │   ├── routes/             # All API route handlers
 │   ├── services/           # Business logic (feature builder, recommendations, etc.)
-│   ├── zba_model.pkl       # The ML model (219MB) ← FROM GOOGLE DRIVE
+│   ├── zba_model.pkl       # The ML model (219MB) ← COPY FROM ROOT
 │   └── ...
 ├── frontend/
 │   ├── app.py              # Streamlit UI (~3000 lines)
 │   └── requirements.txt
 ├── tests/                  # 41 unit tests + integration tests
 ├── zba_pipeline/           # OCR extraction pipeline
-├── pdfs/                   # 274 ZBA decision PDFs ← FROM GOOGLE DRIVE
-├── model_history/          # 50 previous model versions ← FROM GOOGLE DRIVE
+├── pdfs/                   # 274 ZBA decision PDFs ← FROM GOFILE
+├── model_history/          # 50 previous model versions ← FROM GOFILE
 ├── memory/                 # Claude context files
 ├── leads/                  # Sales leads (attorneys, developers)
 ├── docs/                   # Deployment guides
 ├── zba_cases_cleaned.csv   # Main dataset (7,500+ cases)
 ├── building_permits.csv    # 718K building permits ← FROM GOOGLE DRIVE
-├── property_assessment_fy2026.csv # Property data ← FROM GOOGLE DRIVE
+├── property_assessment_fy2026.csv # Property data ← FROM GOFILE
 ├── boston_parcels_zoning.geojson   # 98K parcels ← FROM GOOGLE DRIVE
 ├── CLAUDE.md               # Full project context for AI
 ├── train_model_v2.py       # Model training script
-├── upload_to_drive.py      # Transfer utility (Mac only)
 └── ...
 ```
 
@@ -155,10 +183,10 @@ Auto-deploys from `main` branch. Config: `frontend/app.py` as entry point.
 
 ## Current Status (April 4, 2026)
 
-- ✅ 41 unit tests passing, CI green
-- ✅ Full demo flow working locally
-- ✅ Smart ML recommendations with probability impacts
-- ✅ Timeline phase breakdown (filing→hearing→decision)
-- ✅ Variance auto-detection and auto-fill
-- ⚠️ Railway deployment degraded (light mode, no ML)
-- ⚠️ Need to retrain lightweight model OR upgrade Railway plan
+- All 41 unit tests passing, CI green
+- Full demo flow working locally
+- Smart ML recommendations with probability impacts
+- Timeline phase breakdown (filing to hearing to decision)
+- Variance auto-detection and auto-fill
+- Railway deployment degraded (light mode, no ML)
+- Need to retrain lightweight model OR upgrade Railway plan
