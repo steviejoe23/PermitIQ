@@ -455,12 +455,14 @@ def ward_trends(ward_id: str):
         df = _require_data()
         df = df[df['decision_clean'].notna()].copy()
         ward_str = str(int(float(ward_id))) if ward_id.replace('.', '').isdigit() else ward_id.strip()
-        ward_df = df[df['ward'].astype(str).str.strip() == ward_str]
+        ward_col_norm = df['ward'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+        ward_df = df[ward_col_norm == ward_str]
         if len(ward_df) == 0:
             return {"ward": ward_str, "years": [], "note": "No cases found for this ward"}
 
         if '_year' not in ward_df.columns:
-            ward_df['_year'] = pd.to_datetime(ward_df.get('date', pd.NaT), errors='coerce').dt.year
+            date_col = 'filing_date' if 'filing_date' in ward_df.columns else 'date'
+            ward_df['_year'] = pd.to_datetime(ward_df.get(date_col, pd.NaT), errors='coerce').dt.year
 
         grouped = ward_df[ward_df['_year'].notna()].groupby('_year').agg(
             total=('decision_clean', 'count'),
@@ -487,8 +489,9 @@ def ward_top_attorneys(ward_id: str, limit: int = 10):
         df = df[df['decision_clean'].notna()].copy()
         ward_str = str(int(float(ward_id))) if ward_id.replace('.', '').isdigit() else ward_id.strip()
         _atty_col = 'contact' if 'contact' in df.columns else 'applicant_name'
+        ward_col_norm = df['ward'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
         ward_df = df[
-            (df['ward'].astype(str).str.strip() == ward_str) &
+            (ward_col_norm == ward_str) &
             (df[_atty_col].notna()) &
             (df[_atty_col].str.len() > 3)
         ]
