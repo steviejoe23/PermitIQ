@@ -461,8 +461,12 @@ def ward_trends(ward_id: str):
             return {"ward": ward_str, "years": [], "note": "No cases found for this ward"}
 
         if '_year' not in ward_df.columns:
-            date_col = 'filing_date' if 'filing_date' in ward_df.columns else 'date'
-            ward_df['_year'] = pd.to_datetime(ward_df.get(date_col, pd.NaT), errors='coerce').dt.year
+            if 'source_pdf' in ward_df.columns:
+                ward_df['_year'] = ward_df['source_pdf'].str.extract(r'(20\d{2})').astype(float)
+            elif 'filing_date' in ward_df.columns:
+                ward_df['_year'] = pd.to_datetime(ward_df['filing_date'], errors='coerce').dt.year
+            else:
+                ward_df['_year'] = np.nan
 
         grouped = ward_df[ward_df['_year'].notna()].groupby('_year').agg(
             total=('decision_clean', 'count'),
