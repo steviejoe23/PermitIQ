@@ -1350,6 +1350,72 @@ if st.session_state.parcel_data:
                 st.error(f"Error: {_cc_res.json().get('detail', 'Unknown error')}")
         except Exception as e:
             st.error(f"Could not check compliance: {e}")
+
+    # Full Zoning Analysis button — comprehensive one-call analysis
+    if st.session_state.parcel_data and st.button("Run Full Zoning Analysis", key="full_zoning_btn", type="secondary"):
+        _fz_payload = {"parcel_id": data.get("parcel_id", "")}
+        # Include compliance form values if available
+        if 'cc_proposed_use' in dir():
+            _fz_payload["proposed_use"] = cc_proposed_use
+        try:
+            with st.spinner("Running comprehensive zoning analysis..."):
+                _fz_res = requests.post(f"{API_URL}/zoning/full_analysis", json=_fz_payload, timeout=20)
+            if _fz_res.status_code == 200:
+                fz = _fz_res.json()
+
+                # Zoning identity
+                _fz_zoning = fz.get("zoning", {})
+                if _fz_zoning:
+                    st.markdown("**Zoning Identity**")
+                    _fz_parts = []
+                    if _fz_zoning.get("subdistrict"):
+                        _fz_parts.append(f"Subdistrict: **{esc(_fz_zoning['subdistrict'])}**")
+                    if _fz_zoning.get("article"):
+                        _fz_parts.append(f"Governing Article: **{esc(_fz_zoning['article'])}**")
+                    if _fz_zoning.get("neighborhood"):
+                        _fz_parts.append(f"Neighborhood: **{esc(_fz_zoning['neighborhood'])}**")
+                    if _fz_parts:
+                        st.markdown(" · ".join(_fz_parts))
+
+                # Dimensional requirements
+                _fz_reqs = fz.get("requirements", {})
+                if _fz_reqs:
+                    st.markdown("**Dimensional Requirements**")
+                    _req_cols = st.columns(4)
+                    _req_items = list(_fz_reqs.items())
+                    for i, (k, v) in enumerate(_req_items[:8]):
+                        with _req_cols[i % 4]:
+                            st.metric(k.replace("_", " ").title(), str(v) if v else "N/A")
+
+                # Complexity
+                _fz_complex = fz.get("complexity", {})
+                if _fz_complex:
+                    _cl = _fz_complex.get("level", "unknown")
+                    _cn = _fz_complex.get("note", "")
+                    _cc_color = "#10b981" if _cl == "low" else "#f59e0b" if _cl == "medium" else "#ef4444"
+                    st.markdown(
+                        f'<div style="padding:8px 14px;border-radius:8px;border:1px solid {_cc_color};margin:8px 0;">'
+                        f'<span style="color:{_cc_color};font-weight:700;">Complexity: {esc(_cl.upper())}</span>'
+                        f'{" — " + esc(_cn) if _cn else ""}'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+
+                # Overlay districts
+                _fz_overlays = fz.get("overlay_districts", [])
+                if _fz_overlays:
+                    st.markdown(f"**Overlay Districts ({len(_fz_overlays)})**")
+                    for ov in _fz_overlays:
+                        st.markdown(f"- {esc(ov.get('name', ov.get('code', 'Unknown')))}")
+
+                st.caption(fz.get("disclaimer", "Statistical analysis only. Not legal advice."))
+            elif _fz_res.status_code == 404:
+                st.warning("Full analysis not available for this parcel.")
+            else:
+                st.error(f"Full analysis error: {_fz_res.status_code}")
+        except Exception as e:
+            st.caption(f"Full zoning analysis unavailable: {e}")
+
 else:
     st.markdown('<div style="font-size:22px;font-weight:700;margin:32px 0 12px 0;padding-bottom:8px;border-bottom:2px solid #334155;"><span style="display:inline-block;background:#475569;color:#94a3b8;font-size:13px;font-weight:700;width:28px;height:28px;line-height:28px;text-align:center;border-radius:50%;margin-right:10px;vertical-align:middle;">3</span><span style="color:#64748b;">Does My Project Need a Variance?</span></div>', unsafe_allow_html=True)
     st.markdown('<div style="color:#64748b; font-style:italic; padding:20px 0;">Search for an address or enter a parcel ID above to unlock this step.</div>', unsafe_allow_html=True)
@@ -2502,6 +2568,53 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
                             f"**Attorney Effect:** Unusually, cases without attorneys fare slightly better in Ward {ward_input} "
                             f"({_ae['without_attorney_rate']:.0%} vs {_ae['with_attorney_rate']:.0%})"
                         )
+
+                # Ward yearly trends
+                try:
+                    _wt_res = requests.get(f"{API_URL}/wards/{ward_input}/trends", timeout=10)
+                    if _wt_res.status_code == 200:
+                        _wt_data = _wt_res.json()
+                        _wt_years = _wt_data.get("years", [])
+                        if _wt_years and len(_wt_years) > 1:
+                            st.markdown(f"**Yearly Approval Trend — Ward {esc(ward_input)}**")
+                            _wt_df = pd.DataFrame(_wt_years)
+                            st.bar_chart(_wt_df.set_index("year")["approval_rate"], use_container_width=True)
+                            for y in _wt_years[-5:]:
+                                _yr = y.get("year", "")
+                                _yr_rate = y.get("approval_rate", 0)
+                                _yr_color = "#10b981" if _yr_rate >= 0.7 else "#f59e0b" if _yr_rate >= 0.5 else "#ef4444"
+                                st.markdown(
+                                    f'<span style="color:{_yr_color};font-weight:700;">{_yr}</span>: '
+                                    f'{_yr_rate:.0%} ({y.get("approved", 0)}W-{y.get("denied", 0)}L, {y.get("total_cases", 0)} cases)',
+                                    unsafe_allow_html=True
+                                )
+                except Exception:
+                    pass
+
+                # Top attorneys in this ward
+                try:
+                    _wta_res = requests.get(f"{API_URL}/wards/{ward_input}/top_attorneys", params={"limit": 5}, timeout=10)
+                    if _wta_res.status_code == 200:
+                        _wta_data = _wta_res.json()
+                        _wta_list = _wta_data.get("attorneys", [])
+                        if _wta_list:
+                            st.markdown(f"**Top Attorneys in Ward {esc(ward_input)}**")
+                            for _ta in _wta_list:
+                                _ta_rate = _ta.get("approval_rate", 0)
+                                _ta_color = "#10b981" if _ta_rate >= 0.7 else "#f59e0b" if _ta_rate >= 0.5 else "#ef4444"
+                                _ta_total = _ta.get("total", 0)
+                                st.markdown(
+                                    f'<div class="intel-row">'
+                                    f'<div style="min-width:200px;"><span class="intel-name">{esc(_ta["name"])}</span>'
+                                    f'<br><span class="intel-meta">{_ta_total} cases · {_ta.get("approved", 0)}W</span></div>'
+                                    f'<div class="intel-bar-bg"><div class="intel-bar" style="width:{int(_ta_rate*100)}%;background:{_ta_color};"></div></div>'
+                                    f'<span class="intel-rate" style="color:{_ta_color};min-width:50px;text-align:right;">{_ta_rate:.0%}</span>'
+                                    f'</div>',
+                                    unsafe_allow_html=True
+                                )
+                except Exception:
+                    pass
+
             elif ward_res.status_code == 404:
                 st.warning(f"No ZBA cases found for Ward {ward_input}.")
         except Exception as e:
@@ -2837,8 +2950,8 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                     st.markdown(f"Current streak: **{streak['length']} {streak_emoji}**")
 
                                 # Tabs for breakdown
-                                prof_tab1, prof_tab2, prof_tab3, prof_tab4 = st.tabs([
-                                    "Wards", "Variance Specialties", "Yearly Trend", "Recent Cases"
+                                prof_tab1, prof_tab2, prof_tab3, prof_tab4, prof_tab5 = st.tabs([
+                                    "Wards", "Variance Specialties", "Yearly Trend", "Recent Cases", "Similar Cases"
                                 ])
 
                                 with prof_tab1:
@@ -2922,6 +3035,63 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                             )
                                     else:
                                         st.caption("No recent cases available.")
+
+                                with prof_tab5:
+                                    st.markdown("Find cases this attorney has won that match specific criteria.")
+                                    _sc_col1, _sc_col2 = st.columns(2)
+                                    with _sc_col1:
+                                        _sc_ward = st.text_input("Filter by ward", placeholder="e.g. 17", key="sc_ward_filter")
+                                    with _sc_col2:
+                                        _sc_vtype = st.text_input("Filter by variance type", placeholder="e.g. height, parking", key="sc_vtype_filter")
+
+                                    _sc_params = {"limit": 15}
+                                    if _sc_ward:
+                                        _sc_params["ward"] = _sc_ward
+                                    if _sc_vtype:
+                                        _sc_params["variance_type"] = _sc_vtype
+
+                                    try:
+                                        _sc_res = requests.get(
+                                            f"{API_URL}/attorneys/{requests.utils.quote(selected_attorney, safe='')}/similar_cases",
+                                            params=_sc_params, timeout=15
+                                        )
+                                        if _sc_res.status_code == 200:
+                                            _sc_data = _sc_res.json()
+                                            _sc_cases = _sc_data.get("cases", [])
+                                            _sc_wr = _sc_data.get("win_rate", 0)
+                                            _sc_total = _sc_data.get("total_matching", 0)
+
+                                            if _sc_cases:
+                                                _wr_color = "#10b981" if _sc_wr >= 0.7 else "#f59e0b" if _sc_wr >= 0.5 else "#ef4444"
+                                                st.markdown(
+                                                    f'**{_sc_total} matching cases** — '
+                                                    f'Win rate: <span style="color:{_wr_color};font-weight:700;">{_sc_wr:.0%}</span> '
+                                                    f'({_sc_data.get("won", 0)}W-{_sc_data.get("lost", 0)}L)',
+                                                    unsafe_allow_html=True
+                                                )
+                                                for sc in _sc_cases:
+                                                    _sc_dec = sc.get("decision", "")
+                                                    _sc_dc = "#10b981" if _sc_dec == "APPROVED" else "#ef4444"
+                                                    _sc_addr = esc(sc.get("address", "N/A"))
+                                                    _sc_cn = esc(sc.get("case_number", ""))
+                                                    _sc_yr = sc.get("year", "")
+                                                    _sc_w = f"Ward {sc['ward']}" if sc.get("ward") else ""
+                                                    _sc_vt = sc.get("variance_types", "")
+                                                    st.markdown(
+                                                        f'<div style="padding:6px 0;border-bottom:1px solid #333;">'
+                                                        f'<span style="color:{_sc_dc};font-weight:700;">{esc(_sc_dec)}</span> '
+                                                        f'<span style="color:#e2e8f0;">{_sc_addr}</span> '
+                                                        f'<span style="color:#64748b;font-size:12px;">{_sc_cn} · {_sc_yr} · {esc(_sc_w)}</span>'
+                                                        f'{"<br><span style=color:#94a3b8;font-size:12px;>" + esc(_sc_vt) + "</span>" if _sc_vt else ""}'
+                                                        f'</div>',
+                                                        unsafe_allow_html=True
+                                                    )
+                                            else:
+                                                st.caption("No matching cases found. Try broadening your filters.")
+                                        elif _sc_res.status_code == 404:
+                                            st.caption("No similar cases data available for this attorney.")
+                                    except Exception as e:
+                                        st.caption(f"Similar cases unavailable: {e}")
 
                                 # Export profile
                                 st.download_button(
@@ -3056,6 +3226,304 @@ with st.expander("Site Selection — Where Should I Build?", expanded=False):
                 st.error(f"API error: {ss_res.status_code}")
         except Exception as e:
             st.error(f"Site selection unavailable: {e}")
+
+
+# =========================
+# BATCH PREDICTIONS
+# =========================
+
+with st.expander("Batch Predictions — Compare Multiple Parcels at Once", expanded=False):
+    st.markdown(
+        "Evaluate multiple parcels simultaneously. Enter parcel IDs (one per line) "
+        "to get ML approval predictions for each."
+    )
+
+    _bp_col1, _bp_col2 = st.columns([2, 1])
+    with _bp_col1:
+        _bp_parcels = st.text_area(
+            "Parcel IDs (one per line)",
+            placeholder="0100001000\n0302951010\n1000358010\n2100394000",
+            height=150,
+            key="batch_parcel_ids"
+        )
+    with _bp_col2:
+        _bp_project = st.selectbox("Project Type", [
+            "residential", "commercial", "new_construction", "renovation",
+            "addition", "conversion", "mixed_use"
+        ], key="bp_project")
+        _bp_attorney = st.checkbox("Has Attorney", value=True, key="bp_attorney")
+        _bp_variances = st.multiselect("Common Variances", [
+            "FAR (Floor Area Ratio)", "Height", "Parking", "Lot Area",
+            "Front Setback", "Rear Setback", "Side Setback", "Conditional Use"
+        ], key="bp_variances")
+
+    if st.button("Run Batch Prediction", key="bp_go", type="primary"):
+        _bp_ids = [line.strip() for line in _bp_parcels.strip().split("\n") if line.strip()]
+        if _bp_ids:
+            _var_api_map = {
+                "FAR (Floor Area Ratio)": "far", "Height": "height", "Parking": "parking",
+                "Lot Area": "lot_area", "Front Setback": "front_setback",
+                "Rear Setback": "rear_setback", "Side Setback": "side_setback",
+                "Conditional Use": "conditional_use"
+            }
+            _bp_var_list = [_var_api_map.get(v, v.lower().replace(" ", "_")) for v in _bp_variances]
+
+            _bp_proposals = []
+            for pid in _bp_ids[:50]:
+                _bp_proposals.append({
+                    "parcel_id": pid,
+                    "project_type": _bp_project,
+                    "has_attorney": _bp_attorney,
+                    "variances": _bp_var_list if _bp_var_list else None,
+                })
+
+            try:
+                with st.spinner(f"Predicting {len(_bp_proposals)} parcels..."):
+                    _bp_res = requests.post(
+                        f"{API_URL}/batch_predict",
+                        json={"proposals": _bp_proposals},
+                        timeout=60
+                    )
+                if _bp_res.status_code == 200:
+                    _bp_data = _bp_res.json()
+                    _bp_results = _bp_data.get("results", [])
+
+                    if _bp_results:
+                        st.success(f"Predictions for {len(_bp_results)} parcels")
+
+                        # Sort by probability descending
+                        _bp_sorted = sorted(
+                            [(pid, r) for pid, r in zip(_bp_ids, _bp_results)],
+                            key=lambda x: x[1].get("approval_probability") or 0,
+                            reverse=True
+                        )
+
+                        for pid, r in _bp_sorted:
+                            prob = r.get("approval_probability")
+                            err = r.get("error")
+                            if err:
+                                st.markdown(
+                                    f'<div style="padding:8px 14px;border-left:4px solid #64748b;margin:4px 0;">'
+                                    f'<span style="color:#94a3b8;">Parcel {esc(pid)}</span> — '
+                                    f'<span style="color:#ef4444;">{esc(err)}</span></div>',
+                                    unsafe_allow_html=True
+                                )
+                            elif prob is not None:
+                                _bp_color = "#10b981" if prob >= 0.7 else "#f59e0b" if prob >= 0.5 else "#ef4444"
+                                st.markdown(
+                                    f'<div style="padding:8px 14px;border-left:4px solid {_bp_color};margin:4px 0;">'
+                                    f'<span style="font-weight:700;color:{_bp_color};font-size:18px;">{prob:.0%}</span> '
+                                    f'<span style="color:#e2e8f0;margin-left:8px;">Parcel {esc(pid)}</span>'
+                                    f'</div>',
+                                    unsafe_allow_html=True
+                                )
+
+                        # Export as CSV
+                        _bp_export = []
+                        for pid, r in zip(_bp_ids, _bp_results):
+                            _bp_export.append({
+                                "parcel_id": pid,
+                                "approval_probability": r.get("approval_probability"),
+                                "error": r.get("error", "")
+                            })
+                        st.download_button(
+                            "Export Results CSV",
+                            pd.DataFrame(_bp_export).to_csv(index=False),
+                            "permitiq_batch_predictions.csv",
+                            "text/csv",
+                            key="dl_batch"
+                        )
+                    else:
+                        st.info("No results returned.")
+                elif _bp_res.status_code == 503:
+                    st.warning("Model not loaded.")
+                else:
+                    st.error(f"Batch prediction error: {_bp_res.status_code}")
+            except Exception as e:
+                st.error(f"Batch prediction unavailable: {e}")
+        else:
+            st.warning("Enter at least one parcel ID.")
+
+
+# =========================
+# CASE NUMBER LOOKUP
+# =========================
+
+with st.expander("Case Lookup — Search by BOA Case Number", expanded=False):
+    st.markdown(
+        "Look up any ZBA case directly by its Board of Appeals case number "
+        "to see the full decision record, variances requested, and outcome."
+    )
+
+    case_number_input = st.text_input(
+        "Enter BOA Case Number",
+        placeholder="e.g. BOA-1234567 or 1234567",
+        key="case_number_lookup"
+    )
+
+    if case_number_input and len(case_number_input) >= 3:
+        try:
+            case_res = requests.get(f"{API_URL}/case/{case_number_input}", timeout=10)
+            if case_res.status_code == 200:
+                c = case_res.json()
+                dec = c.get("decision", "UNKNOWN")
+                dec_color = "#10b981" if dec == "APPROVED" else "#ef4444"
+
+                st.markdown(
+                    f'<div style="font-size:28px;font-weight:700;color:{dec_color};margin:8px 0;">{esc(dec)}</div>',
+                    unsafe_allow_html=True
+                )
+
+                cc1, cc2, cc3, cc4 = st.columns(4)
+                with cc1:
+                    st.metric("Case Number", esc(c.get("case_number", "N/A")))
+                with cc2:
+                    st.metric("Address", esc(c.get("address", "N/A")))
+                with cc3:
+                    st.metric("Ward", esc(c.get("ward", "N/A")))
+                with cc4:
+                    st.metric("Date", esc(c.get("date", "N/A")))
+
+                # Zoning & project details
+                _case_details = []
+                if c.get("zoning_district"):
+                    _case_details.append(f"**Zoning District:** {esc(c['zoning_district'])}")
+                if c.get("applicant"):
+                    _case_details.append(f"**Applicant:** {esc(c['applicant'])}")
+                if c.get("contact"):
+                    _case_details.append(f"**Attorney/Contact:** {esc(c['contact'])}")
+                if c.get("proposed_units"):
+                    _case_details.append(f"**Proposed Units:** {c['proposed_units']}")
+                if c.get("proposed_stories"):
+                    _case_details.append(f"**Proposed Stories:** {c['proposed_stories']}")
+                if _case_details:
+                    st.markdown(" · ".join(_case_details))
+
+                # Variances
+                _case_vars = c.get("variances", [])
+                if _case_vars:
+                    var_tags = []
+                    for v in _case_vars:
+                        var_tags.append(
+                            f'<span style="display:inline-block;padding:4px 10px;margin:3px;border-radius:12px;'
+                            f'background:rgba(255,255,255,0.05);border:1px solid #64748b;">'
+                            f'{esc(v.replace("_", " ").title())}</span>'
+                        )
+                    st.markdown(f"**Variances Requested:** {' '.join(var_tags)}", unsafe_allow_html=True)
+
+                # Project types
+                _case_ptypes = c.get("project_types", [])
+                if _case_ptypes:
+                    st.markdown(f"**Project Types:** {', '.join(esc(p.replace('_', ' ').title()) for p in _case_ptypes)}")
+
+                # Property info
+                _prop_parts = []
+                if c.get("lot_size_sf"):
+                    _prop_parts.append(f"Lot: {c['lot_size_sf']:,.0f} sq ft")
+                if c.get("total_value"):
+                    _prop_parts.append(f"Assessed Value: ${c['total_value']:,.0f}")
+                if c.get("is_residential"):
+                    _prop_parts.append("Residential")
+                if c.get("is_commercial"):
+                    _prop_parts.append("Commercial")
+                if _prop_parts:
+                    st.caption(" · ".join(_prop_parts))
+
+            elif case_res.status_code == 404:
+                st.warning(f"No case found matching '{esc(case_number_input)}'. Try the full BOA number.")
+            else:
+                st.error(f"Error: {case_res.status_code}")
+        except Exception as e:
+            st.caption(f"Case lookup unavailable: {e}")
+
+
+# =========================
+# ZONING DISTRICT EXPLORER
+# =========================
+
+with st.expander("Zoning District Explorer — Browse All 286 Subdistricts", expanded=False):
+    st.markdown(
+        "Explore Boston's zoning districts to understand dimensional requirements, "
+        "allowed uses, and governing articles before you even pick a parcel."
+    )
+
+    try:
+        _districts_res = requests.get(f"{API_URL}/zoning/districts", timeout=15)
+        if _districts_res.status_code == 200:
+            _districts_data = _districts_res.json()
+            _districts_list = _districts_data.get("districts", [])
+
+            if _districts_list:
+                st.caption(f"{len(_districts_list)} zoning districts loaded")
+
+                # Filter controls
+                _zd_col1, _zd_col2 = st.columns(2)
+                with _zd_col1:
+                    _zd_search = st.text_input(
+                        "Filter by district code or name",
+                        placeholder="e.g. 3A, residential, waterfront...",
+                        key="zd_filter"
+                    )
+                with _zd_col2:
+                    _all_articles = sorted(set(d.get("article", "") for d in _districts_list if d.get("article")))
+                    _zd_article = st.selectbox("Filter by Article", ["All"] + _all_articles, key="zd_article")
+
+                # Apply filters
+                _filtered = _districts_list
+                if _zd_search:
+                    _q = _zd_search.lower()
+                    _filtered = [d for d in _filtered if
+                                 _q in d.get("code", "").lower() or
+                                 _q in d.get("name", "").lower() or
+                                 _q in d.get("description", "").lower()]
+                if _zd_article != "All":
+                    _filtered = [d for d in _filtered if d.get("article") == _zd_article]
+
+                st.caption(f"Showing {len(_filtered)} of {len(_districts_list)} districts")
+
+                for d in _filtered[:50]:
+                    _code = esc(d.get("code", "N/A"))
+                    _name = esc(d.get("name", ""))
+                    _article = esc(d.get("article", "N/A"))
+                    _desc = esc(d.get("description", ""))
+                    _far = d.get("max_far")
+                    _height = d.get("max_height_ft")
+                    _stories = d.get("max_stories")
+                    _uses = d.get("allowed_uses", [])
+
+                    _dim_parts = []
+                    if _far:
+                        _dim_parts.append(f"FAR: {_far}")
+                    if _height:
+                        _dim_parts.append(f"Max Height: {_height} ft")
+                    if _stories:
+                        _dim_parts.append(f"Max Stories: {_stories}")
+                    _dim_str = " · ".join(_dim_parts) if _dim_parts else "Dimensional requirements vary"
+
+                    _uses_str = ", ".join(esc(u) for u in _uses[:5]) if _uses else "See article"
+                    if len(_uses) > 5:
+                        _uses_str += f" +{len(_uses)-5} more"
+
+                    st.markdown(
+                        f'<div style="padding:10px 0;border-bottom:1px solid #333;">'
+                        f'<span style="font-weight:700;color:#3b82f6;font-size:16px;">{_code}</span>'
+                        f'{" — " + _name if _name else ""}'
+                        f'<span style="color:#64748b;font-size:12px;margin-left:8px;">Article {_article}</span><br>'
+                        f'<span style="color:#94a3b8;font-size:13px;">{_dim_str}</span><br>'
+                        f'<span style="color:#64748b;font-size:12px;">Uses: {_uses_str}</span>'
+                        f'{"<br><span style=color:#94a3b8;font-size:12px;>" + _desc + "</span>" if _desc else ""}'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+
+                if len(_filtered) > 50:
+                    st.caption(f"Showing first 50 of {len(_filtered)} results. Narrow your filter to see more.")
+            else:
+                st.info("No zoning district data available.")
+        else:
+            st.warning(f"Could not load zoning districts: {_districts_res.status_code}")
+    except Exception as e:
+        st.caption(f"Zoning district explorer unavailable: {e}")
 
 
 # =========================
