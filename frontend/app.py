@@ -380,6 +380,8 @@ def _fetch_market_intel(endpoint: str):
         pass
     return None
 
+_header_case_count = "17,676"
+_health = {}
 try:
     _health, _stats_res = _fetch_startup_data()
     _model_name = _health.get('model_name', 'none')
@@ -391,7 +393,7 @@ try:
     st.markdown(f'<p style="font-size:13px; color:#90a4ae !important; margin-top:-4px;">API connected | Model: {_model_name}{_calibrated} (AUC: {_auc:.3f}) | {_cases:,} cases loaded</p>', unsafe_allow_html=True)
 except Exception:
     _stats_res = None
-    st.caption("API offline — start with: `cd api && uvicorn main:app --reload --port 8000`")
+    st.caption("⚠️ API is starting up — please wait 30 seconds and refresh the page.")
 
 st.markdown(f'<p style="font-size:15px; color:#b0bec5 !important; margin-top:-6px; line-height:1.5;">Boston Zoning Intelligence &amp; ZBA Prediction Engine — Powered by {_header_case_count} real ZBA decisions</p>', unsafe_allow_html=True)
 
@@ -441,7 +443,7 @@ try:
     if _ocr.get("running"):
         completed = _ocr.get("completed_pdfs", 0)
         total_pdfs = 262
-        pct = completed / total_pdfs
+        pct = completed / total_pdfs if total_pdfs > 0 else 0
         st.progress(pct, text=f"OCR Pipeline: {completed}/{total_pdfs} PDFs processed ({pct:.0%}) — model will retrain when complete")
 except Exception:
     pass
@@ -472,8 +474,8 @@ with st.sidebar:
                     st.session_state.search_results = res.json().get("results", [])
                     st.session_state.parcel_data = None  # Clear old parcel when searching new address
                     st.rerun()
-            except Exception:
-                pass
+            except Exception as e:
+                st.error(f"Search failed: {e}")
 
     st.markdown("")
     st.markdown('<p style="color:#cbd5e1 !important; font-size:14px; font-weight:600; margin-top:16px;">Try a sample parcel:</p>', unsafe_allow_html=True)
@@ -490,8 +492,8 @@ with st.sidebar:
                 if res.status_code == 200:
                     st.session_state.parcel_data = res.json()
                     st.rerun()
-            except Exception:
-                pass
+            except Exception as e:
+                st.error(f"Parcel lookup failed: {e}")
 
     st.markdown("---")
 
@@ -633,29 +635,40 @@ if search_clicked and address_query:
     st.session_state.parcel_data = None  # Reset parcel so we find the right one
 
     # FIRST: Try to find the parcel for the TYPED address (not search results)
-    _typed_pid = None
+    _parcel_found = False
     try:
         _typed_geo = requests.get(f"{API_URL}/geocode", params={"q": address_query}, timeout=10)
         if _typed_geo.status_code == 200:
             _typed_results = _typed_geo.json().get("results", [])
-            if _typed_results:
-                _typed_pid = _typed_results[0]["parcel_id"]
+            for _gr in _typed_results:
+                _typed_pid = _gr.get("parcel_id")
+                if _typed_pid:
+                    try:
+                        _typed_p = requests.get(f"{API_URL}/parcels/{_typed_pid}", timeout=10)
+                        if _typed_p.status_code == 200:
+                            st.session_state.parcel_data = _typed_p.json()
+                            _parcel_found = True
+                            break
+                    except Exception:
+                        continue
     except Exception:
         pass
-    if not _typed_pid:
+    if not _parcel_found:
         try:
             _typed_ac = requests.get(f"{API_URL}/autocomplete", params={"q": address_query}, timeout=10)
             if _typed_ac.status_code == 200:
                 _typed_suggestions = _typed_ac.json().get("suggestions", [])
-                if _typed_suggestions:
-                    _typed_pid = _typed_suggestions[0]["parcel_id"]
-        except Exception:
-            pass
-    if _typed_pid:
-        try:
-            _typed_p = requests.get(f"{API_URL}/parcels/{_typed_pid}", timeout=15)
-            if _typed_p.status_code == 200:
-                st.session_state.parcel_data = _typed_p.json()
+                for _sg in _typed_suggestions:
+                    _typed_pid = _sg.get("parcel_id")
+                    if _typed_pid:
+                        try:
+                            _typed_p = requests.get(f"{API_URL}/parcels/{_typed_pid}", timeout=10)
+                            if _typed_p.status_code == 200:
+                                st.session_state.parcel_data = _typed_p.json()
+                                _parcel_found = True
+                                break
+                        except Exception:
+                            continue
         except Exception:
             pass
 
@@ -1372,7 +1385,11 @@ if st.session_state.parcel_data:
                                 unsafe_allow_html=True
                             )
             else:
-                st.error(f"Error: {_cc_res.json().get('detail', 'Unknown error')}")
+                try:
+                    _cc_detail = _cc_res.json().get('detail', 'Unknown error')
+                except Exception:
+                    _cc_detail = f"HTTP {_cc_res.status_code}"
+                st.error(f"Compliance check error: {_cc_detail}")
         except Exception as e:
             st.error(f"Could not check compliance: {e}")
 
