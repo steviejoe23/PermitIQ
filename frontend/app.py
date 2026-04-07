@@ -736,33 +736,58 @@ if st.session_state.search_results:
         if st.button(_btn_label, key=f"find_{i}", use_container_width=True):
             # Use parcel_id from search results if available (no extra API call needed)
             _pid = result.get('parcel_id')
-            if not _pid:
-                try:
-                    geo_res = requests.get(f"{API_URL}/geocode", params={"q": result['address']}, timeout=10)
-                    if geo_res.status_code == 200:
-                        geo_results = geo_res.json().get("results", [])
-                        if geo_results:
-                            _pid = geo_results[0]["parcel_id"]
-                except Exception:
-                    pass
-            # Fallback: autocomplete
-            if not _pid:
-                try:
-                    ac_res = requests.get(f"{API_URL}/autocomplete", params={"q": result['address'][:30]}, timeout=10)
-                    if ac_res.status_code == 200:
-                        ac_results = ac_res.json().get("suggestions", [])
-                        if ac_results:
-                            _pid = ac_results[0]["parcel_id"]
-                except Exception:
-                    pass
+            _parcel_loaded = False
+            # If we already have a parcel_id from search results, try it directly
             if _pid:
                 try:
                     p_res = requests.get(f"{API_URL}/parcels/{_pid}", timeout=15)
                     if p_res.status_code == 200:
                         st.session_state.parcel_data = p_res.json()
-                        st.rerun()
+                        _parcel_loaded = True
                 except Exception:
                     pass
+            # Geocode: try each result until one has a valid parcel in our store
+            if not _parcel_loaded:
+                try:
+                    geo_res = requests.get(f"{API_URL}/geocode", params={"q": result['address']}, timeout=10)
+                    if geo_res.status_code == 200:
+                        geo_results = geo_res.json().get("results", [])
+                        for g in geo_results:
+                            _pid = g.get("parcel_id")
+                            if _pid:
+                                try:
+                                    p_res = requests.get(f"{API_URL}/parcels/{_pid}", timeout=10)
+                                    if p_res.status_code == 200:
+                                        st.session_state.parcel_data = p_res.json()
+                                        _parcel_loaded = True
+                                        break
+                                except Exception:
+                                    continue
+                except Exception:
+                    pass
+            # Fallback: autocomplete
+            if not _parcel_loaded:
+                try:
+                    ac_res = requests.get(f"{API_URL}/autocomplete", params={"q": result['address'][:30]}, timeout=10)
+                    if ac_res.status_code == 200:
+                        ac_results = ac_res.json().get("suggestions", [])
+                        for ac in ac_results:
+                            _pid = ac.get("parcel_id")
+                            if _pid:
+                                try:
+                                    p_res = requests.get(f"{API_URL}/parcels/{_pid}", timeout=10)
+                                    if p_res.status_code == 200:
+                                        st.session_state.parcel_data = p_res.json()
+                                        _parcel_loaded = True
+                                        break
+                                except Exception:
+                                    continue
+                except Exception:
+                    pass
+            if _parcel_loaded:
+                st.rerun()
+            else:
+                st.warning(f"Could not find parcel data for {result['address']}. Try entering the parcel ID directly.")
 
         # Expandable case history
         with st.expander(f"View case history for {result['address']}", expanded=False):
