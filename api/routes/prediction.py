@@ -85,9 +85,12 @@ def build_features(parcel_row, proposed_use: str, variances: list,
         ward_rates = state.model_package.get('ward_approval_rates', {})
         zoning_rates = state.model_package.get('zoning_approval_rates', {})
         top_zoning_list = state.model_package.get('top_zoning', [])
-        ward_rate = ward_rates.get(str(ward or 'unknown'), overall_rate)
-        zoning_group = zoning if zoning in top_zoning_list else 'other'
-        zoning_rate = zoning_rates.get(zoning_group, overall_rate)
+        # Ward keys in model have .0 suffix (e.g. '16.0')
+        ward_key = f"{ward}.0" if ward else 'unknown'
+        ward_rate = ward_rates.get(ward_key, ward_rates.get(str(ward or 'unknown'), overall_rate))
+        # Zoning rates are keyed by district name, not zoning code
+        zoning_group = district if district in top_zoning_list else ('other' if district else zoning)
+        zoning_rate = zoning_rates.get(zoning_group, zoning_rates.get(zoning, overall_rate))
 
     # Property data + prior permits (single lookup, not two)
     lot_size = total_value = property_age = living_area = is_high_value = value_per_sqft = 0
@@ -115,12 +118,15 @@ def build_features(parcel_row, proposed_use: str, variances: list,
 
     if state.model_package:
         wz_rates = state.model_package.get('ward_zoning_rates', {})
-        wz_key = f"{ward or 'unknown'}_{zoning}"
-        ward_zoning_rate = wz_rates.get(wz_key, overall_rate)
+        # ward_zoning keys use '16.0_Article ...' format
+        wz_key = f"{ward}.0_{zoning}" if ward else f"unknown_{zoning}"
+        ward_zoning_rate = wz_rates.get(wz_key, wz_rates.get(f"{ward or 'unknown'}_{zoning}", overall_rate))
 
         yw_rates = state.model_package.get('year_ward_rates', {})
-        yw_key = f"2026_{ward or 'unknown'}"
-        year_ward_rate = yw_rates.get(yw_key, overall_rate)
+        # year_ward keys use 'YEAR_WARD.0' format (e.g. '2026_16.0') or '0_16.0' for overall
+        ward_suffix = f"{ward}.0" if ward else "unknown"
+        year_ward_rate = yw_rates.get(f"2026_{ward_suffix}",
+                         yw_rates.get(f"0_{ward_suffix}", overall_rate))
 
     features = {
         'num_variances': num_variances,
