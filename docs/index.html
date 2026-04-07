@@ -10,7 +10,8 @@
     <meta property="og:title" content="PermitIQ — Know If You'll Win Before You File">
     <meta property="og:description" content="ML-powered Boston ZBA prediction. 17,600+ real decisions, 85 features, no data leakage. We tell you if you'll win.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://permitiq-boston.streamlit.app">
+    <meta property="og:url" content="https://permitiq.dev">
+    <link rel="canonical" href="https://permitiq.dev">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
@@ -1106,45 +1107,45 @@
         <div class="features-grid">
             <div class="feature-card animate-on-scroll delay-1">
                 <div class="feature-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
-                <h3>Auto-Detect Parcel Variances</h3>
-                <p>Public records tell us what violations a parcel already has. We flag them before you even describe your project.</p>
+                <h3>Zoning District Lookup</h3>
+                <p>Type any Boston address. Instantly see the zoning district, governing article, subdistrict classification, and whether the parcel is more complex than average.</p>
             </div>
             <div class="feature-card animate-on-scroll delay-2">
                 <div class="feature-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
-                <h3>Historical Approval Rates</h3>
-                <p>Approval rates by variance type, ward, zoning district, attorney, and project type. Real data from 17,600+ cases.</p>
+                <h3>Auto-Detect Variance Needs</h3>
+                <p>We cross-reference your parcel against 286 zoning subdistricts and tell you exactly which variances you'll need &mdash; before you hire anyone.</p>
             </div>
             <div class="feature-card animate-on-scroll delay-3">
+                <div class="feature-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+                </div>
+                <h3>ML Approval Prediction</h3>
+                <p>Based on 17,600+ real ZBA decisions: how likely will your proposal requiring specific zoning variances pass? Confidence intervals, SHAP explanations, and similar historical cases included.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-1">
                 <div class="feature-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5"/></svg>
                 </div>
                 <h3>What-If Scenario Analysis</h3>
-                <p>Change the attorney, reduce units, swap project type. See exactly how each change affects your probability.</p>
+                <p>Change the attorney, reduce units, swap project type. See exactly how each change affects your probability. Optimize before you file.</p>
             </div>
-            <div class="feature-card animate-on-scroll delay-1">
+            <div class="feature-card animate-on-scroll delay-2">
+                <div class="feature-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <h3>Nearby Case Analysis</h3>
+                <p>See every ZBA decision within the same ward and surrounding area. Understand how the board has ruled on similar properties in your geographic boundary.</p>
+            </div>
+            <div class="feature-card animate-on-scroll delay-3">
                 <div class="feature-icon">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
                 <h3>Attorney Leaderboard</h3>
-                <p>Win rates, case counts, ward specialties, and variance expertise for every attorney who has appeared before the ZBA.</p>
-            </div>
-            <div class="feature-card animate-on-scroll delay-2">
-                <div class="feature-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                </div>
-                <h3>Risk Assessment Reports</h3>
-                <p>Downloadable, professional reports with prediction, confidence intervals, similar cases, and recommendations. Ready for investor decks.</p>
-            </div>
-            <div class="feature-card animate-on-scroll delay-3">
-                <div class="feature-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f8cff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                </div>
-                <h3>API Access</h3>
-                <p>RESTful API with 33 endpoints. Integrate predictions, parcel data, and zoning analysis into your own tools and workflows.</p>
+                <p>Win rates, case counts, ward specialties, and variance expertise for every attorney who has appeared before the ZBA. Find the right lawyer for your ward.</p>
             </div>
         </div>
     </div>
