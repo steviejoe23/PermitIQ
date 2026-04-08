@@ -436,7 +436,7 @@ try:
         try:
             _feats = _health.get('features', 0)
         except Exception:
-            _feats = _stats_res.get('features', 57)
+            _feats = _stats_res.get('features', 85)
         st.markdown(f"""<div class="stat-box">
             <div class="stat-number">{_feats}</div>
             <div class="stat-label">ML Features</div>
@@ -1774,11 +1774,11 @@ if st.session_state.prediction_result:
     # --- How trustworthy is this number? ---
     with st.expander("How trustworthy is this number?", expanded=False):
         if prob > 0.8:
-            trust_badge = '<span style="color:#10b981;font-weight:700;">High confidence range -- well-calibrated</span>'
+            trust_badge = '<span style="color:#10b981;font-weight:700;">High confidence range — well-calibrated</span>'
         elif prob >= 0.5:
-            trust_badge = '<span style="color:#f59e0b;font-weight:700;">Moderate confidence -- treat as directional estimate</span>'
+            trust_badge = '<span style="color:#f59e0b;font-weight:700;">Moderate confidence — treat as directional estimate</span>'
         else:
-            trust_badge = '<span style="color:#f59e0b;font-weight:700;">Limited calibration data in this range -- treat with extra caution</span>'
+            trust_badge = '<span style="color:#f59e0b;font-weight:700;">Limited calibration data in this range — treat with extra caution</span>'
 
         st.markdown(
             f'<div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:16px 20px;margin:8px 0;">'
@@ -2078,7 +2078,7 @@ if st.session_state.prediction_result:
                         'Adding more variances: each additional variance reduces approval odds'
                         '</div>', unsafe_allow_html=True)
     except Exception as e:
-        st.caption(f"Could not load key factors: {e}")
+        st.caption(f"Could not load prediction details: {e}")
 
     # --- Actionable Recommendations (from ML engine) ---
     st.markdown("")
@@ -2411,7 +2411,7 @@ ul {{ line-height: 1.8; }}
 
 <div class="disclaimer">
 <strong>⚠️ Risk Assessment Disclaimer</strong><br>
-PermitIQ provides risk assessments based on statistical analysis of {result.get('total_training_cases', 13300):,}+ historical ZBA decisions.
+PermitIQ provides risk assessments based on statistical analysis of {result.get('total_training_cases', 17676):,}+ historical ZBA decisions.
 This is NOT a prediction of your specific outcome and does NOT constitute legal advice.
 Actual ZBA decisions depend on many factors not captured in the model including: board member composition,
 quality of presentation, neighborhood politics, project design details, and community engagement.
@@ -2532,7 +2532,7 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
         all_ward_data = _all_wards_json.get("wards", []) if _all_wards_json else []
 
         if all_ward_data:
-            st.markdown("**All Boston Wards -- Approval Rates**")
+            st.markdown("**All Boston Wards — Approval Rates**")
             # Render as a colored grid with better contrast
             cols = st.columns(4)
             for i, wd in enumerate(sorted(all_ward_data, key=lambda x: -x.get('approval_rate', 0))):
@@ -2813,7 +2813,7 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                             f'</div>',
                             unsafe_allow_html=True
                         )
-                    st.caption("Top applicants/attorneys by ZBA approval rate (min. 10 cases)")
+                    st.caption("Top attorneys by ZBA approval rate (min. 10 cases)")
                     st.download_button(
                         "Export Attorney CSV", pd.DataFrame(attorneys).to_csv(index=False),
                         "permitiq_attorneys.csv", "text/csv", key="dl_attorneys"
