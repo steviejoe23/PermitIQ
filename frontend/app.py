@@ -1317,7 +1317,11 @@ if st.session_state.parcel_data:
                     if _auto_parts:
                         st.info("Auto-detected: " + " · ".join(_auto_parts))
 
-                if cc_data.get("compliant"):
+                if cc_data.get("data_limited"):
+                    st.info(f"**{esc(cc_data.get('complexity_note', 'Zoning data not available for this parcel.'))}**")
+                    if cc_data.get("zoning_district"):
+                        st.caption(f"Zoning district from records: **{esc(cc_data['zoning_district'])}**")
+                elif cc_data.get("compliant"):
                     st.success("**No variances needed.** Your project appears to comply with zoning requirements for this district.")
                 else:
                     variances_needed = cc_data.get("variances_needed", [])

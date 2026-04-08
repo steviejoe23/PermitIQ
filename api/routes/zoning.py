@@ -314,7 +314,28 @@ def zoning_compliance_check(payload: dict):
 
     z = _get_parcel_zoning(parcel_id)
     if z is None:
-        raise HTTPException(status_code=404, detail=f"Parcel {parcel_id} not found")
+        # Parcel not in GIS shapefile — return graceful response instead of 404
+        # Try to get zoning district from ZBA case history
+        _fallback_district = ""
+        if state.zba_df is not None and 'pa_parcel_id' in state.zba_df.columns:
+            _fb_match = state.zba_df[state.zba_df['pa_parcel_id'].astype(str) == parcel_id]
+            if not _fb_match.empty and 'zoning_district' in _fb_match.columns:
+                _fb_zd = _fb_match.iloc[0].get('zoning_district', '')
+                if pd.notna(_fb_zd):
+                    _fallback_district = str(_fb_zd)
+        return {
+            "compliant": None,
+            "violations": [],
+            "variances_needed": [],
+            "complexity": "unknown",
+            "complexity_note": "Zoning dimensional data not available for this parcel. Compliance cannot be auto-checked — enter your variances manually below.",
+            "auto_filled": [],
+            "zoning_district": _fallback_district,
+            "parcel_level_variances": {"types": [], "count": 0},
+            "proposal_level_variances": {"types": [], "count": 0},
+            "variance_historical_rates": {},
+            "data_limited": True,
+        }
 
     reqs = z['requirements']
 
