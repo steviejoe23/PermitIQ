@@ -24,7 +24,6 @@ normalize_decisions.py
 dashboard.html
 # Large files we DON'T need
 building_permits.csv
-zba_tracker.csv
 zba_cases_dataset.csv
 # Shapefiles
 *.shp
