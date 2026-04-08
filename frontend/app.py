@@ -614,20 +614,20 @@ with st.expander("Or enter a Parcel ID directly"):
                         zoning_info = f" · {g.get('zoning_code', '')}" if g.get('zoning_code') else ""
                         district_info = f" · {g.get('district', '')}" if g.get('district') else ""
                         _g_pid = g.get('parcel_id', '')
-                    _g_addr = g.get('address', 'Unknown')
-                    if st.button(
-                            f"{_g_pid} — {_g_addr}{zoning_info}{district_info}",
-                            key=f"geo_{_g_pid}",
-                            use_container_width=True
-                        ):
-                            # Look up this parcel
-                            try:
-                                p_res = requests.get(f"{API_URL}/parcels/{_g_pid}", timeout=15)
-                                if p_res.status_code == 200:
-                                    st.session_state.parcel_data = p_res.json()
-                                    st.rerun()
-                            except Exception:
-                                pass
+                        _g_addr = g.get('address', 'Unknown')
+                        if st.button(
+                                f"{_g_pid} — {_g_addr}{zoning_info}{district_info}",
+                                key=f"geo_{_g_pid}",
+                                use_container_width=True
+                            ):
+                                # Look up this parcel
+                                try:
+                                    p_res = requests.get(f"{API_URL}/parcels/{_g_pid}", timeout=15)
+                                    if p_res.status_code == 200:
+                                        st.session_state.parcel_data = p_res.json()
+                                        st.rerun()
+                                except Exception:
+                                    pass
                 else:
                     st.warning(f"No parcels found for \"{address_query}\". Try a street number + name.")
         except Exception as e:
@@ -825,7 +825,8 @@ if st.session_state.search_results:
                     cases_list = case_data.get("cases", [])
                     if cases_list:
                         for case in cases_list:
-                            emoji = "✅" if case.get('decision') == 'APPROVED' else "❌" if case.get('decision') == 'DENIED' else "⏳"
+                            _decision = case.get('decision', '')
+                            emoji = "✅" if _decision == 'APPROVED' else "❌" if _decision == 'DENIED' else "🕐"
                             variances_raw = case.get('variances', '')
                             variances_str = str(variances_raw) if variances_raw and str(variances_raw).lower() not in ('nan', 'none', '') else ''
                             date_raw = case.get('date', '')
@@ -1130,7 +1131,7 @@ if st.session_state.parcel_data:
     with st.expander(f"ZBA Cases Near This Property (within 0.5 miles)", expanded=True):
         try:
             nearby_res = requests.get(
-                f"{API_URL}/parcels/{data['parcel_id']}/nearby_cases",
+                f"{API_URL}/parcels/{data.get('parcel_id', '')}/nearby_cases",
                 params={"radius_m": 800, "limit": 15},
                 timeout=15
             )
@@ -1166,7 +1167,7 @@ if st.session_state.parcel_data:
                     if _ward_filter and _nb_ward:
                         try:
                             ward_res = requests.get(
-                                f"{API_URL}/parcels/{data['parcel_id']}/nearby_cases",
+                                f"{API_URL}/parcels/{data.get('parcel_id', '')}/nearby_cases",
                                 params={"radius_m": 800, "limit": 15, "ward_only": "true"},
                                 timeout=15
                             )
@@ -1181,7 +1182,8 @@ if st.session_state.parcel_data:
 
                     # Individual cases with enriched variance data
                     for case in nearby_cases:
-                        emoji = "✅" if case.get('decision') == 'APPROVED' else "❌"
+                        _decision = case.get('decision', '')
+                        emoji = "✅" if _decision == 'APPROVED' else "❌" if _decision == 'DENIED' else "🕐"
                         _case_date = case.get('date', '')
                         if not _case_date or str(_case_date).lower() in ('nan', 'none', 'nat', ''):
                             _case_date = ''
@@ -1759,7 +1761,7 @@ if st.session_state.prediction_result:
         )
         conf_class = f"confidence-{confidence}" if confidence in ('high', 'medium', 'low') else "confidence-low"
         prob_range = result.get("probability_range")
-        range_str = f" · Range: {prob_range[0]:.0%}–{prob_range[1]:.0%}" if prob_range else ""
+        range_str = f" · Range: {prob_range[0]:.0%}–{prob_range[1]:.0%}" if prob_range and len(prob_range) >= 2 else ""
         st.markdown(
             f'<div class="confidence-text">'
             f'<span class="confidence-badge {conf_class}">{confidence.upper()} confidence</span>'
@@ -2050,7 +2052,7 @@ if st.session_state.prediction_result:
 
                     st.markdown(
                         f'<div class="{css_class}">'
-                        f'<strong>{esc(scenario["scenario"])}</strong><br>'
+                        f'<strong>{esc(scenario.get("scenario", "Unknown"))}</strong><br>'
                         f'{arrow} {new_prob:.0%} ({diff:+.1%})'
                         f'</div>', unsafe_allow_html=True)
         else:
@@ -2095,7 +2097,7 @@ if st.session_state.prediction_result:
                 impact_color = "#10b981" if "+" in str(rec.get("probability_impact", "")) else "#f59e0b"
                 st.markdown(
                     f'<div style="border-left:3px solid {impact_color};padding:8px 12px;margin:8px 0;background:rgba(255,255,255,0.03);border-radius:0 6px 6px 0;">'
-                    f'<strong>{esc(rec["action"])}</strong> '
+                    f'<strong>{esc(rec.get("action", ""))}</strong> '
                     f'<span style="color:{impact_color};font-weight:bold;">({esc(str(rec.get("probability_impact", "")))})</span><br/>'
                     f'<span style="color:#94a3b8;font-size:13px;">{esc(rec.get("evidence", rec.get("detail", "")))}</span>'
                     f'</div>',
@@ -2298,7 +2300,7 @@ Generated by PermitIQ v3.0 — Boston Zoning Intelligence
     # Build HTML report
     prob_color = "#00cc66" if prob >= 0.7 else "#ffaa00" if prob >= 0.4 else "#ff4444"
     prob_range = result.get("probability_range")
-    range_html = f"<p style='color:#888;'>Range: {prob_range[0]:.0%} – {prob_range[1]:.0%}</p>" if prob_range else ""
+    range_html = f"<p style='color:#888;'>Range: {prob_range[0]:.0%} – {prob_range[1]:.0%}</p>" if prob_range and len(prob_range) >= 2 else ""
     factors_html = "".join(f"<li>{esc(f)}</li>" for f in key_factors)
 
     # SHAP drivers table for report
@@ -2609,9 +2611,9 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
                         _vb_parts.append(
                             f'<span style="display:inline-block;padding:4px 10px;margin:3px;border-radius:12px;'
                             f'background:rgba(255,255,255,0.05);border:1px solid {_vc};">'
-                            f'{esc(_v["variance_type"].replace("_"," ").title())} '
+                            f'{esc(_v.get("variance_type", "unknown").replace("_"," ").title())} '
                             f'<span style="color:{_vc};font-weight:600;">{_vr:.0%}</span> '
-                            f'<span style="color:#888;">({_v["cases"]})</span></span>'
+                            f'<span style="color:#888;">({_v.get("cases", 0)})</span></span>'
                         )
                     st.markdown(" ".join(_vb_parts), unsafe_allow_html=True)
 
@@ -3026,13 +3028,13 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                     wards = prof.get("wards", [])
                                     if wards:
                                         for w in wards:
-                                            rate = w["approval_rate"]
+                                            rate = w.get("approval_rate", 0)
                                             color = "#10b981" if rate >= 0.7 else ("#f59e0b" if rate >= 0.5 else "#ef4444")
                                             bar_pct = int(rate * 100)
                                             st.markdown(
                                                 f'<div class="intel-row">'
-                                                f'<div style="min-width:120px;"><span class="intel-name">Ward {esc(w["ward"])}</span>'
-                                                f'<br><span class="intel-meta">{w["total_cases"]} cases &middot; {w["approved"]}W-{w["denied"]}L</span></div>'
+                                                f'<div style="min-width:120px;"><span class="intel-name">Ward {esc(str(w.get("ward", "N/A")))}</span>'
+                                                f'<br><span class="intel-meta">{w.get("total_cases", 0)} cases &middot; {w.get("approved", 0)}W-{w.get("denied", 0)}L</span></div>'
                                                 f'<div class="intel-bar-bg"><div class="intel-bar" style="width:{bar_pct}%;background:{color};"></div></div>'
                                                 f'<span class="intel-rate" style="color:{color};min-width:50px;text-align:right;">{rate:.0%}</span>'
                                                 f'</div>',
@@ -3046,14 +3048,14 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                     atty_variances = prof.get("variance_specialties", [])
                                     if atty_variances:
                                         for v in atty_variances:
-                                            rate = v["approval_rate"]
-                                            name = v["variance_type"].replace("_", " ").title()
+                                            rate = v.get("approval_rate", 0)
+                                            name = v.get("variance_type", "unknown").replace("_", " ").title()
                                             color = "#10b981" if rate >= 0.7 else ("#f59e0b" if rate >= 0.5 else "#ef4444")
                                             bar_pct = int(rate * 100)
                                             st.markdown(
                                                 f'<div class="intel-row">'
                                                 f'<div style="min-width:160px;"><span class="intel-name">{esc(name)}</span>'
-                                                f'<br><span class="intel-meta">{v["total_cases"]} cases &middot; {v["approved"]}W-{v["denied"]}L</span></div>'
+                                                f'<br><span class="intel-meta">{v.get("total_cases", 0)} cases &middot; {v.get("approved", 0)}W-{v.get("denied", 0)}L</span></div>'
                                                 f'<div class="intel-bar-bg"><div class="intel-bar" style="width:{bar_pct}%;background:{color};"></div></div>'
                                                 f'<span class="intel-rate" style="color:{color};min-width:50px;text-align:right;">{rate:.0%}</span>'
                                                 f'</div>',
@@ -3070,11 +3072,11 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                             st.bar_chart(yearly_df.set_index("year")["approval_rate"], use_container_width=True)
                                             st.caption("Win rate by year")
                                         for y in yearly:
-                                            rate = y["approval_rate"]
+                                            rate = y.get("approval_rate", 0)
                                             color = "#10b981" if rate >= 0.7 else ("#f59e0b" if rate >= 0.5 else "#ef4444")
                                             st.markdown(
-                                                f'<span style="color:{color};font-weight:700;">{y["year"]}</span>: '
-                                                f'{rate:.0%} ({y["approved"]}W-{y["denied"]}L, {y["total_cases"]} cases)',
+                                                f'<span style="color:{color};font-weight:700;">{y.get("year", "N/A")}</span>: '
+                                                f'{rate:.0%} ({y.get("approved", 0)}W-{y.get("denied", 0)}L, {y.get("total_cases", 0)} cases)',
                                                 unsafe_allow_html=True
                                             )
                                     else:
@@ -3252,7 +3254,7 @@ with st.expander("Site Selection — Where Should I Build?", expanded=False):
                             layers=[_ss_layer],
                             initial_view_state=_ss_view,
                             map_style="mapbox://styles/mapbox/dark-v10",
-                            tooltip={"text": "Parcel {parcel_id}\n{address}\nApproval: {approval_probability:.0%}\nZoning: {zoning_code}"},
+                            tooltip={"text": "Parcel {parcel_id}\n{address}\nZoning: {zoning_code}"},
                         ))
 
                     for i, p in enumerate(parcels[:ss_limit]):
@@ -3363,7 +3365,7 @@ with st.expander("Batch Predictions — Compare Multiple Parcels at Once", expan
 
                         # Sort by probability descending
                         _bp_sorted = sorted(
-                            [(pid, r) for pid, r in zip(_bp_ids, _bp_results)],
+                            [(pid, r) for pid, r in zip(_bp_ids[:50], _bp_results)],
                             key=lambda x: x[1].get("approval_probability") or 0,
                             reverse=True
                         )
@@ -3390,7 +3392,7 @@ with st.expander("Batch Predictions — Compare Multiple Parcels at Once", expan
 
                         # Export as CSV
                         _bp_export = []
-                        for pid, r in zip(_bp_ids, _bp_results):
+                        for pid, r in zip(_bp_ids[:50], _bp_results):
                             _bp_export.append({
                                 "parcel_id": pid,
                                 "approval_probability": r.get("approval_probability"),
@@ -3511,7 +3513,7 @@ with st.expander("Case Lookup — Search by BOA Case Number", expanded=False):
 # ZONING DISTRICT EXPLORER
 # =========================
 
-with st.expander("Zoning District Explorer — Browse All 286 Subdistricts", expanded=False):
+with st.expander("Zoning District Explorer — Browse Boston's Zoning Subdistricts", expanded=False):
     st.markdown(
         "Explore Boston's zoning districts to understand dimensional requirements, "
         "allowed uses, and governing articles before you even pick a parcel."

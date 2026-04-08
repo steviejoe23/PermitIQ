@@ -170,7 +170,7 @@ def _score_and_return_cases(df, ward, variances, project_type, limit):
             "case_number": safe_str(row.get('case_number')),
             "address": addr,
             "decision": safe_str(row.get('decision_clean')),
-            "ward": str(int(float(row['ward']))) if pd.notna(row.get('ward')) else '',
+            "ward": str(int(float(row['ward']))) if pd.notna(row.get('ward')) and str(row.get('ward', '')).replace('.', '', 1).replace('-', '', 1).isdigit() else '',
             "date": _clean_case_date(row),
             "has_attorney": bool(row.get('has_attorney', 0)),
             "num_variances": safe_int(row.get('num_variances', 0)),
