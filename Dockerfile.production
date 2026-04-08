@@ -22,6 +22,7 @@ COPY api/ api/
 COPY zba_cases_cleaned.csv .
 COPY boston_parcels_zoning.geojson .
 COPY property_assessment_fy2026.csv .
+COPY zba_tracker.csv .
 
 # Model pkl is gzipped to fit under GitHub's 100MB limit — decompress it
 COPY api/zba_model.pkl.gz api/zba_model.pkl.gz
