@@ -88,7 +88,11 @@ def recommend_parcels(
     if not features_list:
         return {"query": {"use_type": use_type, "project_type": project_type, "variances": variance_list, "ward": ward, "min_approval_rate": min_approval_rate}, "total_candidates": len(candidates), "results_found": 0, "parcels": []}
 
-    features_df = pd.DataFrame(features_list)[feature_cols].fillna(0)
+    features_df = pd.DataFrame(features_list)
+    for col in feature_cols:
+        if col not in features_df.columns:
+            features_df[col] = 0
+    features_df = features_df[feature_cols].fillna(0)
     probs = model.predict_proba(features_df)[:, 1]
 
     # Build address lookup for enrichment

@@ -572,10 +572,10 @@ if address_query and len(address_query) >= 3 and not search_clicked and not st.s
                 ac_cols = st.columns(len(_suggestions))
                 for j, sg in enumerate(_suggestions):
                     with ac_cols[j]:
-                        district = f" · {sg['district']}" if sg.get('district') else ""
-                        if st.button(f"{sg['address']}{district}", key=f"ac_{j}", use_container_width=True):
+                        district = f" · {sg.get('district', '')}" if sg.get('district') else ""
+                        if st.button(f"{sg.get('address', 'Unknown')}{district}", key=f"ac_{j}", use_container_width=True):
                             try:
-                                p_res = requests.get(f"{API_URL}/parcels/{sg['parcel_id']}", timeout=10)
+                                p_res = requests.get(f"{API_URL}/parcels/{sg.get('parcel_id', '')}", timeout=10)
                                 if p_res.status_code == 200:
                                     st.session_state.parcel_data = p_res.json()
                                 # Also run ZBA search so case history shows
@@ -613,14 +613,16 @@ with st.expander("Or enter a Parcel ID directly"):
                     for g in geo_data:
                         zoning_info = f" · {g.get('zoning_code', '')}" if g.get('zoning_code') else ""
                         district_info = f" · {g.get('district', '')}" if g.get('district') else ""
-                        if st.button(
-                            f"{g['parcel_id']} — {g['address']}{zoning_info}{district_info}",
-                            key=f"geo_{g['parcel_id']}",
+                        _g_pid = g.get('parcel_id', '')
+                    _g_addr = g.get('address', 'Unknown')
+                    if st.button(
+                            f"{_g_pid} — {_g_addr}{zoning_info}{district_info}",
+                            key=f"geo_{_g_pid}",
                             use_container_width=True
                         ):
                             # Look up this parcel
                             try:
-                                p_res = requests.get(f"{API_URL}/parcels/{g['parcel_id']}", timeout=15)
+                                p_res = requests.get(f"{API_URL}/parcels/{_g_pid}", timeout=15)
                                 if p_res.status_code == 200:
                                     st.session_state.parcel_data = p_res.json()
                                     st.rerun()
@@ -723,6 +725,7 @@ if st.session_state.search_results:
     st.markdown(f"**Found {len(results)} matching address(es):**")
 
     for i, result in enumerate(results):
+        _r_addr = result.get('address', 'Unknown address')
         approved = result.get("approved", 0)
         denied = result.get("denied", 0)
         total = result.get("total_cases", 0)
@@ -743,7 +746,7 @@ if st.session_state.search_results:
 
         st.markdown(f"""
         <div class="search-result">
-            <div class="search-addr">{esc(result['address'])}</div>
+            <div class="search-addr">{esc(_r_addr)}</div>
             <div class="search-meta">
                 {total} ZBA case(s){ward_str}{zoning_str} ·
                 <span style="color:{rate_color}; font-weight:600;">{approved} approved, {denied} denied ({rate_str})</span>
@@ -753,7 +756,7 @@ if st.session_state.search_results:
         """, unsafe_allow_html=True)
 
         # Manual find button — loads THIS result's parcel (overrides the auto-found one)
-        _btn_label = f"View Parcel for {result['address']}" if result.get('parcel_id') else f"Find Parcel for {result['address']}"
+        _btn_label = f"View Parcel for {_r_addr}" if result.get('parcel_id') else f"Find Parcel for {_r_addr}"
         if st.button(_btn_label, key=f"find_{i}", use_container_width=True):
             # Use parcel_id from search results if available (no extra API call needed)
             _pid = result.get('parcel_id')
@@ -770,7 +773,7 @@ if st.session_state.search_results:
             # Geocode: try each result until one has a valid parcel in our store
             if not _parcel_loaded:
                 try:
-                    geo_res = requests.get(f"{API_URL}/geocode", params={"q": result['address']}, timeout=10)
+                    geo_res = requests.get(f"{API_URL}/geocode", params={"q": _r_addr}, timeout=10)
                     if geo_res.status_code == 200:
                         geo_results = geo_res.json().get("results", [])
                         for g in geo_results:
@@ -789,7 +792,7 @@ if st.session_state.search_results:
             # Fallback: autocomplete
             if not _parcel_loaded:
                 try:
-                    ac_res = requests.get(f"{API_URL}/autocomplete", params={"q": result['address'][:30]}, timeout=10)
+                    ac_res = requests.get(f"{API_URL}/autocomplete", params={"q": _r_addr[:30]}, timeout=10)
                     if ac_res.status_code == 200:
                         ac_results = ac_res.json().get("suggestions", [])
                         for ac in ac_results:
@@ -808,13 +811,13 @@ if st.session_state.search_results:
             if _parcel_loaded:
                 st.rerun()
             else:
-                st.warning(f"Could not find parcel data for {result['address']}. Try entering the parcel ID directly.")
+                st.warning(f"Could not find parcel data for {_r_addr}. Try entering the parcel ID directly.")
 
         # Expandable case history
-        with st.expander(f"View case history for {result['address']}", expanded=False):
+        with st.expander(f"View case history for {_r_addr}", expanded=False):
             try:
                 cases_res = requests.get(
-                    f"{API_URL}/address/{result['address']}/cases",
+                    f"{API_URL}/address/{_r_addr}/cases",
                     timeout=10
                 )
                 if cases_res.status_code == 200:
@@ -1046,11 +1049,12 @@ if st.session_state.parcel_data:
                     if _prop_checks:
                         st.markdown(f"**{len(_prop_checks)} additional variance types — may be needed depending on your proposal:**")
                         for pc in _prop_checks:
-                            _vt = pc['type']
+                            _vt = pc.get('type', 'unknown')
                             _vt_label = esc(_vt.replace('_', ' ').title())
                             _vr = _global_var_rates.get(_vt, {})
                             _rate = _vr.get("approval_rate", 0)
                             _cases = _vr.get("total_cases", 0)
+                            _depends = pc.get('depends_on', '')
                             if _cases > 0:
                                 _color = "#10b981" if _rate >= 0.7 else "#f59e0b" if _rate >= 0.5 else "#ef4444"
                                 st.markdown(
@@ -1058,12 +1062,12 @@ if st.session_state.parcel_data:
                                     f'<span style="font-weight:600;color:#e2e8f0;">{_vt_label}</span>'
                                     f' <span style="color:{_color};font-weight:700;font-size:15px;">{_rate:.0%} approval</span>'
                                     f' <span style="color:#64748b;font-size:12px;">({_cases:,} ZBA cases)</span>'
-                                    f'<br><span style="color:#94a3b8;font-size:12px;">{esc(pc["depends_on"])}</span>'
+                                    f'<br><span style="color:#94a3b8;font-size:12px;">{esc(_depends)}</span>'
                                     f'</div>',
                                     unsafe_allow_html=True
                                 )
                             else:
-                                st.markdown(f"- **{_vt_label}** — {esc(pc['depends_on'])}")
+                                st.markdown(f"- **{_vt_label}** — {esc(_depends)}")
 
     except Exception as e:
         st.warning(f"Could not load zoning details: {e}")
@@ -2543,7 +2547,7 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
                 with cols[i % 4]:
                     st.markdown(
                         f'<div class="ward-card">'
-                        f'<div class="ward-label">Ward {esc(wd["ward"])}</div>'
+                        f'<div class="ward-label">Ward {esc(str(wd.get("ward", "?")))}</div>'
                         f'<div class="ward-rate" style="color:{rate_color};">{rate:.0%}</div>'
                         f'<div class="ward-meta">{total} cases</div>'
                         f'</div>',
@@ -2585,9 +2589,9 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
                 except Exception:
                     pass
 
-                if rate > 0.7:
+                if _ws_rate > 0.7:
                     st.success(f"Ward {ward_input} has a strong approval rate — above Boston average.")
-                elif rate > 0.5:
+                elif _ws_rate > 0.5:
                     st.info(f"Ward {ward_input} has a moderate approval rate — close to Boston average.")
                 else:
                     st.warning(f"Ward {ward_input} has a below-average approval rate — projects face more scrutiny here.")
@@ -2613,16 +2617,18 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
                 _ae = ws.get('attorney_effect')
                 if _ae:
                     _ae_diff = _ae.get('difference', 0)
+                    _ae_with = _ae.get('with_attorney_rate', 0)
+                    _ae_without = _ae.get('without_attorney_rate', 0)
                     if _ae_diff > 0.05:
                         st.markdown(
                             f"**Attorney Effect:** Representation increases approval odds by "
                             f"**{_ae_diff:.0%}** in Ward {ward_input} "
-                            f"({_ae['with_attorney_rate']:.0%} with vs {_ae['without_attorney_rate']:.0%} without)"
+                            f"({_ae_with:.0%} with vs {_ae_without:.0%} without)"
                         )
                     elif _ae_diff < -0.05:
                         st.markdown(
                             f"**Attorney Effect:** Unusually, cases without attorneys fare slightly better in Ward {ward_input} "
-                            f"({_ae['without_attorney_rate']:.0%} vs {_ae['with_attorney_rate']:.0%})"
+                            f"({_ae_without:.0%} vs {_ae_with:.0%})"
                         )
 
                 # Ward yearly trends
@@ -2720,8 +2726,8 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                 var_data = _var_json.get("variance_stats", [])
                 if var_data:
                     for v in var_data:
-                        rate = v["approval_rate"]
-                        name = v["variance_type"].replace("_", " ").title()
+                        rate = v.get("approval_rate", 0)
+                        name = v.get("variance_type", "Unknown").replace("_", " ").title()
                         total = v.get("total_cases") or v.get("total", 0)
                         if rate >= 0.7:
                             color = "#10b981"
@@ -2751,8 +2757,8 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                 pt_data = _pt_json.get("project_type_stats", [])
                 if pt_data:
                     for p in pt_data:
-                        rate = p["approval_rate"]
-                        name = p["project_type"]
+                        rate = p.get("approval_rate", 0)
+                        name = p.get("project_type", "Unknown")
                         total = p.get("total_cases") or p.get("total", 0)
                         if rate >= 0.7:
                             color = "#10b981"
@@ -2795,13 +2801,13 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
 
                 if attorneys:
                     for rank, a in enumerate(attorneys, 1):
-                        rate = a["approval_rate"]
+                        rate = a.get("approval_rate", 0)
                         total = a.get("total_cases") or a.get("total", 0)
                         bar_pct = int(rate * 100)
                         st.markdown(
                             f'<div class="intel-row">'
-                            f'<div style="min-width:200px;"><span class="intel-name">{rank}. {esc(a["name"])}</span>'
-                            f'<br><span class="intel-meta">{total} cases &middot; {a["approved"]}W-{a["denied"]}L</span></div>'
+                            f'<div style="min-width:200px;"><span class="intel-name">{rank}. {esc(a.get("name", "Unknown"))}</span>'
+                            f'<br><span class="intel-meta">{total} cases &middot; {a.get("approved", 0)}W-{a.get("denied", 0)}L</span></div>'
                             f'<div class="intel-bar-bg"><div class="intel-bar" style="width:{bar_pct}%;background:#10b981;"></div></div>'
                             f'<span class="intel-rate" style="color:#10b981;min-width:50px;text-align:right;">{rate:.0%}</span>'
                             f'</div>',
@@ -2823,8 +2829,8 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                 nb_data = _nb_json.get("neighborhoods", [])
                 if nb_data:
                     for n in nb_data:
-                        rate = n["approval_rate"]
-                        name = n["neighborhood"]
+                        rate = n.get("approval_rate", 0)
+                        name = n.get("neighborhood", "Unknown")
                         total = n.get("total_cases") or n.get("total", 0)
                         if rate >= 0.7:
                             color = "#10b981"
@@ -2865,10 +2871,10 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                 st.markdown("")
                 patterns = dp_data.get("patterns", [])
                 for p in patterns:
-                    factor = p["factor"]
-                    app_r = p["approved_rate"]
-                    den_r = p["denied_rate"]
-                    diff = p["difference"]
+                    factor = p.get("factor", "Unknown")
+                    app_r = p.get("approved_rate", 0)
+                    den_r = p.get("denied_rate", 0)
+                    diff = p.get("difference", 0)
                     if diff > 0:
                         arrow_color = "#10b981"
                         arrow = "+"
@@ -2899,11 +2905,11 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                 if _vp_json:
                     vp = _vp_json
                     if vp.get("unanimous_total"):
-                        st.metric("Unanimous Decisions", f"{vp['unanimous_total']:,}")
-                        st.metric("Unanimous Approval Rate", f"{vp['unanimous_approval_rate']:.0%}")
+                        st.metric("Unanimous Decisions", f"{vp.get('unanimous_total', 0):,}")
+                        st.metric("Unanimous Approval Rate", f"{vp.get('unanimous_approval_rate', 0):.0%}")
                     if vp.get("split_total"):
-                        st.metric("Split Decisions", f"{vp['split_total']:,}")
-                        st.metric("Split Approval Rate", f"{vp['split_approval_rate']:.0%}")
+                        st.metric("Split Decisions", f"{vp.get('split_total', 0):,}")
+                        st.metric("Split Approval Rate", f"{vp.get('split_approval_rate', 0):.0%}")
             except Exception as e:
                 st.caption(f"Voting data unavailable: {e}")
 
@@ -2916,7 +2922,7 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                     conditions = pv.get("conditions", [])
                     if conditions:
                         for c in conditions:
-                            st.markdown(f"- **{esc(c['condition'])}**: {c['count']:,} cases ({c['rate']:.0%})")
+                            st.markdown(f"- **{esc(c.get('condition', 'Unknown'))}**: {c.get('count', 0):,} cases ({c.get('rate', 0):.0%})")
                     else:
                         st.caption("No proviso data in current dataset.")
             except Exception as e:
@@ -2965,16 +2971,20 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
 
                                 # Header stats
                                 st.markdown("---")
-                                st.markdown(f"### {esc(prof['name'])}")
+                                st.markdown(f"### {esc(prof.get('name', 'Unknown'))}")
 
                                 pc1, pc2, pc3, pc4 = st.columns(4)
+                                _prof_total = prof.get('total_cases', 0)
+                                _prof_wr = prof.get('win_rate', 0)
+                                _prof_app = prof.get('approved', 0)
+                                _prof_den = prof.get('denied', 0)
                                 with pc1:
-                                    st.metric("Total Cases", f"{prof['total_cases']:,}")
+                                    st.metric("Total Cases", f"{_prof_total:,}")
                                 with pc2:
-                                    rate_color = "#10b981" if prof['win_rate'] >= 0.7 else ("#f59e0b" if prof['win_rate'] >= 0.5 else "#ef4444")
-                                    st.metric("Win Rate", f"{prof['win_rate']:.0%}")
+                                    rate_color = "#10b981" if _prof_wr >= 0.7 else ("#f59e0b" if _prof_wr >= 0.5 else "#ef4444")
+                                    st.metric("Win Rate", f"{_prof_wr:.0%}")
                                 with pc3:
-                                    st.metric("Record", f"{prof['approved']}W - {prof['denied']}L")
+                                    st.metric("Record", f"{_prof_app}W - {_prof_den}L")
                                 with pc4:
                                     comp = prof.get("comparison", {})
                                     pct = comp.get("percentile_rank", 50)

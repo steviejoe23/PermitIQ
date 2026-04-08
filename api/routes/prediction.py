@@ -21,6 +21,16 @@ logger = logging.getLogger("permitiq")
 router = APIRouter()
 
 
+def _safe_ward(val) -> str:
+    """Safely convert a ward value to a clean string."""
+    if pd.isna(val) if hasattr(pd, 'isna') else val is None:
+        return ''
+    try:
+        return str(int(float(val)))
+    except (ValueError, TypeError, OverflowError):
+        return str(val).strip()
+
+
 def _auto_detect_ward(district: str) -> str:
     """Auto-detect ward from zoning district using ZBA case history."""
     if not district or state.zba_df is None or 'zoning_district' not in state.zba_df.columns:
@@ -29,7 +39,12 @@ def _auto_detect_ward(district: str) -> str:
         (state.zba_df['zoning_district'] == district) & state.zba_df['ward'].notna()
     ]['ward']
     if not ward_lookup.empty:
-        return str(int(ward_lookup.mode().iloc[0]))
+        mode_result = ward_lookup.mode()
+        if not mode_result.empty and pd.notna(mode_result.iloc[0]):
+            try:
+                return str(int(mode_result.iloc[0]))
+            except (ValueError, TypeError):
+                return None
     return None
 
 
@@ -276,7 +291,7 @@ def get_similar_cases(ward, variances, project_type=None, limit=5, zoning_distri
             "case_number": str(row.get('case_number') or ''),
             "address": addr,
             "decision": str(row.get('decision_clean') or ''),
-            "ward": str(int(float(row['ward']))) if pd.notna(row.get('ward')) else '',
+            "ward": _safe_ward(row.get('ward')),
             "date": date_str,
             "relevance_score": round(float(row.get('_relevance', 0)), 1),
             "variances": _case_variances,

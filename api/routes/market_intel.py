@@ -429,10 +429,13 @@ def _compute_voting(df):
         approved = df[df['decision_clean'] == 'APPROVED']
         denied = df[df['decision_clean'] == 'DENIED']
 
-        result["avg_votes_favor_approved"] = round(float(approved['votes_in_favor'].mean()), 2)
-        result["avg_votes_favor_denied"] = round(float(denied['votes_in_favor'].mean()), 2)
-        result["avg_votes_opposed_approved"] = round(float(approved['votes_opposed'].mean()), 2)
-        result["avg_votes_opposed_denied"] = round(float(denied['votes_opposed'].mean()), 2)
+        def _safe_mean(series):
+            val = series.mean()
+            return round(float(val), 2) if pd.notna(val) else 0.0
+        result["avg_votes_favor_approved"] = _safe_mean(approved['votes_in_favor'])
+        result["avg_votes_favor_denied"] = _safe_mean(denied['votes_in_favor'])
+        result["avg_votes_opposed_approved"] = _safe_mean(approved['votes_opposed'])
+        result["avg_votes_opposed_denied"] = _safe_mean(denied['votes_opposed'])
 
         df['is_unanimous'] = (df['votes_opposed'] == 0) & (df['votes_in_favor'] > 0)
         unanimous = df[df['is_unanimous']]

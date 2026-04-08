@@ -409,7 +409,7 @@ def zoning_compliance_check(payload: dict):
             variances_needed.append("height")
 
     # Lot size check — auto-filled from public records OR user-provided
-    lot_size = proposal.get('lot_size_sf', 0)
+    lot_size = lot_size_input
     min_lot = reqs.get('min_lot_sf')
     if lot_size and min_lot and lot_size < min_lot:
         compliant = False
@@ -421,7 +421,7 @@ def zoning_compliance_check(payload: dict):
         variances_needed.append("lot_area")
 
     # Frontage check — auto-filled from public records OR user-provided
-    frontage = proposal.get('lot_frontage_ft', 0)
+    frontage = frontage_input
     min_frontage = reqs.get('min_frontage_ft')
     if frontage and min_frontage and frontage < min_frontage:
         compliant = False
@@ -433,8 +433,9 @@ def zoning_compliance_check(payload: dict):
         variances_needed.append("lot_frontage")
 
     # Setback checks
+    _setback_vals = {'front_setback_ft': front_setback, 'side_setback_ft': side_setback, 'rear_setback_ft': rear_setback}
     for setback_type, req_key in [('front_setback_ft', 'min_front_yard_ft'), ('side_setback_ft', 'min_side_yard_ft'), ('rear_setback_ft', 'min_rear_yard_ft')]:
-        setback_val = proposal.get(setback_type)
+        setback_val = _setback_vals[setback_type]
         min_val = reqs.get(req_key)
         if setback_val is not None and min_val and setback_val < min_val:
             compliant = False
@@ -443,8 +444,7 @@ def zoning_compliance_check(payload: dict):
             variances_needed.append(stype.replace(' ', '_'))
 
     # Parking check
-    proposed_units = proposal.get('proposed_units', 0)
-    parking_spaces = proposal.get('parking_spaces')
+    parking_spaces = safe_float(proposal.get('parking_spaces'), default=None)
     parking_per_unit = reqs.get('parking_per_unit')
     if proposed_units and parking_spaces is not None and parking_per_unit:
         required_parking = int(proposed_units * parking_per_unit)
@@ -453,8 +453,7 @@ def zoning_compliance_check(payload: dict):
             violations.append({"type": "parking", "requirement": f"Required: {required_parking} spaces ({parking_per_unit} per unit)", "proposed": f"Provided: {parking_spaces} spaces", "deficit": f"{required_parking - parking_spaces} spaces short"})
             variances_needed.append("parking")
 
-    # Lot coverage
-    lot_coverage = proposal.get('lot_coverage_pct', 0)
+    # Lot coverage (use safe_float value from line 384)
     max_coverage = reqs.get('max_lot_coverage_pct')
     if lot_coverage and max_coverage and lot_coverage > max_coverage:
         compliant = False

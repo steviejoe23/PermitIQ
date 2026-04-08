@@ -201,7 +201,8 @@ def attorney_profile(attorney_name: str):
         raise HTTPException(status_code=404, detail=f"No cases found for '{attorney_name}'. Use /attorneys/search?q=... to find the correct name.")
 
     # Use the actual contact name from the data (for display)
-    display_name = cases['contact'].mode().iloc[0] if len(cases) > 0 else attorney_name
+    _contact_mode = cases['contact'].dropna().mode()
+    display_name = _contact_mode.iloc[0] if not _contact_mode.empty else attorney_name
 
     total = len(cases)
     approved = int((cases['decision_clean'] == 'APPROVED').sum())
@@ -356,7 +357,8 @@ def attorney_similar_cases(
     if cases is None or len(cases) == 0:
         raise HTTPException(status_code=404, detail=f"No cases found for '{attorney_name}'. Use /attorneys/search?q=... to find the correct name.")
 
-    display_name = cases['contact'].mode().iloc[0] if len(cases) > 0 else attorney_name
+    _contact_mode = cases['contact'].dropna().mode()
+    display_name = _contact_mode.iloc[0] if not _contact_mode.empty else attorney_name
     filtered = cases.copy()
 
     # Filter by variance types
