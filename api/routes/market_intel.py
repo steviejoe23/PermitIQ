@@ -454,7 +454,10 @@ def ward_trends(ward_id: str):
     def _compute():
         df = _require_data()
         df = df[df['decision_clean'].notna()].copy()
-        ward_str = str(int(float(ward_id))) if ward_id.replace('.', '').isdigit() else ward_id.strip()
+        try:
+            ward_str = str(int(float(ward_id))) if ward_id.replace('.', '').isdigit() else ward_id.strip()
+        except (ValueError, OverflowError):
+            ward_str = ward_id.strip()
         ward_col_norm = df['ward'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
         ward_df = df[ward_col_norm == ward_str]
         if len(ward_df) == 0:
@@ -491,7 +494,10 @@ def ward_top_attorneys(ward_id: str, limit: int = 10):
     def _compute():
         df = _require_data()
         df = df[df['decision_clean'].notna()].copy()
-        ward_str = str(int(float(ward_id))) if ward_id.replace('.', '').isdigit() else ward_id.strip()
+        try:
+            ward_str = str(int(float(ward_id))) if ward_id.replace('.', '').isdigit() else ward_id.strip()
+        except (ValueError, OverflowError):
+            ward_str = ward_id.strip()
         _atty_col = 'contact' if 'contact' in df.columns else 'applicant_name'
         ward_col_norm = df['ward'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
         ward_df = df[
@@ -583,7 +589,7 @@ def timeline_stats(ward: str = None, appeal_type: str = None):
             result["appeal_type"] = {"type": appeal_type, "note": "No data for this appeal type"}
 
     # Include all wards summary for comparison
-    result["wards_available"] = sorted(_timeline_stats.get("by_ward", {}).keys(), key=lambda x: int(x))
+    result["wards_available"] = sorted(_timeline_stats.get("by_ward", {}).keys(), key=lambda x: (int(x) if x.isdigit() else float('inf')))
     result["appeal_types_available"] = sorted(_timeline_stats.get("by_appeal_type", {}).keys())
 
     return result

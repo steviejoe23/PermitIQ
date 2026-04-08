@@ -20,7 +20,10 @@ def esc(val):
 # =========================
 
 _DEFAULT_API = "https://overflowing-education-production-548c.up.railway.app"
-API_URL = os.environ.get("PERMITIQ_API_URL") or st.secrets.get("PERMITIQ_API_URL", _DEFAULT_API)
+try:
+    API_URL = os.environ.get("PERMITIQ_API_URL") or st.secrets.get("PERMITIQ_API_URL", _DEFAULT_API)
+except Exception:
+    API_URL = _DEFAULT_API
 
 st.set_page_config(
     page_title="PermitIQ — Boston Zoning Intelligence",
@@ -345,15 +348,18 @@ st.markdown("""
 
 st.markdown('<div class="hero-title">PermitIQ</div>', unsafe_allow_html=True)
 # Dynamic case count — populated after API fetch, falls back to static
-_header_case_count = "13,300+"
+_header_case_count = "17,676"
 
 # API connection status — cached to avoid re-fetching on every Streamlit rerun
 @st.cache_data(ttl=30)
 def _fetch_startup_data():
     """Fetch health + stats in one pass, cached for 30 seconds."""
-    health = requests.get(f"{API_URL}/health", timeout=3).json()
-    stats = requests.get(f"{API_URL}/stats", timeout=5).json()
-    return health, stats
+    try:
+        health = requests.get(f"{API_URL}/health", timeout=3).json()
+        stats = requests.get(f"{API_URL}/stats", timeout=5).json()
+        return health, stats
+    except Exception:
+        return None, None
 
 @st.cache_data(ttl=120)
 def _fetch_variance_stats():
@@ -384,6 +390,8 @@ _header_case_count = "17,676"
 _health = {}
 try:
     _health, _stats_res = _fetch_startup_data()
+    if _health is None:
+        raise ConnectionError("API not ready")
     _model_name = _health.get('model_name', 'none')
     _auc = _health.get('model_auc', 0)
     _cases = _health.get('total_cases', 0)
@@ -935,11 +943,12 @@ if st.session_state.parcel_data:
                 _sub_label = f"{esc(_subdistrict)}" if _subdistrict else ""
                 _sub_type = f" ({esc(_subdistrict_type)})" if _subdistrict_type else ""
                 _nbhd = f" · {esc(_neighborhood)}" if _neighborhood else ""
+                _src_html = f'<div style="color:#64748b;font-size:11px;margin-top:6px;">Source: {esc(_data_source)}</div>' if _data_source else ""
                 st.markdown(
                     f'<div style="background:#0f172a;padding:16px 20px;border-radius:10px;border:1px solid #3b82f6;margin:10px 0;">'
                     f'<div style="font-size:18px;font-weight:700;color:#3b82f6;">{_sub_label}{_sub_type}</div>'
                     f'<div style="color:#e2e8f0;font-size:14px;margin-top:4px;">{_nbhd}</div>'
-                    f'{"<div style=color:#64748b;font-size:11px;margin-top:6px;>Source: " + esc(_data_source) + "</div>" if _data_source else ""}'
+                    f'{_src_html}'
                     f'</div>',
                     unsafe_allow_html=True
                 )
@@ -1342,13 +1351,14 @@ if st.session_state.parcel_data:
                         excess = v.get("excess", v.get("deficit", ""))
                         source_badge = '<span style="background:#dc2626;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:8px;">AUTO-DETECTED</span>' if is_parcel else ''
                         note_html = f'<br><span style="color:#fca5a5;font-size:11px;font-style:italic;">{esc(v.get("note", ""))}</span>' if v.get("note") else ''
+                        excess_html = f'<br><span style="color:#888;font-size:12px;">{esc(excess)}</span>' if excess else ""
                         st.markdown(
                             f'<div style="background:#0f172a;border-left:4px solid {v_color};padding:14px 18px;margin:8px 0;border-radius:8px;border:1px solid #1e293b;border-left-width:4px;">'
                             f'<span style="color:{v_color};font-weight:700;font-size:14px;">{esc(v.get("type", "").upper())}</span>{source_badge}<br>'
                             f'<span style="color:#ccc;font-size:13px;">{esc(v.get("requirement", ""))}</span>'
                             f' <span style="color:#888;">→</span> '
                             f'<span style="color:#fff;font-weight:600;font-size:13px;">{esc(v.get("proposed", v.get("actual", "")))}</span>'
-                            f'{"<br><span style=color:#888;font-size:12px;>" + esc(excess) + "</span>" if excess else ""}'
+                            f'{excess_html}'
                             f'{note_html}'
                             f'</div>',
                             unsafe_allow_html=True
@@ -1397,8 +1407,8 @@ if st.session_state.parcel_data:
     if st.session_state.parcel_data and st.button("Run Full Zoning Analysis", key="full_zoning_btn", type="secondary"):
         _fz_payload = {"parcel_id": data.get("parcel_id", "")}
         # Include compliance form values if available
-        if 'cc_proposed_use' in dir():
-            _fz_payload["proposed_use"] = cc_proposed_use
+        if 'cc_use' in dir() and cc_use:
+            _fz_payload["proposed_use"] = cc_use
         try:
             with st.spinner("Running comprehensive zoning analysis..."):
                 _fz_res = requests.post(f"{API_URL}/zoning/full_analysis", json=_fz_payload, timeout=20)
@@ -1719,11 +1729,12 @@ if st.session_state.prediction_result:
                     _pv_rate = vdata.get("approval_rate", vdata.get("rate", 0)) if isinstance(vdata, dict) else vdata
                     _pv_count = vdata.get("cases", vdata.get("count", 0)) if isinstance(vdata, dict) else 0
                     _pv_color = "#10b981" if _pv_rate >= 0.7 else "#f59e0b" if _pv_rate >= 0.4 else "#ef4444"
+                    _pv_count_html = f'<div style="font-size:11px;color:#666;">{_pv_count} cases</div>' if _pv_count else ""
                     st.markdown(
                         f'<div style="text-align:center;background:#0f172a;padding:12px;border-radius:8px;border:1px solid #1e293b;">'
                         f'<div style="font-size:22px;font-weight:800;color:{_pv_color};">{_pv_rate:.0%}</div>'
                         f'<div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">{esc(str(vtype))}</div>'
-                        f'{"<div style=font-size:11px;color:#666;>" + str(_pv_count) + " cases</div>" if _pv_count else ""}'
+                        f'{_pv_count_html}'
                         f'</div>',
                         unsafe_allow_html=True
                     )
@@ -1839,16 +1850,18 @@ if st.session_state.prediction_result:
         # Per-variance rates
         per_var = va.get('data', {}).get('per_variance', {})
         if per_var:
-            pv_cols = st.columns(len(per_var))
-            for i, (vtype, vdata) in enumerate(per_var.items()):
+            _pv_items_va = list(per_var.items())[:6]
+            pv_cols = st.columns(len(_pv_items_va))
+            for i, (vtype, vdata) in enumerate(_pv_items_va):
                 with pv_cols[i]:
-                    rate = vdata['approval_rate']
+                    rate = vdata.get('approval_rate', 0) if isinstance(vdata, dict) else 0
+                    _pv_cases = vdata.get('cases', 0) if isinstance(vdata, dict) else 0
                     color = "#10b981" if rate >= 0.85 else "#f59e0b" if rate >= 0.65 else "#ef4444"
                     st.markdown(
                         f'<div style="text-align:center;background:#0f172a;padding:14px;border-radius:8px;border:1px solid #1e293b;">'
                         f'<div style="font-size:24px;font-weight:800;color:{color};">{rate:.0%}</div>'
                         f'<div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">{esc(vtype)} variance</div>'
-                        f'<div style="font-size:11px;color:#64748b;">{vdata["cases"]} cases</div>'
+                        f'<div style="font-size:11px;color:#64748b;">{_pv_cases} cases</div>'
                         f'</div>',
                         unsafe_allow_html=True
                     )
@@ -1922,12 +1935,13 @@ if st.session_state.prediction_result:
                     arrow = ""
                 # Use human-readable direction text if available
                 dir_text = esc(direction) if direction not in ("increases", "decreases", "unknown") else ""
+                _dir_html = f'<span style="color:#888;font-size:11px;margin-left:8px;">{dir_text}</span>' if dir_text else ""
                 st.markdown(
                     f'<div style="display:flex;align-items:center;padding:3px 0;">'
                     f'<span style="width:260px;font-size:14px;">{esc(d["feature"])}</span>'
                     f'<div style="background:{bar_color};height:14px;width:{bar_width}%;border-radius:3px;margin:0 10px;"></div>'
                     f'<span style="color:{bar_color};font-size:13px;font-weight:600;">{arrow}{shap_val:.3f}</span>'
-                    f'{"<span style=color:#888;font-size:11px;margin-left:8px;>" + dir_text + "</span>" if dir_text else ""}'
+                    f'{_dir_html}'
                     f'</div>',
                     unsafe_allow_html=True
                 )
@@ -2264,7 +2278,7 @@ DISCLAIMER
 PermitIQ predictions are based on historical ZBA decision data and
 do not constitute legal advice. Individual outcomes may vary.
 {'='*50}
-Generated by PermitIQ v2.0 — Boston Zoning Intelligence
+Generated by PermitIQ v3.0 — Boston Zoning Intelligence
 """
     def _format_timeline_html(timeline):
         if not timeline or not timeline.get('median_days'):
@@ -2400,7 +2414,7 @@ quality of presentation, neighborhood politics, project design details, and comm
 Always consult a qualified zoning attorney before making financial decisions based on this analysis.
 Probabilities reflect historical patterns, not guarantees.
 </div>
-<div class="footer">Generated by PermitIQ v2.0 — Boston Zoning Intelligence</div>
+<div class="footer">Generated by PermitIQ v3.0 — Boston Zoning Intelligence</div>
 </body></html>"""
 
     dl1, dl2 = st.columns(2)
@@ -2551,12 +2565,12 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
                 with w1:
                     st.metric("Total Cases", _ws_total)
                 with w2:
-                    st.metric("Approved", ws['approved'])
+                    st.metric("Approved", ws.get('approved', 0))
                 with w3:
-                    st.metric("Denied", ws['denied'])
+                    st.metric("Denied", ws.get('denied', 0))
                 with w4:
-                    rate = ws['approval_rate']
-                    st.metric("Approval Rate", f"{rate:.0%}")
+                    _ws_rate = ws.get('approval_rate', 0)
+                    st.metric("Approval Rate", f"{_ws_rate:.0%}")
 
                 # Timeline for this ward
                 try:
@@ -3066,12 +3080,13 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                             ward_str = f"Ward {c['ward']}" if c.get("ward") else ""
                                             vt = c.get("variance_types", "")
                                             vt_display = ", ".join(v.replace("_", " ").title() for v in vt.split(",")) if vt else ""
+                                            _vt_html = f'<br><span style="color:#94a3b8;font-size:12px;">{esc(vt_display)}</span>' if vt_display else ""
                                             st.markdown(
                                                 f'<div style="padding:6px 0;border-bottom:1px solid #333;">'
                                                 f'<span style="color:{dec_color};font-weight:700;">{esc(dec)}</span> '
                                                 f'<span style="color:#e2e8f0;">{addr}</span> '
                                                 f'<span style="color:#64748b;font-size:12px;">{case_num} &middot; {yr} &middot; {esc(ward_str)}</span>'
-                                                f'{"<br><span style=color:#94a3b8;font-size:12px;>" + esc(vt_display) + "</span>" if vt_display else ""}'
+                                                f'{_vt_html}'
                                                 f'</div>',
                                                 unsafe_allow_html=True
                                             )
@@ -3119,12 +3134,13 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                                     _sc_yr = sc.get("year", "")
                                                     _sc_w = f"Ward {sc['ward']}" if sc.get("ward") else ""
                                                     _sc_vt = sc.get("variance_types", "")
+                                                    _sc_vt_html = f'<br><span style="color:#94a3b8;font-size:12px;">{esc(_sc_vt)}</span>' if _sc_vt else ""
                                                     st.markdown(
                                                         f'<div style="padding:6px 0;border-bottom:1px solid #333;">'
                                                         f'<span style="color:{_sc_dc};font-weight:700;">{esc(_sc_dec)}</span> '
                                                         f'<span style="color:#e2e8f0;">{_sc_addr}</span> '
                                                         f'<span style="color:#64748b;font-size:12px;">{_sc_cn} · {_sc_yr} · {esc(_sc_w)}</span>'
-                                                        f'{"<br><span style=color:#94a3b8;font-size:12px;>" + esc(_sc_vt) + "</span>" if _sc_vt else ""}'
+                                                        f'{_sc_vt_html}'
                                                         f'</div>',
                                                         unsafe_allow_html=True
                                                     )
@@ -3228,19 +3244,19 @@ with st.expander("Site Selection — Where Should I Build?", expanded=False):
                         ))
 
                     for i, p in enumerate(parcels[:ss_limit]):
-                        prob = p.get("predicted_probability") or p.get("approval_probability", 0)
+                        ss_prob = p.get("predicted_probability") or p.get("approval_probability", 0)
                         pid = esc(str(p.get("parcel_id", "")))
                         address = esc(str(p.get("address", "")))
                         zoning = esc(str(p.get("zoning_code", p.get("zoning", ""))))
                         district = esc(str(p.get("district", ""))) if p.get("district") else ""
-                        ward_info = f"Ward {esc(str(p['ward']))}" if p.get("ward") else ""
+                        ward_info = f"Ward {esc(str(p.get('ward', '')))}" if p.get("ward") else ""
 
-                        if prob >= 0.7:
-                            color = "#10b981"
-                        elif prob >= 0.5:
-                            color = "#f59e0b"
+                        if ss_prob >= 0.7:
+                            ss_color = "#10b981"
+                        elif ss_prob >= 0.5:
+                            ss_color = "#f59e0b"
                         else:
-                            color = "#ef4444"
+                            ss_color = "#ef4444"
 
                         meta_parts = []
                         if address:
@@ -3252,8 +3268,8 @@ with st.expander("Site Selection — Where Should I Build?", expanded=False):
                             meta_parts.append(ward_info)
 
                         st.markdown(
-                            f'<div class="site-card" style="border-left:4px solid {color};">'
-                            f'<div class="site-prob" style="color:{color};">{prob:.0%}</div>'
+                            f'<div class="site-card" style="border-left:4px solid {ss_color};">'
+                            f'<div class="site-prob" style="color:{ss_color};">{ss_prob:.0%}</div>'
                             f'<div class="site-details">'
                             f'<div class="site-pid">Parcel {pid}</div>'
                             f'<div class="site-meta">{" &middot; ".join(meta_parts)}</div>'
@@ -3546,6 +3562,7 @@ with st.expander("Zoning District Explorer — Browse All 286 Subdistricts", exp
                     if len(_uses) > 5:
                         _uses_str += f" +{len(_uses)-5} more"
 
+                    _desc_html = f'<br><span style="color:#94a3b8;font-size:12px;">{_desc}</span>' if _desc else ""
                     st.markdown(
                         f'<div style="padding:10px 0;border-bottom:1px solid #333;">'
                         f'<span style="font-weight:700;color:#3b82f6;font-size:16px;">{_code}</span>'
@@ -3553,7 +3570,7 @@ with st.expander("Zoning District Explorer — Browse All 286 Subdistricts", exp
                         f'<span style="color:#64748b;font-size:12px;margin-left:8px;">Article {_article}</span><br>'
                         f'<span style="color:#94a3b8;font-size:13px;">{_dim_str}</span><br>'
                         f'<span style="color:#64748b;font-size:12px;">Uses: {_uses_str}</span>'
-                        f'{"<br><span style=color:#94a3b8;font-size:12px;>" + _desc + "</span>" if _desc else ""}'
+                        f'{_desc_html}'
                         f'</div>',
                         unsafe_allow_html=True
                     )
@@ -3576,7 +3593,7 @@ st.markdown(
     '<div class="footer-container">'
     '<div class="footer-brand">PermitIQ v3.0</div>'
     '<div class="footer-meta">Boston Zoning Risk Assessment Platform &middot; '
-    '13,300+ ZBA decisions &middot; 85 leakage-free features &middot; PostGIS spatial data</div>'
+    '17,676 ZBA decisions &middot; 85 leakage-free features &middot; PostGIS spatial data</div>'
     '<div class="footer-legal">Statistical risk assessment only. Not legal advice. '
     'Always consult a qualified zoning attorney before making financial decisions.</div>'
     '</div>',

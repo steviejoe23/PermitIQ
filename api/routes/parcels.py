@@ -22,8 +22,9 @@ def _enrich_parcel_result(result: dict, parcel_id: str):
         ward_lookup = state.zba_df[
             (state.zba_df['zoning_district'] == district) & state.zba_df['ward'].notna()
         ]['ward']
-        if not ward_lookup.empty:
-            result["ward"] = str(int(ward_lookup.mode().iloc[0]))
+        ward_mode = ward_lookup.mode()
+        if not ward_mode.empty:
+            result["ward"] = str(int(ward_mode.iloc[0]))
 
     if state.zba_df is not None and 'pa_parcel_id' in state.zba_df.columns:
         pid_float = safe_float(parcel_id, default=None)

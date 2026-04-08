@@ -75,7 +75,10 @@ def _precompute_timeline_stats(tracker_path: str) -> dict:
 
     if 'ward' in tk.columns:
         for ward_val, group in tk.groupby('ward'):
-            ward_str = str(int(ward_val)) if pd.notna(ward_val) else None
+            try:
+                ward_str = str(int(float(ward_val))) if pd.notna(ward_val) else None
+            except (ValueError, TypeError):
+                ward_str = str(ward_val).strip() if pd.notna(ward_val) else None
             if ward_str and len(group) >= 10:
                 ward_stats = _all_phases(group)
                 if ward_stats:
