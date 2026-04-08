@@ -763,7 +763,7 @@ def analyze_proposal(payload: dict):
                 "estimated_timeline_days": _estimate_timeline(ward),
                 "model": state.model_package.get('model_name', 'ml_model'),
                 "model_auc": state.model_package.get('auc_score', 0),
-                "total_training_cases": state.model_package.get('total_cases', 0),
+                "total_training_cases": len(state.zba_df) if state.zba_df is not None else state.model_package.get('total_cases', 0),
                 "disclaimer": DISCLAIMER,
             }
         except Exception as e:
