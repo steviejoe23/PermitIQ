@@ -475,7 +475,7 @@ with st.sidebar:
         "1001 Boylston St",
     ]
     for addr in demo_addresses:
-        if st.button(addr, key=f"demo_{addr}", use_container_width=True):
+        if st.button(addr, key=f"demo_{addr}", width="stretch"):
             try:
                 res = requests.get(f"{API_URL}/search", params={"q": addr}, timeout=15)
                 if res.status_code == 200:
@@ -494,7 +494,7 @@ with st.sidebar:
         "2100394000": "Allston/Brighton",
     }
     for pid, desc in demo_parcels.items():
-        if st.button(f"{pid} — {desc}", key=f"demo_p_{pid}", use_container_width=True):
+        if st.button(f"{pid} — {desc}", key=f"demo_p_{pid}", width="stretch"):
             try:
                 res = requests.get(f"{API_URL}/parcels/{pid}", timeout=15)
                 if res.status_code == 200:
@@ -559,7 +559,7 @@ with search_col1:
     )
 
 with search_col2:
-    search_clicked = st.button("Search Address", type="primary", use_container_width=True)
+    search_clicked = st.button("Search Address", type="primary", width="stretch")
 
 # Address autocomplete — show parcel suggestions as user types (hide if we already have search results)
 if address_query and len(address_query) >= 3 and not search_clicked and not st.session_state.get('search_results'):
@@ -573,7 +573,7 @@ if address_query and len(address_query) >= 3 and not search_clicked and not st.s
                 for j, sg in enumerate(_suggestions):
                     with ac_cols[j]:
                         district = f" · {sg.get('district', '')}" if sg.get('district') else ""
-                        if st.button(f"{sg.get('address', 'Unknown')}{district}", key=f"ac_{j}", use_container_width=True):
+                        if st.button(f"{sg.get('address', 'Unknown')}{district}", key=f"ac_{j}", width="stretch"):
                             try:
                                 p_res = requests.get(f"{API_URL}/parcels/{sg.get('parcel_id', '')}", timeout=10)
                                 if p_res.status_code == 200:
@@ -598,9 +598,9 @@ with st.expander("Or enter a Parcel ID directly"):
             label_visibility="collapsed"
         )
     with pid_col2:
-        parcel_clicked = st.button("Look Up Parcel", use_container_width=True)
+        parcel_clicked = st.button("Look Up Parcel", width="stretch")
     with pid_col3:
-        find_parcel_clicked = st.button("Find Parcel from Address", use_container_width=True)
+        find_parcel_clicked = st.button("Find Parcel from Address", width="stretch")
 
     # Geocode: find parcel ID from address
     if find_parcel_clicked and address_query:
@@ -618,7 +618,7 @@ with st.expander("Or enter a Parcel ID directly"):
                         if st.button(
                                 f"{_g_pid} — {_g_addr}{zoning_info}{district_info}",
                                 key=f"geo_{_g_pid}",
-                                use_container_width=True
+                                width="stretch"
                             ):
                                 # Look up this parcel
                                 try:
@@ -757,7 +757,7 @@ if st.session_state.search_results:
 
         # Manual find button — loads THIS result's parcel (overrides the auto-found one)
         _btn_label = f"View Parcel for {_r_addr}" if result.get('parcel_id') else f"Find Parcel for {_r_addr}"
-        if st.button(_btn_label, key=f"find_{i}", use_container_width=True):
+        if st.button(_btn_label, key=f"find_{i}", width="stretch"):
             # Use parcel_id from search results if available (no extra API call needed)
             _pid = result.get('parcel_id')
             _parcel_loaded = False
@@ -1599,7 +1599,7 @@ if variances:
 
 
 # --- PREDICT BUTTON ---
-predict_clicked = st.button("⚡ Analyze My Proposal", type="primary", use_container_width=True)
+predict_clicked = st.button("⚡ Analyze My Proposal", type="primary", width="stretch")
 
 if predict_clicked:
     if not variances:
@@ -2648,7 +2648,7 @@ with st.expander("Ward Insights — Compare approval rates across Boston"):
                         if _wt_years and len(_wt_years) > 1:
                             st.markdown(f"**Yearly Approval Trend — Ward {esc(ward_input)}**")
                             _wt_df = pd.DataFrame(_wt_years)
-                            st.bar_chart(_wt_df.set_index("year")["approval_rate"], use_container_width=True)
+                            st.bar_chart(_wt_df.set_index("year")["approval_rate"], width="stretch")
                             for y in _wt_years[-5:]:
                                 _yr = y.get("year", "")
                                 _yr_rate = y.get("approval_rate", 0)
@@ -2711,7 +2711,7 @@ with st.expander("Market Intelligence — Trends, Variance Stats & Top Attorneys
                     trends_df = pd.DataFrame(trends_data)
                     col_chart, col_table = st.columns([2, 1])
                     with col_chart:
-                        st.bar_chart(trends_df.set_index("year")["approval_rate"], use_container_width=True)
+                        st.bar_chart(trends_df.set_index("year")["approval_rate"], width="stretch")
                         st.caption("ZBA approval rate by year")
                     with col_table:
                         for row in trends_data:
@@ -3073,7 +3073,7 @@ with st.expander("Attorney Lookup — Search, Profile & Case History", expanded=
                                     if yearly:
                                         yearly_df = pd.DataFrame(yearly)
                                         if len(yearly_df) > 1:
-                                            st.bar_chart(yearly_df.set_index("year")["approval_rate"], use_container_width=True)
+                                            st.bar_chart(yearly_df.set_index("year")["approval_rate"], width="stretch")
                                             st.caption("Win rate by year")
                                         for y in yearly:
                                             rate = y.get("approval_rate", 0)
