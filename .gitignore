@@ -33,6 +33,21 @@ pdfs/
 ocr_output/
 ocr_checkpoint.json
 
+# Audio files (too large for git — download via auto_pull_transcripts.py)
+data/zba_audio/
+
+# Transcript raw text files (large — generated locally)
+data/zba_transcripts/full_text/
+data/zba_transcripts/raw_srt/
+
+# Allow transcript metadata and parsed data
+!data/transcript_manifest.json
+!data/transcript_validation_report.json
+!data/zba_transcripts/transcript_features.csv
+!data/zba_transcripts/parsed_cases.jsonl
+!data/zba_transcripts/transcript_summary.json
+!data/youtube_download_list.txt
+
 # Zip archives
 *.zip
 
