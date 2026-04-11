@@ -75,6 +75,96 @@ if 'case_number' in df.columns:
         n_ocr = (df['source_pdf'] != 'zba_tracker').sum()
         print(f"  OCR cases: {n_ocr} | Tracker-only cases: {n_tracker}")
 
+# ===========================
+# MERGE TRANSCRIPT FEATURES
+# ===========================
+print("\n" + "=" * 60)
+print("  Merging Transcript Features")
+print("=" * 60)
+
+# Step 1: Get hearing dates from tracker
+_tracker_hearing = {}
+if os.path.exists('zba_tracker.csv'):
+    _tr = pd.read_csv('zba_tracker.csv', usecols=['parent_apno', 'boa_apno', 'hearing_date'], low_memory=False)
+    for col in ['parent_apno', 'boa_apno']:
+        for _, row in _tr.dropna(subset=[col]).iterrows():
+            cn = ''.join(c for c in str(row[col]) if c.isalnum()).upper()
+            hd = str(row.get('hearing_date', '')).strip()
+            if cn and hd and hd != 'nan':
+                _tracker_hearing[cn] = hd
+
+df['_case_norm'] = df['case_number'].fillna('').astype(str).apply(lambda x: ''.join(c for c in x if c.isalnum()).upper())
+df['hearing_date'] = df['_case_norm'].map(_tracker_hearing)
+n_with_hd = df['hearing_date'].notna().sum()
+print(f"  Cases with hearing date: {n_with_hd}/{len(df)} ({n_with_hd/len(df):.0%})")
+
+# Step 2: Load transcript features
+_tf_path = 'data/zba_transcripts/transcript_features.csv'
+if os.path.exists(_tf_path):
+    tf_df = pd.read_csv(_tf_path)
+    print(f"  Transcript features: {len(tf_df)} hearing dates, {len(tf_df.columns)} columns")
+
+    # Compute LAGGED approval rate — average of ALL PRIOR hearings, not current hearing
+    # This is fully leakage-free: at prediction time, we know past hearing outcomes
+    tf_df = tf_df.sort_values('hearing_date')
+    tf_df['hearing_prior_approval_rate'] = tf_df['hearing_approval_rate'].expanding().mean().shift(1)
+    tf_df['hearing_prior_approval_rate'] = tf_df['hearing_prior_approval_rate'].fillna(tf_df['hearing_approval_rate'].mean())
+
+    # Compute rolling averages (last 5 hearings) for trend detection
+    tf_df['hearing_trend_sentiment'] = tf_df['hearing_sentiment_ratio'].rolling(5, min_periods=1).mean().shift(1)
+    tf_df['hearing_trend_sentiment'] = tf_df['hearing_trend_sentiment'].fillna(tf_df['hearing_sentiment_ratio'].mean())
+
+    tf_df['hearing_trend_opposition'] = tf_df['hearing_opposition_mentions'].rolling(5, min_periods=1).mean().shift(1)
+    tf_df['hearing_trend_opposition'] = tf_df['hearing_trend_opposition'].fillna(tf_df['hearing_opposition_mentions'].mean())
+
+    # Select features to merge — EXCLUDE per-hearing approval rate (leaks)
+    # SAFE: word count, sentiment, attorney count, variance count, deferred count, lagged rates
+    tf_merge_cols = [
+        'hearing_date',
+        'hearing_word_count',           # Hearing complexity/length
+        'hearing_sentiment_ratio',      # Overall hearing sentiment (support vs opposition)
+        'hearing_attorney_count',       # Number of attorneys at hearing
+        'hearing_variance_count',       # Distinct variance types discussed
+        'hearing_neighborhood_count',   # Geographic scope of hearing
+        'hearing_address_count',        # Number of cases at hearing (agenda size)
+        'hearing_deferred_count',       # Cases deferred (board uncertainty signal)
+        'hearing_prior_approval_rate',  # LAGGED: avg approval rate from prior hearings
+        'hearing_trend_sentiment',      # Rolling 5-hearing sentiment trend
+        'hearing_trend_opposition',     # Rolling 5-hearing opposition trend
+    ]
+    tf_merge = tf_df[tf_merge_cols].copy()
+
+    # Merge into main dataset
+    before_cols = len(df.columns)
+    df = df.merge(tf_merge, on='hearing_date', how='left')
+    n_merged = df[tf_merge_cols[1]].notna().sum()
+    print(f"  Merged transcript features for {n_merged}/{len(df)} cases ({n_merged/len(df):.0%})")
+
+    # Fill NaN transcript features with median values
+    for col in tf_merge_cols[1:]:
+        if col in df.columns:
+            median_val = df[col].median()
+            n_missing = df[col].isna().sum()
+            df[col] = df[col].fillna(median_val)
+            if n_missing > 0:
+                print(f"    {col}: filled {n_missing} NaN with median {median_val:.3f}")
+
+    # Flag: does this case have real transcript data?
+    df['has_transcript_data'] = (df['hearing_date'].notna() & df['hearing_date'].isin(tf_df['hearing_date'])).astype(int)
+    print(f"  has_transcript_data: {df['has_transcript_data'].sum()} cases")
+
+    # Log transform for word count (skewed)
+    df['hearing_word_count_log'] = np.log1p(df['hearing_word_count'].fillna(0))
+else:
+    print("  WARNING: No transcript features found, skipping")
+    for col in ['hearing_word_count', 'hearing_sentiment_ratio', 'hearing_attorney_count',
+                'hearing_variance_count', 'hearing_neighborhood_count', 'hearing_address_count',
+                'hearing_deferred_count', 'hearing_prior_approval_rate', 'hearing_trend_sentiment',
+                'hearing_trend_opposition', 'has_transcript_data', 'hearing_word_count_log']:
+        df[col] = 0
+
+df.drop(columns=['_case_norm', 'hearing_date'], errors='ignore', inplace=True)
+
 # Target variable
 df['approved'] = (df['decision_clean'] == 'APPROVED').astype(int)
 n_approved_total = (df['approved'] == 1).sum()
@@ -702,6 +792,19 @@ feature_cols = [
     # NEW (Session 10) — Complexity signals (4)
     'multiple_setbacks', 'num_setback_variances',
     'interact_stories_far', 'complex_case_score',
+
+    # TRANSCRIPT FEATURES (12) — from ZBA hearing audio transcripts
+    'hearing_word_count_log',        # Hearing length/complexity (log-transformed)
+    'hearing_sentiment_ratio',       # Support vs opposition balance at hearing
+    'hearing_attorney_count',        # Number of attorneys present
+    'hearing_variance_count',        # Distinct variance types discussed
+    'hearing_neighborhood_count',    # Geographic scope of hearing
+    'hearing_address_count',         # Agenda size (cases per hearing)
+    'hearing_deferred_count',        # Deferrals (board uncertainty signal)
+    'hearing_prior_approval_rate',   # LAGGED avg approval rate from prior hearings
+    'hearing_trend_sentiment',       # Rolling 5-hearing sentiment trend
+    'hearing_trend_opposition',      # Rolling 5-hearing opposition trend
+    'has_transcript_data',           # Whether real transcript data is available
 ]
 
 # Remove articles 7/8/51/65 — too generic, often just mean "has a variance"
