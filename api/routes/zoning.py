@@ -549,21 +549,57 @@ def zoning_compliance_check(payload: dict):
         "lot_frontage_ft": proposal.get('lot_frontage_ft'),
     }
 
-    # Historical variance rates
+    # Historical variance rates — ward-specific when possible, city-wide fallback
     if state.zba_df is not None and variances_needed:
         var_approval_rates = {}
         df_with_dec = state.zba_df[state.zba_df['decision_clean'].notna()].copy()
+
+        # Determine ward for this parcel
+        _parcel_ward = None
+        if 'ward' in df_with_dec.columns and 'pa_parcel_id' in df_with_dec.columns:
+            _ward_match = df_with_dec[df_with_dec['pa_parcel_id'].astype(str) == parcel_id]
+            if not _ward_match.empty:
+                _w = _ward_match.iloc[0].get('ward')
+                if pd.notna(_w):
+                    _parcel_ward = _w
+
         if 'variance_types' in df_with_dec.columns:
             vt_series = df_with_dec['variance_types'].fillna('')
+
+            # Filter to ward if known
+            ward_df = None
+            if _parcel_ward is not None and 'ward' in df_with_dec.columns:
+                ward_df = df_with_dec[df_with_dec['ward'] == _parcel_ward]
+                ward_vt_series = ward_df['variance_types'].fillna('') if not ward_df.empty else None
+            else:
+                ward_vt_series = None
+
             for var_type in variances_needed:
-                mask = vt_series.str.contains(rf'(?:^|,)\s*{var_type}\s*(?:,|$)', na=False, regex=True)
+                pattern = rf'(?:^|,)\s*{var_type}\s*(?:,|$)'
+                # Try ward-specific first
+                if ward_df is not None and ward_vt_series is not None and not ward_df.empty:
+                    w_mask = ward_vt_series.str.contains(pattern, na=False, regex=True)
+                    w_cases = ward_df[w_mask]
+                    if len(w_cases) >= 3:  # Require minimum cases for ward-level stats
+                        rate = float((w_cases['decision_clean'] == 'APPROVED').mean())
+                        ward_str = str(int(_parcel_ward)) if float(_parcel_ward) == int(_parcel_ward) else str(_parcel_ward)
+                        var_approval_rates[var_type] = {
+                            "approval_rate": round(rate, 3),
+                            "total_cases": len(w_cases),
+                            "source": f"Ward {ward_str}",
+                            "note": f"Based on {len(w_cases)} Ward {ward_str} ZBA cases involving {var_type} variances"
+                        }
+                        continue
+                # Fall back to city-wide
+                mask = vt_series.str.contains(pattern, na=False, regex=True)
                 var_cases = df_with_dec[mask]
                 if len(var_cases) > 0:
                     rate = float((var_cases['decision_clean'] == 'APPROVED').mean())
                     var_approval_rates[var_type] = {
                         "approval_rate": round(rate, 3),
                         "total_cases": len(var_cases),
-                        "note": f"Based on {len(var_cases)} ZBA cases involving {var_type} variances"
+                        "source": "city-wide",
+                        "note": f"Based on {len(var_cases)} city-wide ZBA cases involving {var_type} variances"
                     }
         result['variance_historical_rates'] = var_approval_rates
 

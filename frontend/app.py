@@ -375,6 +375,41 @@ def _fetch_variance_stats():
 # Pre-fetch variance stats (used by Steps 2, 3, 4)
 _global_var_rates = _fetch_variance_stats()
 
+@st.cache_data(ttl=120)
+def _fetch_ward_variance_stats(ward_id: str):
+    """Fetch ward-specific variance approval rates from /wards/{id}/stats."""
+    try:
+        res = requests.get(f"{API_URL}/wards/{ward_id}/stats", timeout=5)
+        if res.status_code == 200:
+            data = res.json()
+            breakdown = data.get("variance_breakdown", [])
+            return {v["variance_type"]: v for v in breakdown}
+    except Exception:
+        pass
+    return {}
+
+
+def _get_var_rate(vtype: str, ward_rates: dict, ward_label: str = ""):
+    """Look up variance approval rate: ward-specific first, city-wide fallback.
+
+    Returns (rate, cases, label) where label is 'Ward X' or 'city-wide',
+    or (None, 0, '') if no data exists.
+    """
+    # Try ward-specific first
+    if ward_rates and vtype in ward_rates:
+        info = ward_rates[vtype]
+        rate = info.get("approval_rate")
+        cases = info.get("cases", info.get("total_cases", 0))
+        if rate is not None:
+            return rate, cases, ward_label
+    # Fall back to city-wide
+    info = _global_var_rates.get(vtype, {})
+    rate = info.get("approval_rate")
+    cases = info.get("total_cases", 0)
+    if rate is not None:
+        return rate, cases, "city-wide"
+    return None, 0, ""
+
 @st.cache_data(ttl=300)
 def _fetch_market_intel(endpoint: str):
     """Cached fetch for market intelligence endpoints (5 min TTL)."""
@@ -744,13 +779,24 @@ if st.session_state.search_results:
         zoning_str = f" · {esc(result['zoning'])}" if result.get('zoning') and result['zoning'] not in ['', 'nan'] else ""
         applicant_str = f" · Applicant: {esc(result['applicant'])}" if result.get('applicant') else ""
 
+        _latest_dt = result.get('latest_date', '') or ''
+        _earliest_dt = result.get('earliest_date', '') or ''
+        if _latest_dt and _earliest_dt and _latest_dt != _earliest_dt:
+            date_str = f" · {esc(_earliest_dt)} – {esc(_latest_dt)}"
+        elif _latest_dt:
+            date_str = f" · {esc(_latest_dt)}"
+        elif _earliest_dt:
+            date_str = f" · {esc(_earliest_dt)}"
+        else:
+            date_str = " · <span style='color:#94a3b8;'>dates unavailable</span>"
+
         st.markdown(f"""
         <div class="search-result">
             <div class="search-addr">{esc(_r_addr)}</div>
             <div class="search-meta">
                 {total} ZBA case(s){ward_str}{zoning_str} ·
                 <span style="color:{rate_color}; font-weight:600;">{approved} approved, {denied} denied ({rate_str})</span>
-                · Latest: {esc(result.get('latest_date', 'N/A'))}{applicant_str}
+                {date_str}{applicant_str}
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -831,24 +877,26 @@ if st.session_state.search_results:
                             variances_str = str(variances_raw) if variances_raw and str(variances_raw).lower() not in ('nan', 'none', '') else ''
                             date_raw = case.get('date', '')
                             date_str = str(date_raw) if date_raw and str(date_raw).lower() not in ('nan', 'none', '') else ''
-                            date_part = f"{esc(date_str)} — " if date_str else ""
+                            date_part = f"{esc(date_str)} — " if date_str else "<span style='color:#94a3b8;'>date unavailable</span> — "
                             _app_line = ""
                             if case.get('applicant'):
                                 _app_line = f" · Applicant: {esc(case['applicant'])}"
                             if case.get('contact'):
                                 _app_line += f" · Rep: {esc(case['contact'])}"
-                            # Enrich variances with historical approval rates
+                            # Enrich variances with historical approval rates (ward-specific when available)
+                            _ch_ward = str(result.get('ward', '')).replace('.0', '').strip()
+                            _ch_ward_rates = _fetch_ward_variance_stats(_ch_ward) if _ch_ward and _ch_ward not in ('', 'nan', 'None') else {}
+                            _ch_ward_label = f"Ward {_ch_ward}" if _ch_ward_rates else ""
                             _var_enriched = ""
                             if variances_str:
                                 _var_parts = []
                                 for _vraw in variances_str.split(','):
                                     _vclean = _vraw.strip().lower().replace(' ', '_')
-                                    _vinfo = _global_var_rates.get(_vclean, {})
-                                    _vrate = _vinfo.get("approval_rate")
+                                    _vrate, _vcases, _vsrc = _get_var_rate(_vclean, _ch_ward_rates, _ch_ward_label)
                                     _vlabel = _vraw.strip().title()
                                     if _vrate is not None:
                                         _vcolor = "#10b981" if _vrate >= 0.7 else "#f59e0b" if _vrate >= 0.5 else "#ef4444"
-                                        _var_parts.append(f'<span style="color:{_vcolor};font-weight:600;">{esc(_vlabel)} ({_vrate:.0%})</span>')
+                                        _var_parts.append(f'<span style="color:{_vcolor};font-weight:600;">{esc(_vlabel)} ({_vsrc}: {_vrate:.0%})</span>')
                                     else:
                                         _var_parts.append(esc(_vlabel))
                                 _var_enriched = " · " + ", ".join(_var_parts) if _var_parts else ""
@@ -897,11 +945,36 @@ else:
 
 if st.session_state.parcel_data:
     data = st.session_state.parcel_data
-    parcel_title = f"**📍 Parcel {data.get('parcel_id', 'N/A')}"
-    if data.get("address"):
-        parcel_title += f" — {data['address']}"
-    parcel_title += "**"
-    st.markdown(parcel_title)
+    # Fetch ward-specific variance rates when ward is known
+    _parcel_ward = str(data.get("ward", "")).replace(".0", "").strip()
+    _ward_var_rates = _fetch_ward_variance_stats(_parcel_ward) if _parcel_ward and _parcel_ward not in ('', 'nan', 'None') else {}
+    _ward_label = f"Ward {_parcel_ward}" if _ward_var_rates else ""
+    # Resolve address: from parcel data, or geocode fallback
+    _parcel_address = data.get("address", "")
+    if not _parcel_address or str(_parcel_address).lower() in ('', 'nan', 'none', 'n/a'):
+        try:
+            _geo_addr_res = requests.get(f"{API_URL}/geocode", params={"q": data.get('parcel_id', '')}, timeout=5)
+            if _geo_addr_res.status_code == 200:
+                _geo_addr_results = _geo_addr_res.json().get("results", [])
+                if _geo_addr_results:
+                    _parcel_address = _geo_addr_results[0].get("address", "")
+        except Exception:
+            pass
+    if not _parcel_address or str(_parcel_address).lower() in ('', 'nan', 'none', 'n/a'):
+        _parcel_address = ""
+
+    # Show address prominently at the top of Step 2
+    _pid_display = esc(data.get('parcel_id', 'N/A'))
+    if _parcel_address:
+        st.markdown(
+            f'<div style="background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:10px;padding:16px 20px;margin-bottom:12px;">'
+            f'<div style="font-size:20px;font-weight:700;color:#f1f5f9;">📍 {esc(_parcel_address)}</div>'
+            f'<div style="font-size:14px;color:#94a3b8;margin-top:4px;">Parcel ID: {_pid_display}</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(f"**📍 Parcel {_pid_display}**")
 
     # Show ward and ZBA history if available
     extra_info = []
@@ -1024,15 +1097,13 @@ if st.session_state.parcel_data:
                         for v in _auto_viols:
                             _vtype_raw = v.get('type', '')
                             _vtype = esc(_vtype_raw.replace('_', ' ').title())
-                            _avr = _global_var_rates.get(_vtype_raw, {})
-                            _arate = _avr.get("approval_rate", 0)
-                            _acases = _avr.get("total_cases", 0)
+                            _arate, _acases, _asource = _get_var_rate(_vtype_raw, _ward_var_rates, _ward_label)
                             _rate_html = ""
-                            if _acases > 0:
+                            if _arate is not None and _acases > 0:
                                 _acolor = "#10b981" if _arate >= 0.7 else "#f59e0b" if _arate >= 0.5 else "#ef4444"
                                 _rate_html = (f'<div style="margin-top:6px;">'
-                                    f'<span style="color:{_acolor};font-weight:700;font-size:15px;">{_arate:.0%} historical approval</span>'
-                                    f' <span style="color:#64748b;font-size:12px;">({_acases:,} ZBA cases with this variance)</span></div>')
+                                    f'<span style="color:{_acolor};font-weight:700;font-size:15px;">{_asource}: {_arate:.0%} approval</span>'
+                                    f' <span style="color:#64748b;font-size:12px;">({_acases:,} cases)</span></div>')
                             st.markdown(
                                 f'<div style="background:#1e293b;padding:12px 16px;border-radius:8px;border-left:4px solid #dc2626;margin:8px 0;">'
                                 f'<div style="font-weight:600;color:#f87171;">{_vtype} Variance Needed</div>'
@@ -1052,17 +1123,15 @@ if st.session_state.parcel_data:
                         for pc in _prop_checks:
                             _vt = pc.get('type', 'unknown')
                             _vt_label = esc(_vt.replace('_', ' ').title())
-                            _vr = _global_var_rates.get(_vt, {})
-                            _rate = _vr.get("approval_rate", 0)
-                            _cases = _vr.get("total_cases", 0)
+                            _rate, _cases, _src = _get_var_rate(_vt, _ward_var_rates, _ward_label)
                             _depends = pc.get('depends_on', '')
-                            if _cases > 0:
+                            if _rate is not None and _cases > 0:
                                 _color = "#10b981" if _rate >= 0.7 else "#f59e0b" if _rate >= 0.5 else "#ef4444"
                                 st.markdown(
                                     f'<div style="background:#1e293b;padding:10px 14px;border-radius:8px;margin:6px 0;border:1px solid #334155;">'
                                     f'<span style="font-weight:600;color:#e2e8f0;">{_vt_label}</span>'
-                                    f' <span style="color:{_color};font-weight:700;font-size:15px;">{_rate:.0%} approval</span>'
-                                    f' <span style="color:#64748b;font-size:12px;">({_cases:,} ZBA cases)</span>'
+                                    f' <span style="color:{_color};font-weight:700;font-size:15px;">{_src}: {_rate:.0%} approval</span>'
+                                    f' <span style="color:#64748b;font-size:12px;">({_cases:,} cases)</span>'
                                     f'<br><span style="color:#94a3b8;font-size:12px;">{esc(_depends)}</span>'
                                     f'</div>',
                                     unsafe_allow_html=True
@@ -1179,9 +1248,8 @@ if st.session_state.parcel_data:
                                 st.caption(f"Filtered to Ward {_nb_ward}: {len(nearby_cases)} cases, {_nb_approved} approved, {_nb_denied} denied")
                         except Exception:
                             pass
-
                     # Individual cases with enriched variance data
-                    for case in nearby_cases:
+                    for _nb_idx, case in enumerate(nearby_cases):
                         _decision = case.get('decision', '')
                         emoji = "✅" if _decision == 'APPROVED' else "❌" if _decision == 'DENIED' else "🕐"
                         _case_date = case.get('date', '')
@@ -1199,22 +1267,42 @@ if st.session_state.parcel_data:
                             _nb_var_parts = []
                             for _nbv in str(_nb_variances).split(','):
                                 _nbvc = _nbv.strip().lower().replace(' ', '_')
-                                _nbvi = _global_var_rates.get(_nbvc, {})
-                                _nbvr = _nbvi.get("approval_rate")
+                                _nbvr, _nbvcases, _nbvsrc = _get_var_rate(_nbvc, _ward_var_rates, _ward_label)
                                 if _nbvr is not None:
                                     _nbcol = "#10b981" if _nbvr >= 0.7 else "#f59e0b" if _nbvr >= 0.5 else "#ef4444"
-                                    _nb_var_parts.append(f'<span style="color:{_nbcol};">{esc(_nbv.strip().title())} ({_nbvr:.0%})</span>')
+                                    _nb_var_parts.append(f'<span style="color:{_nbcol};">{esc(_nbv.strip().title())} ({_nbvsrc}: {_nbvr:.0%})</span>')
                                 else:
                                     _nb_var_parts.append(esc(_nbv.strip().title()))
                             _nb_var_str = f" · {', '.join(_nb_var_parts)}"
-                        st.markdown(
-                            f"{emoji} **{esc(case.get('case_number', ''))}** — "
-                            f"{esc(case.get('address', ''))} — "
-                            f"{esc(case.get('decision', ''))}"
-                            f"{_dist_str}{_date_str}{_app_str}"
-                            f"{_nb_var_str}",
-                            unsafe_allow_html=True
-                        )
+                        _nb_case_col, _nb_btn_col = st.columns([5, 1])
+                        with _nb_case_col:
+                            st.markdown(
+                                f"{emoji} **{esc(case.get('case_number', ''))}** — "
+                                f"{esc(case.get('address', ''))} — "
+                                f"{esc(case.get('decision', ''))}"
+                                f"{_dist_str}{_date_str}{_app_str}"
+                                f"{_nb_var_str}",
+                                unsafe_allow_html=True
+                            )
+                        with _nb_btn_col:
+                            _nb_case_addr = case.get('address', '')
+                            if _nb_case_addr and str(_nb_case_addr).lower() not in ('', 'nan', 'none'):
+                                if st.button("View Parcel", key=f"nb_view_{_nb_idx}"):
+                                    try:
+                                        _nb_geo = requests.get(f"{API_URL}/geocode", params={"q": _nb_case_addr}, timeout=10)
+                                        if _nb_geo.status_code == 200:
+                                            _nb_geo_results = _nb_geo.json().get("results", [])
+                                            if _nb_geo_results:
+                                                _nb_pid = _nb_geo_results[0].get("parcel_id", "")
+                                                if _nb_pid:
+                                                    _nb_p_res = requests.get(f"{API_URL}/parcels/{_nb_pid}", timeout=10)
+                                                    if _nb_p_res.status_code == 200:
+                                                        st.session_state.parcel_data = _nb_p_res.json()
+                                                        st.session_state.search_results = None
+                                                        st.session_state.prediction_result = None
+                                                        st.rerun()
+                                    except Exception:
+                                        st.toast("Could not load parcel. Try searching the address directly.")
                 else:
                     st.caption("No ZBA cases found near this property.")
         except Exception as e:
@@ -1394,7 +1482,7 @@ if st.session_state.parcel_data:
                     _detected_vars = [_var_name_map.get(v, v.replace('_', ' ').title()) for v in variances_needed]
                     st.session_state['detected_variances'] = _detected_vars
 
-                    # Show historical rates for these variances
+                    # Show historical rates for these variances (ward-specific when available)
                     hist_rates = cc_data.get("variance_historical_rates", {})
                     if hist_rates:
                         st.markdown("**Historical approval rates for these variances:**")
@@ -1402,8 +1490,9 @@ if st.session_state.parcel_data:
                             rate = vinfo.get("approval_rate", 0)
                             color = "#10b981" if rate >= 0.7 else "#f59e0b" if rate >= 0.5 else "#ef4444"
                             _vc = vinfo.get("total_cases") or vinfo.get("total", 0)
+                            _hr_src = vinfo.get("source", "city-wide")
                             st.markdown(
-                                f'<span style="color:{color};font-weight:bold;">{rate:.0%}</span> for {esc(vtype)} variances ({_vc} cases)',
+                                f'<span style="color:{color};font-weight:bold;">{rate:.0%}</span> for {esc(vtype)} variances ({_hr_src}, {_vc} cases)',
                                 unsafe_allow_html=True
                             )
             else:
@@ -1586,16 +1675,18 @@ variance_map = {
 }
 clean_variances = [variance_map.get(v, v.lower()) for v in variances]
 
-# Show approval rate hints for selected variances
+# Show approval rate hints for selected variances (ward-specific when available)
 if variances:
+    _hint_ward = str(st.session_state.parcel_data.get("ward", "")).replace(".0", "").strip() if st.session_state.parcel_data else ward.strip() if ward else ""
+    _hint_ward_rates = _fetch_ward_variance_stats(_hint_ward) if _hint_ward and _hint_ward not in ('', 'nan', 'None') else {}
+    _hint_ward_label = f"Ward {_hint_ward}" if _hint_ward_rates else ""
     hints = []
     for v in clean_variances:
-        _vdata = _global_var_rates.get(v, {})
-        rate = _vdata.get("approval_rate")
-        if rate is not None:
-            hints.append(f"{v.replace('_', ' ').title()}: {rate:.0%}")
+        _hrate, _hcases, _hsrc = _get_var_rate(v, _hint_ward_rates, _hint_ward_label)
+        if _hrate is not None:
+            hints.append(f"{v.replace('_', ' ').title()}: {_hrate:.0%} ({_hsrc}, {_hcases:,} cases)")
     if hints:
-        st.caption(f"Historical approval rates — {' · '.join(hints)}")
+        st.caption(f"Historical approval rates -- {' | '.join(hints)}")
 
 
 # --- PREDICT BUTTON ---
@@ -1967,6 +2058,10 @@ if st.session_state.prediction_result:
     if similar:
         st.markdown("")
         st.markdown('<div style="font-size:20px;font-weight:700;color:#ffffff;margin:24px 0 12px 0;padding-bottom:8px;border-bottom:2px solid #334155;"><span style="color:#ffffff;">Similar Historical Cases</span></div>', unsafe_allow_html=True)
+        # Ward-specific rates for similar cases
+        _sim_ward = str(st.session_state.parcel_data.get("ward", "")).replace(".0", "").strip() if st.session_state.parcel_data else ward.strip() if ward else ""
+        _sim_ward_rates = _fetch_ward_variance_stats(_sim_ward) if _sim_ward and _sim_ward not in ('', 'nan', 'None') else {}
+        _sim_ward_label = f"Ward {_sim_ward}" if _sim_ward_rates else ""
         for case in similar:
             decision = str(case.get('decision', 'N/A')).strip().upper()
             is_approved = decision == 'APPROVED'
@@ -1994,11 +2089,10 @@ if st.session_state.prediction_result:
                 _sim_parts = []
                 for _sv in str(_sim_variances).split(','):
                     _svc = _sv.strip().lower().replace(' ', '_')
-                    _svi = _global_var_rates.get(_svc, {})
-                    _svr = _svi.get("approval_rate")
+                    _svr, _svcases, _svsrc = _get_var_rate(_svc, _sim_ward_rates, _sim_ward_label)
                     if _svr is not None:
                         _scol = "#10b981" if _svr >= 0.7 else "#f59e0b" if _svr >= 0.5 else "#ef4444"
-                        _sim_parts.append(f'<span style="color:{_scol};font-size:12px;">{esc(_sv.strip().title())} ({_svr:.0%})</span>')
+                        _sim_parts.append(f'<span style="color:{_scol};font-size:12px;">{esc(_sv.strip().title())} ({_svsrc}: {_svr:.0%})</span>')
                     else:
                         _sim_parts.append(f'<span style="color:#64748b;font-size:12px;">{esc(_sv.strip().title())}</span>')
                 _sim_var_html = f'<br><span style="font-size:12px;color:#94a3b8;">Variances: </span>{", ".join(_sim_parts)}'

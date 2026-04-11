@@ -40,6 +40,15 @@ def _enrich_parcel_result(result: dict, parcel_id: str):
                 if addr:
                     result["address"] = str(addr)
 
+    # Fallback: look up address from property assessment data if still missing
+    if not result.get("address") and state.parcel_addr_df is not None:
+        _pid_str = str(parcel_id).zfill(10)
+        _addr_match = state.parcel_addr_df[state.parcel_addr_df['parcel_id'] == _pid_str]
+        if not _addr_match.empty:
+            _pa_addr = _addr_match.iloc[0].get('address', '')
+            if _pa_addr and str(_pa_addr).lower() not in ('', 'nan', 'none'):
+                result["address"] = str(_pa_addr)
+
 
 @router.get("/parcels/{parcel_id}", tags=["Parcels"])
 def get_parcel(parcel_id: str):

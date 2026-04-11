@@ -77,7 +77,8 @@ def _do_search(q_norm: str) -> list:
     if zoning_col:
         agg_dict['zoning'] = (zoning_col, 'first')
     if date_col:
-        agg_dict['latest_date'] = (date_col, 'last')
+        agg_dict['latest_date'] = (date_col, 'max')
+        agg_dict['earliest_date'] = (date_col, 'min')
 
     grouped = matches.groupby('_addr_norm').agg(**agg_dict)
 
@@ -110,6 +111,7 @@ def _do_search(q_norm: str) -> list:
             "denied": int(row['denied']),
             "approval_rate": round(row['approved'] / total, 2) if total > 0 else None,
             "latest_date": _format_date(row.get('latest_date', '')),
+            "earliest_date": _format_date(row.get('earliest_date', '')),
             "latest_case": str(row['latest_case']),
         }
         # Enrich with parcel_id from geocoder (handle range addresses like "55-57 centre st")
