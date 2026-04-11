@@ -833,12 +833,16 @@ def show_status():
         total_size = sum(f.stat().st_size for f in audio_files) / (1024 * 1024)
         print(f"    Total size:        {total_size:.0f} MB")
 
-    # Transcripts
+    # Transcripts (check both root and full_text subdirectory)
     txt_files = list(TRANSCRIPT_DIR.glob("*.txt"))
     md_files = list(TRANSCRIPT_DIR.glob("*.md"))
+    full_text_dir = TRANSCRIPT_DIR / "full_text"
+    full_text_files = list(full_text_dir.glob("*.txt")) if full_text_dir.exists() else []
     print(f"\n  Transcripts:")
-    print(f"    Text files:        {len(txt_files)}")
-    print(f"    Markdown files:    {len(md_files)}")
+    print(f"    Root text files:   {len(txt_files)}")
+    print(f"    Root markdown:     {len(md_files)}")
+    print(f"    full_text/ files:  {len(full_text_files)}")
+    print(f"    Total available:   {len(txt_files) + len(md_files) + len(full_text_files)}")
 
     # Validation
     if VALIDATION_REPORT.exists():

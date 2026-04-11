@@ -1,0 +1,434 @@
+# ZBA Hearing YouTube URLs for Manual Download
+# Generated: 2026-04-11T09:40:37.893257
+# Save downloaded audio to: /Users/stevenspero/Desktop/Boston Zoning Project/data/zba_audio
+# Name files as: <video_id>.mp3 (e.g., TXLYWAmaPAI.mp3)
+
+# Boston Zoning Board of Appeal May 15, 2025 Subcommittee Hearing
+https://www.youtube.com/watch?v=TbIZu3flY8E
+
+# Zoning Board of Appeal Hearings 3/24/26
+https://www.youtube.com/watch?v=TXLYWAmaPAI
+
+# Zoning Board of Appeal Hearings 10/7/25
+https://www.youtube.com/watch?v=WzkfF5Pbc0Q
+
+# Zoning Board of Appeal Hearings 4/30/2024 (Part 1 of 2)
+https://www.youtube.com/watch?v=Cnx3zVRnFJQ
+
+# Zoning Board of Appeal Hearings 2/24/26
+https://www.youtube.com/watch?v=Mxl1QLZOujA
+
+# Boston Zoning Board of Appeal February 12, 2026 Subcommittee Hearing
+https://www.youtube.com/watch?v=0bXxKNeW-Bc
+
+# Zoning Board of Appeal Hearings 12/9/25
+https://www.youtube.com/watch?v=rR5yq6O_M-I
+
+# Boston Zoning Board of Appeal January 22, 2026 Subcommittee Hearing
+https://www.youtube.com/watch?v=rW0fUFrF8yA
+
+# Zoning Board of Appeal Hearings 3-10-26
+https://www.youtube.com/watch?v=VIBx6miBJxw
+
+# Zoning Board of Appeal Hearings 7-30-24 (Part 1 of 2)
+https://www.youtube.com/watch?v=nhcN81tcciU
+
+# Boston Zoning Board of Appeal September 18, 2025 Subcommittee Hearing
+https://www.youtube.com/watch?v=jbJ-K1Tz7-A
+
+# Zoning Board of Appeal Hearings 12/16/25
+https://www.youtube.com/watch?v=Ic87d_t31z4
+
+# Zoning Board of Appeal Hearings 7-30-24 (Part 2 of 2)
+https://www.youtube.com/watch?v=Wo1psFo4i1g
+
+# Zoning Board of Appeal Hearings 1-13-2026 Part 1
+https://www.youtube.com/watch?v=rqqx_1jZIh8
+
+# Zoning Board of Appeal Hearings 9/23/25 (Part 1 of 2)
+https://www.youtube.com/watch?v=UwU9PEzEJ6w
+
+# Boston Zoning Board of Appeal July 24, 2025 Subcommittee Hearing
+https://www.youtube.com/watch?v=b1QnX_R7d2U
+
+# Zoning Board of Appeal Hearings 10-28-2025
+https://www.youtube.com/watch?v=XKBvZdGyJpY
+
+# Zoning Board of Appeal Hearings 11/18/25
+https://www.youtube.com/watch?v=5XJvTSVAdFg
+
+# Zoning Board of Appeal Hearings 6-25-24 (Part 1 of 2)
+https://www.youtube.com/watch?v=9g2pgH1ksv8
+
+# Boston Zoning Board of Appeal February 13, 2025 Subcommittee Hearing
+https://www.youtube.com/watch?v=RtfEC7B7lMU
+
+# Zoning Board of Appeal Hearings 1/27/26
+https://www.youtube.com/watch?v=YDbKeTVrKpw
+
+# Boston Zoning Board of Appeal June 12, 2025 Subcommittee Hearing
+https://www.youtube.com/watch?v=bpChQ21ISmY
+
+# Zoning Board of Appeal Hearings 4-11-23: Part 2
+https://www.youtube.com/watch?v=G5fUrlazUMQ
+
+# Zoning Board of Appeal Hearings 3-4-25 (Part 1 of 2)
+https://www.youtube.com/watch?v=4xzxuggpTLc
+
+# Zoning Board of Appeal Hearings 11/25/2025
+https://www.youtube.com/watch?v=6axwHhF1N1w
+
+# Zoning Board of Appeal Hearings 7/8/25
+https://www.youtube.com/watch?v=7gHML9YIU2w
+
+# Zoning Board of Appeal Hearings 1-11-22
+https://www.youtube.com/watch?v=N9OLMH1oQ0I
+
+# Boston Zoning Board of Appeal - October 14, 2021 Subcommittee Hearing
+https://www.youtube.com/watch?v=56Zp0n58yn8
+
+# Boston Zoning Board of Appeal September 23, 2021 Subcommittee Hearing
+https://www.youtube.com/watch?v=I8gppyrutkk
+
+# Boston Zoning Board of Appeal September 21, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=0nTRpyTttNE
+
+# Zoning Board of Appeal Hearings 2/28/23 - Part 1 of 2
+https://www.youtube.com/watch?v=F8cd_2pw_vI
+
+# Zoning Board of Appeal Hearings 1-25-22
+https://www.youtube.com/watch?v=TfoYfJsqbMI
+
+# Boston Zoning Board of Appeal July 20, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=6ZViDHNOhRE
+
+# Zoning Board of Appeal Public Hearings 5-23-23 (Part 2 of 2)
+https://www.youtube.com/watch?v=dGUn4C80wzQ
+
+# Boston Zoning Board of Appeal May 18, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=amFXYuCy_gs
+
+# Zoning Board of Appeal Hearings 7-11-23 (Part 1 of 2)
+https://www.youtube.com/watch?v=B3eoxf6O6PI
+
+# Boston Zoning Board of Appeal July 22, 2021 Subcommittee Hearing
+https://www.youtube.com/watch?v=Cg_u0msIZjA
+
+# Boston Zoning Board of Appeal August 17, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=yHY3pnThviY
+
+# Boston Zoning Board of Appeal April 25, 2024 Subcommittee Hearing
+https://www.youtube.com/watch?v=GgKYGyU9aQA
+
+# Boston Zoning Board of Appeal - March 17, 2022 Subcommittee Hearing
+https://www.youtube.com/watch?v=SXVMTETrYUM
+
+# Boston Zoning Board of Appeal March 20, 2025 Subcommittee Hearing
+https://www.youtube.com/watch?v=E5ZDO7CjBgY
+
+# Boston Zoning Board of Appeal August 21, 2025 Subcommittee Hearing
+https://www.youtube.com/watch?v=07tICmg3QWE
+
+# Boston Zoning Board of Appeal January 19, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=7QDFZ4hn25s
+
+# Zoning Board of Appeal Hearings 3/28/23 - Part 1 of 2
+https://www.youtube.com/watch?v=TW3IZn8Rl1g
+
+# Zoning Board of Appeal Hearings 7-11-23 (Part 2 of 2)
+https://www.youtube.com/watch?v=huectb89EW4
+
+# Boston Zoning Board of Appeal June 13, 2024 Subcommittee Hearing
+https://www.youtube.com/watch?v=rkn04rlrQSk
+
+# Zoning Board of Appeal Hearings 3-4-25 (Part 2 of 2)
+https://www.youtube.com/watch?v=aOwf_y4DDco
+
+# Zoning Board of Appeal Hearings 4/30/2024 (Part 2 of 2)
+https://www.youtube.com/watch?v=vhc_c7Wu9RM
+
+# Zoning Board of Appeal Hearings 2-7-23
+https://www.youtube.com/watch?v=-gpZxfKyPGo
+
+# Zoning Board of Appeal Hearings 7/25/2023
+https://www.youtube.com/watch?v=yhHocwh7I4o
+
+# Boston Zoning Board of Appeal March 19, 2026 Subcommittee Hearing
+https://www.youtube.com/watch?v=rrMcpZIdyv0
+
+# Zoning Board of Appeal Hearings 6-07-16 - Part 1
+https://www.youtube.com/watch?v=5KC_Q4K3QaQ
+
+# Zoning Board of Appeal Hearing 11-14-17
+https://www.youtube.com/watch?v=ST_1pWFUwxQ
+
+# Zoning Board of Appeal Hearing 9-17-19
+https://www.youtube.com/watch?v=lNMQyErpi1c
+
+# Zoning Board of Appeal Hearing 9-29-20
+https://www.youtube.com/watch?v=Et5jDnaKSZE
+
+# Zoning Board of Appeals Hearing 12-13-2022
+https://www.youtube.com/watch?v=my8vm2Sn9RY
+
+# Zoning Board of Appeal Hearing 05-23-17
+https://www.youtube.com/watch?v=A3-M8OtVXC8
+
+# Zoning Board of Appeals Hearing 11-15-16
+https://www.youtube.com/watch?v=efy_tb33kdU
+
+# Zoning Board of Appeal Hearings 4-9-24
+https://www.youtube.com/watch?v=YyeEKK9FKeY
+
+# Boston Zoning Board of Appeal April 6, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=-W6s4d54qew
+
+# Zoning Board of Appeal Hearings 10-31-17
+https://www.youtube.com/watch?v=ycwUhyNmh9o
+
+# Zoning Board of Appeal Hearings 9-12-23 (Part 1 of 2)
+https://www.youtube.com/watch?v=xi7Ieszy_qM
+
+# Zoning Board of Appeal Hearing 5-4-21
+https://www.youtube.com/watch?v=BLK2fru2QI0
+
+# Boston Zoning Board of Appeal November 17, 2022 Subcommittee Hearing
+https://www.youtube.com/watch?v=7nXX7bFrRsM
+
+# Zoning Board of Appeal Public Hearings 4-25-23 Part 1 of 2
+https://www.youtube.com/watch?v=udo8aBJ6jAY
+
+# Zoning Board of Appeals Hearing 08-23-16
+https://www.youtube.com/watch?v=3drhP_jrBq4
+
+# Zoning Board of Appeals Hearing 12-13-16
+https://www.youtube.com/watch?v=R99Bsa39hJo
+
+# Zoning Board of Appeal Hearings 12-17-19
+https://www.youtube.com/watch?v=OD4Lh1dYkhE
+
+# Zoning Board of Appeal Public Hearings 4-25-23 Part 2 of 2
+https://www.youtube.com/watch?v=13Nz5bY-mDA
+
+# Zoning Board of Appeal Hearings 10-4-22
+https://www.youtube.com/watch?v=BKFjR38AYeg
+
+# Zoning Board of Appeals Hearing 09-13-16
+https://www.youtube.com/watch?v=6h_zxbccZLs
+
+# Zoning Board of Appeal Public Hearings 8-23-22
+https://www.youtube.com/watch?v=2H8fzp0tyG0
+
+# Zoning Board of Appeal Hearings 5-18-21
+https://www.youtube.com/watch?v=TddTjZoZOFQ
+
+# Boston Zoning Board of Appeal - May 19, 2022 Subcommittee Hearing
+https://www.youtube.com/watch?v=LYvVuEMCryw
+
+# Zoning Board of Appeals Hearing 2-24-15
+https://www.youtube.com/watch?v=JrzRWbOD8cU
+
+# Boston Zoning Board of Appeal - February 10, 2022 Subcommittee Hearing
+https://www.youtube.com/watch?v=MK25zCOyqD8
+
+# Zoning Board of Appeal Public Hearings 4-5-22
+https://www.youtube.com/watch?v=Zfe3mv9Cv-A
+
+# Zoning Board of Appeal Hearings 8-10-21
+https://www.youtube.com/watch?v=JXTCYb9yshM
+
+# Zoning Board of Appeal Hearings 5-10-22
+https://www.youtube.com/watch?v=QYl8DdtJR2w
+
+# Zoning Board of Appeal Hearing 2-26-19
+https://www.youtube.com/watch?v=mk5DAAkmHQ0
+
+# Zoning Board of Appeals Hearing 09-27-16
+https://www.youtube.com/watch?v=sH8vQUz3kBA
+
+# Boston Small Biz How-To: The ZBA Process
+https://www.youtube.com/watch?v=xxiEEEOj7Ug
+
+# Zoning Board of Appeals Hearing 06-23-15
+https://www.youtube.com/watch?v=SaEFGpWeahE
+
+# Boston Zoning Board of Appeal July 21, 2022 Subcommittee Hearing
+https://www.youtube.com/watch?v=H7nyi_fzSn8
+
+# Zoning Board of Appeal Public Hearings 3-8-22
+https://www.youtube.com/watch?v=qxGWriAJgxs
+
+# Zoning Board of Appeal Hearings 02-28-2017
+https://www.youtube.com/watch?v=Pio2wJDj7H4
+
+# Zoning Board of Appeal Hearing 5-7-19
+https://www.youtube.com/watch?v=SxqvgiTDswE
+
+# Zoning Board of Appeal Hearing 1-12-21 (Part 1 of 2)
+https://www.youtube.com/watch?v=ArSxFcWiKgc
+
+# Boston Zoning Board of Appeal November 6, 2025 Subcommittee Hearing
+https://www.youtube.com/watch?v=A7ZUDahUKWc
+
+# Boston Zoning Board of Appeal October 24, 2024 Subcommittee Hearing
+https://www.youtube.com/watch?v=d8QKZ3j9E_Y
+
+# Zoning Board of Appeal Hearings 7-12-22
+https://www.youtube.com/watch?v=_yvDq4V7VKU
+
+# Boston Zoning Board of Appeal August 18, 2022 Subcommittee Hearing
+https://www.youtube.com/watch?v=VEnKrNx7mdg
+
+# Zoning Board of Appeal Hearings 6-7-22
+https://www.youtube.com/watch?v=0aq8SmxY_HQ
+
+# Boston Zoning Board of Appeal January 18, 2024 Subcommittee Hearing
+https://www.youtube.com/watch?v=Nn2lEw3XYWA
+
+# Zoning Board of Appeal Hearings 6-4-24 (Part 1 of 2)
+https://www.youtube.com/watch?v=Yt0sfdxqmY0
+
+# Boston Zoning Board of Appeal October 26, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=8qBCqMOo0Nk
+
+# Boston Zoning Board of Appeal March 16, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=IqANp-NsT60
+
+# Zoning Board of Appeal Hearings 6-27-23 (Part 1 of 2)
+https://www.youtube.com/watch?v=tGnJTvpOy9M
+
+# Zoning Board of Appeal Hearings 7-26-22 part 2
+https://www.youtube.com/watch?v=jYx8qXZUzi4
+
+# Zoning Board of Appeal Hearings 9-27-22 Part 2
+https://www.youtube.com/watch?v=qYghD7NPgi4
+
+# Zoning Board of Appeal Hearings 10/25/2022 Part 2
+https://www.youtube.com/watch?v=1X1gZHS2JcM
+
+# Zoning Board of Appeal Hearings 2-2-21 (Part 1 of 2)
+https://www.youtube.com/watch?v=0twypNZqVMU
+
+# Zoning Board of Appeal Hearings 10/25/2022 Part 1
+https://www.youtube.com/watch?v=HtPH3o_7AaM
+
+# Zoning Board of Appeal Hearings 5-7-24 (Part 3 of 3)
+https://www.youtube.com/watch?v=_mmhPK3zrFU
+
+# Boston Zoning Board of Appeal September 15, 2022 Subcommittee Hearing
+https://www.youtube.com/watch?v=56mjoVx7M6w
+
+# Zoning Board of Appeal Hearings 7-26-22 part 1
+https://www.youtube.com/watch?v=mAhAFsZS320
+
+# Zoning Board of Appeal Hearings 4-11-23: Part 1
+https://www.youtube.com/watch?v=Vl9NbWUgD60
+
+# Zoning Board of Appeal Hearings 1-23-24 (Part 2 of 3)
+https://www.youtube.com/watch?v=KsPgazNsljI
+
+# Zoning Board of Appeal Hearings 6-25-24 (Part 2 of 2)
+https://www.youtube.com/watch?v=5kcwyOnE6jo
+
+# Zoning Board of Appeal Hearings 4-8-25
+https://www.youtube.com/watch?v=FN3YW7wZfGo
+
+# Zoning Board of Appeal Hearings 8-13-24 (Part 1 of 2)
+https://www.youtube.com/watch?v=UBmVJoztfYw
+
+# Zoning Board of Appeal Hearings 10-8-24 (Part 1 of 2)
+https://www.youtube.com/watch?v=93eTEMsMHRU
+
+# Zoning Board of Appeal Hearings 5-21-24 (Part 1 of 2)
+https://www.youtube.com/watch?v=y79QtABVNLU
+
+# Zoning Board of Appeal Hearings 8-12-25
+https://www.youtube.com/watch?v=9JLa0gQDzYQ
+
+# Zoning Board of Appeal Public Hearings 5-24-22
+https://www.youtube.com/watch?v=RzEjY5c7sQw
+
+# Zoning Board of Appeal Hearings 7/29/2025
+https://www.youtube.com/watch?v=1vwg-_9xPF0
+
+# Zoning Board of Appeal Hearings 10-31-23 (Part 1 of 2)
+https://www.youtube.com/watch?v=fq3bokIHpEs
+
+# Zoning Board of Appeal Hearings 9-10-24 (Part 1 of 3)
+https://www.youtube.com/watch?v=qL2DiwsAZtA
+
+# Zoning Board of Appeal Hearings 1-14-25
+https://www.youtube.com/watch?v=c513o79hNLU
+
+# Zoning Board of Appeal Public Hearings 5-9-23 Part 1 of 2
+https://www.youtube.com/watch?v=Foy9rn3rH2E
+
+# Zoning Board of Appeal Hearings 12/3/2024 (Part 2 of 3)
+https://www.youtube.com/watch?v=CLkxf2cRCFw
+
+# Zoning Board of Appeal Hearings 6-4-24 (Part 2 of 2)
+https://www.youtube.com/watch?v=uYCLEp5wCg8
+
+# Zoning Board of Appeal Hearings 8-27-24
+https://www.youtube.com/watch?v=Y8iho_w-Fro
+
+# Zoning Board of Appeal Hearings 11-28-23 (Part 2 of 3)
+https://www.youtube.com/watch?v=zmbfUFdXUv4
+
+# Zoning Board of Appeal Hearings 1-31-23
+https://www.youtube.com/watch?v=tLQ8tfK5KY4
+
+# Zoning Board of Appeal Public Hearings 5-23-23 (Part 1 of 2)
+https://www.youtube.com/watch?v=KiTpQWfyU0Q
+
+# Zoning Board of Appeal Hearings 6-6-23 (Part 1 of 2)
+https://www.youtube.com/watch?v=oSoGhiCyYNo
+
+# Zoning Board of Appeal Hearings 10-8-24 (Part 2 of 2)
+https://www.youtube.com/watch?v=XkQHmfxWpcA
+
+# Zoning Board of Appeal Hearings 5-7-24 (Part 2 of 3)
+https://www.youtube.com/watch?v=sbKYl4KRskE
+
+# Zoning Board of Appeal Hearings 8-13-24 (Part 2 of 2)
+https://www.youtube.com/watch?v=BwuKi-Q32sU
+
+# Zoning Board of Appeal Hearings 3/26/2024 (Part 1 of 2)
+https://www.youtube.com/watch?v=aBmadSij_VU
+
+# Zoning Board of Appeal Hearings 9-26-23 (Part 1 of 2)
+https://www.youtube.com/watch?v=EL3TsAkT8a8
+
+# Zoning Board of Appeal Hearings 12/12/2023 (Part 2 of 2)
+https://www.youtube.com/watch?v=i_e132C6pG0
+
+# Zoning Board of Appeal Hearings 1-23-24 (Part 3 of 3)
+https://www.youtube.com/watch?v=RJG5dNG-17w
+
+# Zoning Board of Appeal Hearings 2/28/23 - Part 2 of 2
+https://www.youtube.com/watch?v=GVbSnbG0TaA
+
+# Zoning Board of Appeal Public Hearings 5-9-23 Part 2 of 2
+https://www.youtube.com/watch?v=oecvTAoNpjc
+
+# Zoning Board of Appeal Hearings 12-5-23 (Part 3 of 3)
+https://www.youtube.com/watch?v=RrIxiedyEXI
+
+# Boston Zoning Board of Appeal June 15, 2023 Subcommittee Hearing
+https://www.youtube.com/watch?v=5BuU32RRfNg
+
+# Zoning Board of Appeal Hearings 12/12/2023 (Part 1 of 2)
+https://www.youtube.com/watch?v=ItJLrzA4Iy0
+
+# Zoning Board of Appeal Hearings 3/12/2024 (Part 2 of 2)
+https://www.youtube.com/watch?v=bwJq9x-K5qY
+
+# Boston Zoning Board of Appeal December 5, 2024 Subcommittee Hearing
+https://www.youtube.com/watch?v=jejMYK_zO9M
+
+# Boston Zoning Board of Appeal -  December 9, 2021 - Subcommittee Hearing
+https://www.youtube.com/watch?v=4yS8WC2Q9tQ
+
+# Boston Zoning Board of Appeal October 13, 2022 Subcommittee Hearing Part 1
+https://www.youtube.com/watch?v=pawXJQbmT58
+
