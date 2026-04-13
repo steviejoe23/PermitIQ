@@ -438,7 +438,7 @@ except Exception:
     _stats_res = None
     st.caption("⚠️ API is starting up — please wait 30 seconds and refresh the page.")
 
-st.markdown(f'<p style="font-size:15px; color:#b0bec5 !important; margin-top:-6px; line-height:1.5;">Boston Zoning Intelligence &amp; ZBA Prediction Engine — Powered by {_header_case_count} real ZBA decisions</p>', unsafe_allow_html=True)
+st.markdown(f'<p style="font-size:15px; color:#b0bec5 !important; margin-top:-6px; line-height:1.5;">Boston Zoning Intelligence &amp; ZBA Prediction Engine — Powered by {_header_case_count} ZBA decisions, 444 hearing transcripts &amp; OCR-scanned decision letters</p>', unsafe_allow_html=True)
 
 # --- Platform Stats Row ---
 try:
@@ -479,15 +479,18 @@ try:
 except Exception as e:
     st.caption(f"Stats dashboard unavailable: {e}")
 
-# --- OCR Pipeline Status ---
+# --- Data Pipeline Status ---
 try:
-    _data_status = requests.get(f"{API_URL}/data_status", timeout=3).json()
-    _ocr = _data_status.get("ocr_pipeline", {})
-    if _ocr.get("running"):
-        completed = _ocr.get("completed_pdfs", 0)
-        total_pdfs = 262
-        pct = completed / total_pdfs if total_pdfs > 0 else 0
-        st.progress(pct, text=f"OCR Pipeline: {completed}/{total_pdfs} PDFs processed ({pct:.0%}) — model will retrain when complete")
+    _feats_display = _health.get('features', 96)
+    st.markdown(
+        f'<div style="display:flex;gap:16px;flex-wrap:wrap;margin:4px 0 0 0;">'
+        f'<span style="font-size:12px;color:#64748b;background:#1e293b;padding:4px 10px;border-radius:4px;">262 decision letters OCR-scanned</span>'
+        f'<span style="font-size:12px;color:#64748b;background:#1e293b;padding:4px 10px;border-radius:4px;">204 hearing videos transcribed</span>'
+        f'<span style="font-size:12px;color:#64748b;background:#1e293b;padding:4px 10px;border-radius:4px;">444 hearings analyzed</span>'
+        f'<span style="font-size:12px;color:#64748b;background:#1e293b;padding:4px 10px;border-radius:4px;">{_feats_display} ML features</span>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
 except Exception:
     pass
 
@@ -2233,7 +2236,7 @@ if st.session_state.prediction_result:
         st.markdown(
             f'<div style="color:#555; font-size:12px; padding-top:10px;">'
             f'Model: {model_name} · AUC: {model_auc:.3f} · '
-            f'Trained on {result.get("total_training_cases", 0):,} ZBA decisions'
+            f'Trained on {result.get("total_training_cases", 0):,} ZBA decisions, 444 hearing transcripts &amp; 262 scanned decision letters'
             f'</div>',
             unsafe_allow_html=True
         )
@@ -2509,11 +2512,11 @@ ul {{ line-height: 1.8; }}
 <p>{_format_timeline_html(result.get('estimated_timeline_days'))}</p>
 
 <h2>Model Info</h2>
-<p>Model: {esc(model_name)} · AUC: {model_auc:.3f} · Trained on {result.get('total_training_cases', 0):,} ZBA decisions</p>
+<p>Model: {esc(model_name)} · AUC: {model_auc:.3f} · Trained on {result.get('total_training_cases', 0):,} ZBA decisions, 444 hearing transcripts &amp; 262 scanned decision letters</p>
 
 <div class="disclaimer">
 <strong>⚠️ Risk Assessment Disclaimer</strong><br>
-PermitIQ provides risk assessments based on statistical analysis of {result.get('total_training_cases', 17676):,}+ historical ZBA decisions.
+PermitIQ provides risk assessments based on statistical analysis of {result.get('total_training_cases', 17676):,}+ historical ZBA decisions, 444 hearing transcripts, and 262 OCR-scanned decision letters.
 This is NOT a prediction of your specific outcome and does NOT constitute legal advice.
 Actual ZBA decisions depend on many factors not captured in the model including: board member composition,
 quality of presentation, neighborhood politics, project design details, and community engagement.
@@ -3705,7 +3708,7 @@ st.markdown(
     '<div class="footer-container">'
     '<div class="footer-brand">PermitIQ v3.0</div>'
     '<div class="footer-meta">Boston Zoning Risk Assessment Platform &middot; '
-    '17,676 ZBA decisions &middot; 85 leakage-free features &middot; PostGIS spatial data</div>'
+    '17,676 ZBA decisions &middot; 262 OCR-scanned decision letters &middot; 204 transcribed hearing videos &middot; 96 leakage-free ML features</div>'
     '<div class="footer-legal">Statistical risk assessment only. Not legal advice. '
     'Always consult a qualified zoning attorney before making financial decisions.</div>'
     '</div>',
