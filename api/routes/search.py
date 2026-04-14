@@ -64,6 +64,13 @@ def _do_search(q_norm: str) -> list:
     date_col = 'hearing_date' if 'hearing_date' in matches.columns else (
         'filing_date' if 'filing_date' in matches.columns else None)
 
+    if matches.empty:
+        return []
+
+    # Ensure decision_clean is string for safe comparison
+    matches = matches.copy()
+    matches['decision_clean'] = matches['decision_clean'].fillna('').astype(str)
+
     agg_dict = {
         'address': ('address_clean', 'first'),
         'ward': ('ward', 'first'),
@@ -101,18 +108,22 @@ def _do_search(q_norm: str) -> list:
 
     results = []
     for addr_norm_key, row in grouped.iterrows():
-        total = row['approved'] + row['denied']
+        total = int(row.get('approved', 0)) + int(row.get('denied', 0))
+        _ward_raw = row.get('ward')
+        _ward = str(safe_int(_ward_raw)) if pd.notna(_ward_raw) and safe_int(_ward_raw) != 0 else ""
+        _zoning_raw = row.get('zoning', '')
+        _zoning = str(_zoning_raw) if pd.notna(_zoning_raw) else ""
         result_item = {
-            "address": str(row['address']),
-            "ward": str(safe_int(row['ward'])) if pd.notna(row['ward']) and safe_int(row['ward']) != 0 else "",
-            "zoning": str(row.get('zoning', '')) if pd.notna(row.get('zoning', '')) else "",
-            "total_cases": int(row['total_cases']),
-            "approved": int(row['approved']),
-            "denied": int(row['denied']),
-            "approval_rate": round(row['approved'] / total, 2) if total > 0 else None,
+            "address": str(row.get('address', '')),
+            "ward": _ward,
+            "zoning": _zoning,
+            "total_cases": int(row.get('total_cases', 0)),
+            "approved": int(row.get('approved', 0)),
+            "denied": int(row.get('denied', 0)),
+            "approval_rate": round(int(row['approved']) / total, 2) if total > 0 else None,
             "latest_date": _format_date(row.get('latest_date', '')),
             "earliest_date": _format_date(row.get('earliest_date', '')),
-            "latest_case": str(row['latest_case']),
+            "latest_case": str(row.get('latest_case', '')),
         }
         # Enrich with parcel_id from geocoder (handle range addresses like "55-57 centre st")
         pid = addr_to_parcel.get(addr_norm_key)
@@ -144,7 +155,17 @@ def search_address(q: str):
     if len(q_norm) < 2:
         return {"query": q, "results": [], "total_results": 0}
 
-    results = _cached_search(q_norm)
+    try:
+        results = _cached_search(q_norm)
+    except Exception as e:
+        logger.error("Search failed for q=%r: %s: %s", q_norm, type(e).__name__, e)
+        _cached_search.cache_clear()
+        # Retry once without cache
+        try:
+            results = _do_search(q_norm)
+        except Exception as e2:
+            logger.error("Search retry failed: %s: %s", type(e2).__name__, e2)
+            raise HTTPException(status_code=500, detail=f"Search error: {type(e2).__name__}: {e2}")
     return {"query": q, "results": results, "total_results": len(results)}
 
 
