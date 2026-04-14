@@ -78,9 +78,12 @@ if not _allowed_origins:
     _allowed_origins = [
         "http://localhost:8501",
         "http://127.0.0.1:8501",
+        "http://localhost:3000",
+        "http://localhost:3001",
         "https://permitiq-boston.streamlit.app",
         "https://permitiq.dev",
         "https://www.permitiq.dev",
+        "https://permitiq-web.vercel.app",
     ]
 
 app.add_middleware(
