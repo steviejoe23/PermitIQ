@@ -2978,6 +2978,622 @@ Probabilities reflect historical patterns, not guarantees.
                 st.caption(f"Comparison failed: {e}")
 
 
+
+
+# =========================
+# INTELLIGENCE REPORTS (Premium)
+# =========================
+
+st.markdown(
+    '<div style="margin:48px 0 8px 0;padding:16px 0 12px 0;border-top:2px solid #334155;">'
+    '<div style="display:flex;align-items:center;gap:12px;">'
+    '<span style="font-size:24px;font-weight:800;color:#f1f5f9;letter-spacing:-0.5px;">Intelligence Reports</span>'
+    '<span style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;'
+    'font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:0.5px;">PREMIUM</span>'
+    '</div>'
+    '<p style="color:#94a3b8;font-size:13px;margin:4px 0 0 0;">'
+    'Actionable intelligence for your ZBA hearing. Tactical advice, risk scoring, and strategic timing.</p>'
+    '</div>',
+    unsafe_allow_html=True
+)
+
+# =========================
+# HEARING PREP REPORT
+# =========================
+
+with st.expander("Hearing Prep Report — Comprehensive Pre-Hearing Briefing", expanded=False):
+    st.markdown(
+        "Generate a comprehensive tactical report for an upcoming ZBA hearing. "
+        "Combines board member tendencies, opposition risk, attorney recommendations, "
+        "and filing strategy into one actionable briefing."
+    )
+
+    _hp_col1, _hp_col2 = st.columns(2)
+    with _hp_col1:
+        _hp_address = st.text_input("Property address", placeholder="e.g. 123 Main St", key="hp_address")
+        _hp_neighborhood = st.text_input("Neighborhood", placeholder="e.g. East Boston", key="hp_neighborhood")
+    with _hp_col2:
+        _hp_variance = st.text_input("Variance types", placeholder="e.g. height, parking, use", key="hp_variance")
+        _hp_ward = st.text_input("Ward", placeholder="e.g. 7", key="hp_ward")
+
+    _hp_attorney = st.text_input("Your attorney (optional)", placeholder="e.g. John Smith", key="hp_attorney")
+
+    if st.button("Generate Hearing Prep Report", key="hp_generate", type="primary"):
+        if not _hp_address and not _hp_neighborhood and not _hp_ward:
+            st.warning("Please provide at least an address, neighborhood, or ward.")
+        else:
+            with st.spinner("Generating comprehensive hearing prep report..."):
+                try:
+                    _hp_params = {"address": _hp_address or "Not specified"}
+                    if _hp_neighborhood:
+                        _hp_params["neighborhood"] = _hp_neighborhood
+                    if _hp_ward:
+                        _hp_params["ward"] = _hp_ward
+                    if _hp_variance:
+                        _hp_params["variance_types"] = _hp_variance
+                    if _hp_attorney:
+                        _hp_params["attorney"] = _hp_attorney
+
+                    # Use parcel_id if available from session
+                    _hp_parcel = st.session_state.get("parcel_data", {})
+                    if _hp_parcel and _hp_parcel.get("parcel_id"):
+                        _hp_params["parcel_id"] = _hp_parcel["parcel_id"]
+
+                    _hp_res = requests.get(f"{API_URL}/hearing_prep/generate", params=_hp_params, timeout=30)
+                    if _hp_res.status_code == 200:
+                        _hp = _hp_res.json()
+
+                        # Tactical advice (most important — show first)
+                        _hp_advice = _hp.get("tactical_advice", [])
+                        if _hp_advice:
+                            st.markdown("### Tactical Advice")
+                            for _adv in _hp_advice:
+                                _adv_pri = _adv.get("priority", "LOW")
+                                _adv_cat = esc(_adv.get("category", "General"))
+                                _adv_text = esc(_adv.get("text", ""))
+                                if _adv_pri == "HIGH":
+                                    _adv_color = "#ef4444"
+                                    _adv_bg = "rgba(239,68,68,0.1)"
+                                elif _adv_pri == "MEDIUM":
+                                    _adv_color = "#f59e0b"
+                                    _adv_bg = "rgba(245,158,11,0.1)"
+                                else:
+                                    _adv_color = "#10b981"
+                                    _adv_bg = "rgba(16,185,129,0.1)"
+
+                                st.markdown(
+                                    f'<div style="padding:10px 14px;margin:6px 0;border-radius:6px;background:{_adv_bg};border-left:3px solid {_adv_color};">'
+                                    f'<span style="color:{_adv_color};font-weight:700;font-size:11px;">{_adv_pri}</span>'
+                                    f'<span style="color:#94a3b8;font-size:11px;margin-left:8px;">{_adv_cat}</span><br>'
+                                    f'<span style="color:#e2e8f0;font-size:14px;">{_adv_text}</span>'
+                                    f'</div>',
+                                    unsafe_allow_html=True
+                                )
+
+                        # Opposition risk section
+                        _hp_opp = _hp.get("opposition_risk", {})
+                        if _hp_opp and _hp_opp.get("opposition_ratio") is not None:
+                            st.markdown("### Opposition Risk")
+                            _ho_level = _hp_opp.get("risk_level", "Unknown")
+                            _ho_color = "#ef4444" if _ho_level in ("High", "Very High") else "#f59e0b" if _ho_level == "Medium" else "#10b981"
+                            st.markdown(
+                                f'<span style="color:#e2e8f0;font-weight:600;">{esc(_hp_opp.get("neighborhood", ""))}</span>: '
+                                f'<span style="color:{_ho_color};font-weight:700;">{_hp_opp["opposition_ratio"]:.0%} opposition</span> '
+                                f'<span style="color:#94a3b8;">({_ho_level} risk, {_hp_opp.get("hearings_analyzed", 0)} hearings)</span>',
+                                unsafe_allow_html=True
+                            )
+
+                        # Board analysis
+                        _hp_board = _hp.get("board_analysis", {})
+                        _hp_board_members = _hp_board.get("members", [])
+                        if _hp_board_members:
+                            st.markdown("### Board Member Analysis")
+                            for _hbm in _hp_board_members[:8]:
+                                _hbm_name = esc(_hbm.get("name", ""))
+                                _hbm_rate = _hbm.get("overall_approval_rate")
+                                _hbm_color = "#10b981" if _hbm_rate and _hbm_rate >= 0.7 else "#f59e0b" if _hbm_rate and _hbm_rate >= 0.5 else "#ef4444"
+                                _hbm_rate_str = f"{_hbm_rate:.0%}" if _hbm_rate is not None else "N/A"
+                                st.markdown(
+                                    f'<span style="font-weight:600;color:#e2e8f0;">{_hbm_name}</span> '
+                                    f'<span style="color:{_hbm_color};font-weight:600;">{_hbm_rate_str}</span> '
+                                    f'<span style="color:#94a3b8;font-size:12px;">({_hbm.get("hearings_attended", 0)} hearings)</span>',
+                                    unsafe_allow_html=True
+                                )
+
+                        # Attorney recommendations
+                        _hp_atty = _hp.get("attorney_recommendations", {})
+                        _hp_atty_list = _hp_atty.get("attorneys", [])
+                        if _hp_atty_list:
+                            st.markdown("### Recommended Attorneys")
+                            for _ha in _hp_atty_list[:5]:
+                                _ha_name = esc(_ha.get("name", ""))
+                                _ha_rate = _ha.get("approval_rate", 0)
+                                _ha_color = "#10b981" if _ha_rate >= 0.7 else "#f59e0b" if _ha_rate >= 0.5 else "#ef4444"
+                                st.markdown(
+                                    f'<span style="font-weight:600;color:#e2e8f0;">{_ha_name}</span> '
+                                    f'<span style="color:{_ha_color};font-weight:700;">{_ha_rate:.0%}</span> '
+                                    f'<span style="color:#94a3b8;font-size:12px;">'
+                                    f'({_ha.get("cases_for_filter", 0)} relevant cases, '
+                                    f'{_ha.get("overall_cases", 0)} total)</span>',
+                                    unsafe_allow_html=True
+                                )
+
+                        # Filing timing
+                        _hp_timing = _hp.get("filing_strategy", {})
+                        if _hp_timing.get("recommendation"):
+                            st.markdown("### Filing Timing")
+                            st.markdown(
+                                f'<div style="padding:10px;background:#1e293b;border-radius:6px;">'
+                                f'<span style="color:#e2e8f0;font-size:14px;">{esc(_hp_timing["recommendation"])}</span>'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+
+                        # Risk score
+                        _hp_risk = _hp.get("risk_score", {})
+                        if _hp_risk.get("risk_score") is not None:
+                            st.markdown("### Site Risk Score")
+                            _hr_score = _hp_risk["risk_score"]
+                            _hr_level = esc(_hp_risk.get("risk_level", ""))
+                            _hr_color = "#ef4444" if _hr_score > 75 else "#f59e0b" if _hr_score > 50 else "#10b981"
+                            st.markdown(
+                                f'<span style="color:{_hr_color};font-size:28px;font-weight:800;">{_hr_score:.0f}/100</span> '
+                                f'<span style="color:{_hr_color};font-size:16px;">{_hr_level}</span>',
+                                unsafe_allow_html=True
+                            )
+
+                    else:
+                        st.warning(f"Could not generate report: {_hp_res.status_code}")
+                except Exception as _hp_err:
+                    st.error(f"Hearing prep report failed: {_hp_err}")
+
+
+# =========================
+# FILING STRATEGY
+# =========================
+
+with st.expander("Filing Strategy — Optimal Timing & Seasonal Patterns", expanded=False):
+    st.markdown(
+        "Analyze when to file for the best chance of approval. "
+        "Based on historical monthly, quarterly, and agenda-size patterns."
+    )
+
+    try:
+        _fs_res = requests.get(f"{API_URL}/filing_strategy/temporal_analysis", timeout=15)
+        if _fs_res.status_code == 200:
+            _fs_data = _fs_res.json()
+            _fs_monthly = _fs_data.get("monthly_patterns", [])
+            _fs_quarterly = _fs_data.get("quarterly_patterns", [])
+            _fs_agenda = _fs_data.get("agenda_size_effect", [])
+            _fs_yearly = _fs_data.get("yearly_trend", [])
+            _fs_best = _fs_data.get("best_month")
+            _fs_worst = _fs_data.get("worst_month")
+
+            st.caption(f"{_fs_data.get('total_cases_analyzed', 0):,} cases analyzed")
+
+            # Best/worst month callout
+            if _fs_best and _fs_worst:
+                _fs_col1, _fs_col2 = st.columns(2)
+                with _fs_col1:
+                    st.markdown(
+                        f'<div style="padding:12px;background:rgba(16,185,129,0.1);border-radius:8px;border-left:3px solid #10b981;">'
+                        f'<span style="color:#10b981;font-size:13px;font-weight:600;">BEST MONTH</span><br>'
+                        f'<span style="color:#e2e8f0;font-size:22px;font-weight:800;">{esc(_fs_best["month_name"])}</span><br>'
+                        f'<span style="color:#10b981;font-size:18px;font-weight:700;">{_fs_best["approval_rate"]:.0%} approval</span><br>'
+                        f'<span style="color:#94a3b8;font-size:12px;">{_fs_best["total_cases"]} cases</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+                with _fs_col2:
+                    st.markdown(
+                        f'<div style="padding:12px;background:rgba(239,68,68,0.1);border-radius:8px;border-left:3px solid #ef4444;">'
+                        f'<span style="color:#ef4444;font-size:13px;font-weight:600;">WORST MONTH</span><br>'
+                        f'<span style="color:#e2e8f0;font-size:22px;font-weight:800;">{esc(_fs_worst["month_name"])}</span><br>'
+                        f'<span style="color:#ef4444;font-size:18px;font-weight:700;">{_fs_worst["approval_rate"]:.0%} approval</span><br>'
+                        f'<span style="color:#94a3b8;font-size:12px;">{_fs_worst["total_cases"]} cases</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+
+            # Monthly chart
+            if _fs_monthly:
+                st.markdown("**Monthly Approval Rates**")
+                _fs_df = pd.DataFrame(_fs_monthly)
+                if not _fs_df.empty:
+                    st.bar_chart(_fs_df.set_index("month_name")["approval_rate"])
+
+            # Agenda size effect
+            if _fs_agenda:
+                st.markdown("**Agenda Size Effect** — Does hearing load affect outcomes?")
+                for _ag in _fs_agenda:
+                    _ag_rate = _ag.get("approval_rate", 0)
+                    _ag_color = "#10b981" if _ag_rate >= 0.7 else "#f59e0b" if _ag_rate >= 0.5 else "#ef4444"
+                    st.markdown(
+                        f'<span style="color:#e2e8f0;font-weight:600;">{esc(_ag["size_range"])}</span>: '
+                        f'<span style="color:{_ag_color};font-weight:700;">{_ag_rate:.0%}</span> '
+                        f'<span style="color:#94a3b8;font-size:12px;">({_ag["hearings"]} hearings, avg {_ag["avg_cases"]:.0f} cases)</span>',
+                        unsafe_allow_html=True
+                    )
+
+            # Personalized recommendation
+            st.markdown("---")
+            st.markdown("**Get a personalized filing recommendation:**")
+            _fs_rec_col1, _fs_rec_col2 = st.columns(2)
+            with _fs_rec_col1:
+                _fs_rec_vt = st.text_input("Variance types", placeholder="e.g. height, parking", key="fs_rec_vt")
+            with _fs_rec_col2:
+                _fs_rec_ward = st.text_input("Ward", placeholder="e.g. 7", key="fs_rec_ward")
+
+            if _fs_rec_vt or _fs_rec_ward:
+                try:
+                    _rec_params = {}
+                    if _fs_rec_vt:
+                        _rec_params["variance_types"] = _fs_rec_vt
+                    if _fs_rec_ward:
+                        _rec_params["ward"] = _fs_rec_ward
+                    _rec_res = requests.get(f"{API_URL}/filing_strategy/recommend", params=_rec_params, timeout=10)
+                    if _rec_res.status_code == 200:
+                        _rec = _rec_res.json()
+                        st.markdown(
+                            f'<div style="padding:12px;background:#1e293b;border-radius:8px;margin:8px 0;">'
+                            f'<span style="color:#3b82f6;font-size:14px;font-weight:600;">RECOMMENDATION</span><br>'
+                            f'<span style="color:#e2e8f0;font-size:14px;">{esc(_rec.get("recommendation", ""))}</span><br>'
+                            f'<span style="color:#94a3b8;font-size:12px;">'
+                            f'Based on {_rec.get("cases_analyzed", 0)} cases · '
+                            f'Overall rate: {_rec.get("overall_rate", 0):.0%}</span>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+                except Exception as _rec_e:
+                    st.caption(f"Could not generate recommendation: {_rec_e}")
+        else:
+            st.info("Filing strategy data not available.")
+    except Exception as _fs_err:
+        st.caption(f"Filing strategy unavailable: {_fs_err}")
+
+
+# =========================
+# NEIGHBORHOOD OPPOSITION RISK
+# =========================
+
+with st.expander("Neighborhood Opposition Risk — Community Sentiment by Area", expanded=False):
+    st.markdown(
+        "See which neighborhoods have the highest community opposition to development, "
+        "broken down by variance type. Critical for hearing prep and community outreach planning."
+    )
+
+    try:
+        _opp_res = requests.get(f"{API_URL}/opposition/by_neighborhood", timeout=10)
+        if _opp_res.status_code == 200:
+            _opp_data = _opp_res.json()
+            _opp_list = _opp_data.get("neighborhoods", [])
+            st.caption(f"{_opp_data.get('total', 0)} neighborhoods analyzed")
+
+            # Color-coded risk table
+            for _nb in _opp_list:
+                _nb_name = esc(_nb.get("neighborhood", "Unknown"))
+                _nb_ratio = _nb.get("opposition_ratio", 0)
+                _nb_level = _nb.get("risk_level", "Unknown")
+                _nb_hearings = _nb.get("hearings_analyzed", 0)
+                _nb_denial = _nb.get("denial_rate")
+                _nb_trend = _nb.get("trend", "stable")
+
+                if _nb_level in ("High", "Very High"):
+                    _nb_color = "#ef4444"
+                    _nb_bg = "rgba(239,68,68,0.1)"
+                elif _nb_level == "Medium":
+                    _nb_color = "#f59e0b"
+                    _nb_bg = "rgba(245,158,11,0.1)"
+                else:
+                    _nb_color = "#10b981"
+                    _nb_bg = "rgba(16,185,129,0.1)"
+
+                _trend_icon = "&#9650;" if _nb_trend == "increasing" else "&#9660;" if _nb_trend == "decreasing" else "&#8212;"
+                _denial_str = f" · Denial rate: {_nb_denial:.0%}" if _nb_denial is not None else ""
+
+                st.markdown(
+                    f'<div style="padding:8px 12px;margin:4px 0;border-radius:6px;background:{_nb_bg};border-left:3px solid {_nb_color};">'
+                    f'<span style="font-weight:700;color:#e2e8f0;font-size:15px;">{_nb_name}</span>'
+                    f'<span style="color:{_nb_color};font-weight:700;float:right;font-size:15px;">{_nb_ratio:.0%} opposition</span><br>'
+                    f'<span style="color:#94a3b8;font-size:12px;">'
+                    f'{_nb_level} risk · {_nb_hearings} hearings analyzed{_denial_str} · Trend: {_trend_icon}'
+                    f'</span>'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+
+            # Specific neighborhood deep-dive
+            st.markdown("---")
+            _opp_lookup = st.text_input(
+                "Deep-dive: enter a neighborhood name",
+                placeholder="e.g. East Boston, South Boston, Roxbury...",
+                key="opp_lookup"
+            )
+            _opp_vt = st.text_input(
+                "Variance types (optional)",
+                placeholder="e.g. height, parking, use",
+                key="opp_vt"
+            )
+            if _opp_lookup:
+                try:
+                    _opp_params = {"neighborhood": _opp_lookup}
+                    if _opp_vt:
+                        _opp_params["variance_types"] = _opp_vt
+                    _opp_detail = requests.get(f"{API_URL}/opposition/score", params=_opp_params, timeout=10)
+                    if _opp_detail.status_code == 200:
+                        _od = _opp_detail.json()
+                        _od_level = _od.get("risk_level", "Unknown")
+                        _od_ratio = _od.get("opposition_ratio")
+                        _od_color = "#ef4444" if _od_level in ("High", "Very High") else "#f59e0b" if _od_level == "Medium" else "#10b981"
+
+                        st.markdown(
+                            f'<div style="padding:12px;background:#1e293b;border-radius:8px;margin:8px 0;">'
+                            f'<span style="font-size:18px;font-weight:700;color:#e2e8f0;">{esc(_od.get("neighborhood", _opp_lookup))}</span><br>'
+                            f'<span style="color:{_od_color};font-size:24px;font-weight:800;">'
+                            f'{_od_ratio:.0%} opposition</span> '
+                            f'<span style="color:{_od_color};font-size:14px;">({_od_level} risk)</span><br>'
+                            f'<span style="color:#94a3b8;font-size:13px;">'
+                            f'{_od.get("hearings_analyzed", 0)} hearings analyzed</span>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        ) if _od_ratio is not None else st.info(_od.get("note", "No data available."))
+
+                        # Variance-specific risks
+                        _vr_list = _od.get("variance_risks", [])
+                        if _vr_list:
+                            st.markdown("**Variance-specific opposition:**")
+                            for _vr in _vr_list:
+                                _vr_type = esc(_vr.get("variance_type", ""))
+                                _vr_ratio = _vr.get("opposition_ratio", 0)
+                                _vr_level = _vr.get("risk_level", "Unknown")
+                                _vr_color = "#ef4444" if _vr_level in ("High", "Very High") else "#f59e0b" if _vr_level == "Medium" else "#10b981"
+                                st.markdown(
+                                    f'<span style="color:{_vr_color};font-weight:600;">{_vr_type}</span>: '
+                                    f'{_vr_ratio:.0%} opposition ({_vr_level})',
+                                    unsafe_allow_html=True
+                                )
+                except Exception as _opp_e:
+                    st.caption(f"Could not load neighborhood detail: {_opp_e}")
+        else:
+            st.info("Opposition data not available.")
+    except Exception as _opp_err:
+        st.caption(f"Neighborhood opposition data unavailable: {_opp_err}")
+
+
+# =========================
+# BOARD MEMBER ANALYSIS
+# =========================
+
+with st.expander("Board Member Analysis — ZBA Voting Profiles & Tendencies", expanded=False):
+    st.markdown(
+        "Understand how individual ZBA board members vote on different variance types. "
+        "Use this to prepare targeted arguments for your hearing."
+    )
+
+    try:
+        _bm_res = requests.get(f"{API_URL}/board_members", timeout=10)
+        if _bm_res.status_code == 200:
+            _bm_data = _bm_res.json()
+            _bm_list = _bm_data.get("members", [])
+            st.caption(f"{len(_bm_list)} board members on record")
+
+            # Variance type filter for hearing prep
+            _bm_vt_filter = st.text_input(
+                "Filter by variance type (e.g. height, parking, use)",
+                placeholder="Enter variance types to see member tendencies...",
+                key="bm_vt_filter"
+            )
+
+            if _bm_vt_filter:
+                try:
+                    _bm_hearing_res = requests.get(
+                        f"{API_URL}/board_members/for_hearing",
+                        params={"variance_types": _bm_vt_filter},
+                        timeout=10
+                    )
+                    if _bm_hearing_res.status_code == 200:
+                        _bm_hearing = _bm_hearing_res.json()
+                        _bm_filtered = _bm_hearing.get("members", [])
+                        st.markdown(f"**Board tendencies for: {esc(_bm_vt_filter)}**")
+                        for _bmf in _bm_filtered[:15]:
+                            _bmf_name = esc(_bmf.get("name", "Unknown"))
+                            _bmf_role = esc(_bmf.get("role", "Member"))
+                            _bmf_hearings = _bmf.get("hearings_attended", 0)
+                            _bmf_rate = _bmf.get("overall_approval_rate")
+                            _bmf_tendencies = _bmf.get("variance_tendencies", {})
+
+                            _rate_str = f"{_bmf_rate:.0%}" if _bmf_rate is not None else "N/A"
+                            _rate_color = "#10b981" if _bmf_rate and _bmf_rate >= 0.7 else "#f59e0b" if _bmf_rate and _bmf_rate >= 0.5 else "#ef4444"
+
+                            _tend_parts = []
+                            for _vt_key, _vt_stats in _bmf_tendencies.items():
+                                if isinstance(_vt_stats, dict) and _vt_stats.get("approval_rate") is not None:
+                                    _vr = _vt_stats["approval_rate"]
+                                    _vc = "#10b981" if _vr >= 0.7 else "#f59e0b" if _vr >= 0.5 else "#ef4444"
+                                    _tend_parts.append(
+                                        f'<span style="color:{_vc};font-size:12px;">'
+                                        f'{esc(_vt_key)}: {_vr:.0%} ({_vt_stats.get("cases", 0)} cases)</span>'
+                                    )
+
+                            _tend_html = " · ".join(_tend_parts) if _tend_parts else '<span style="color:#64748b;font-size:12px;">No specific data for these variances</span>'
+
+                            st.markdown(
+                                f'<div style="padding:8px 0;border-bottom:1px solid #333;">'
+                                f'<span style="font-weight:700;color:#e2e8f0;">{_bmf_name}</span>'
+                                f'<span style="color:#64748b;font-size:12px;margin-left:8px;">{_bmf_role} · {_bmf_hearings} hearings</span>'
+                                f'<span style="color:{_rate_color};font-weight:600;float:right;">{_rate_str}</span><br>'
+                                f'{_tend_html}'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+                except Exception as _bm_e:
+                    st.caption(f"Could not load hearing tendencies: {_bm_e}")
+            else:
+                # Show top members by hearings attended
+                for _bm in _bm_list[:20]:
+                    _bm_name = esc(_bm.get("name", "Unknown"))
+                    _bm_role = esc(_bm.get("role", "Member"))
+                    _bm_hearings = _bm.get("hearings_attended", 0)
+                    _bm_approval = _bm.get("approval_rate")
+                    _bm_denial = _bm.get("denial_rate")
+
+                    _apr_str = f"{_bm_approval:.0%}" if _bm_approval is not None else "N/A"
+                    _apr_color = "#10b981" if _bm_approval and _bm_approval >= 0.7 else "#f59e0b" if _bm_approval and _bm_approval >= 0.5 else "#ef4444"
+                    _dates = _bm.get("date_range", [])
+                    _date_str = f" · {_dates[0]}–{_dates[-1]}" if len(_dates) >= 2 else ""
+
+                    st.markdown(
+                        f'<div style="padding:6px 0;border-bottom:1px solid #333;">'
+                        f'<span style="font-weight:600;color:#e2e8f0;">{_bm_name}</span>'
+                        f'<span style="color:#64748b;font-size:12px;margin-left:8px;">{_bm_role} · {_bm_hearings} hearings{_date_str}</span>'
+                        f'<span style="color:{_apr_color};font-weight:600;float:right;">{_apr_str}</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+        else:
+            st.info("Board member data not available.")
+    except Exception as _bm_err:
+        st.caption(f"Board member analysis unavailable: {_bm_err}")
+
+
+# =========================
+# PARCEL RISK SCORE
+# =========================
+
+with st.expander("Parcel Risk Score — Development Difficulty by Location", expanded=False):
+    st.markdown(
+        "Every parcel in Boston gets a 0-100 development difficulty score based on "
+        "ward denial rates, zoning district patterns, case density, and lot characteristics."
+    )
+
+    # Show summary stats
+    try:
+        _rs_res = requests.get(f"{API_URL}/risk/summary", timeout=10)
+        if _rs_res.status_code == 200:
+            _rs_data = _rs_res.json()
+            _rs_dist = _rs_data.get("distribution", {})
+
+            _rs_c1, _rs_c2, _rs_c3, _rs_c4 = st.columns(4)
+            with _rs_c1:
+                st.markdown(
+                    f'<div style="text-align:center;padding:8px;">'
+                    f'<span style="color:#10b981;font-size:24px;font-weight:800;">{_rs_dist.get("easy", 0):,}</span><br>'
+                    f'<span style="color:#94a3b8;font-size:12px;">Easy (0-25)</span></div>',
+                    unsafe_allow_html=True
+                )
+            with _rs_c2:
+                st.markdown(
+                    f'<div style="text-align:center;padding:8px;">'
+                    f'<span style="color:#f59e0b;font-size:24px;font-weight:800;">{_rs_dist.get("moderate", 0):,}</span><br>'
+                    f'<span style="color:#94a3b8;font-size:12px;">Moderate (26-50)</span></div>',
+                    unsafe_allow_html=True
+                )
+            with _rs_c3:
+                st.markdown(
+                    f'<div style="text-align:center;padding:8px;">'
+                    f'<span style="color:#f97316;font-size:24px;font-weight:800;">{_rs_dist.get("difficult", 0):,}</span><br>'
+                    f'<span style="color:#94a3b8;font-size:12px;">Difficult (51-75)</span></div>',
+                    unsafe_allow_html=True
+                )
+            with _rs_c4:
+                st.markdown(
+                    f'<div style="text-align:center;padding:8px;">'
+                    f'<span style="color:#ef4444;font-size:24px;font-weight:800;">{_rs_dist.get("very_difficult", 0):,}</span><br>'
+                    f'<span style="color:#94a3b8;font-size:12px;">Very Difficult (76+)</span></div>',
+                    unsafe_allow_html=True
+                )
+
+            st.caption(
+                f"{_rs_data.get('total_parcels', 0):,} parcels scored · "
+                f"Mean: {_rs_data.get('mean_score', 0):.1f} · "
+                f"Median: {_rs_data.get('median_score', 0):.1f} · "
+                f"Range: {_rs_data.get('min_score', 0):.0f}–{_rs_data.get('max_score', 0):.0f}"
+            )
+    except Exception:
+        pass
+
+    # Parcel-level lookup
+    st.markdown("---")
+    _rs_pid = st.text_input(
+        "Look up a specific parcel",
+        placeholder="Enter 10-digit parcel ID (e.g. 0302951010)",
+        key="rs_parcel_lookup"
+    )
+
+    # Auto-fill from session
+    if not _rs_pid and st.session_state.get("parcel_data", {}).get("parcel_id"):
+        _rs_pid = st.session_state["parcel_data"]["parcel_id"]
+        st.caption(f"Using parcel from current session: {_rs_pid}")
+
+    if _rs_pid:
+        try:
+            _rs_detail = requests.get(f"{API_URL}/risk/parcels/{_rs_pid}", timeout=10)
+            if _rs_detail.status_code == 200:
+                _rd = _rs_detail.json()
+                _rd_score = _rd.get("risk_score", 0)
+                _rd_level = esc(_rd.get("risk_level", ""))
+                _rd_desc = esc(_rd.get("description", ""))
+                _rd_color = "#ef4444" if _rd_score > 75 else "#f97316" if _rd_score > 50 else "#f59e0b" if _rd_score > 25 else "#10b981"
+
+                st.markdown(
+                    f'<div style="padding:16px;background:#1e293b;border-radius:8px;margin:8px 0;">'
+                    f'<div style="display:flex;align-items:center;gap:16px;">'
+                    f'<div>'
+                    f'<span style="color:{_rd_color};font-size:42px;font-weight:800;">{_rd_score:.0f}</span>'
+                    f'<span style="color:#94a3b8;font-size:14px;">/100</span>'
+                    f'</div>'
+                    f'<div>'
+                    f'<span style="color:{_rd_color};font-size:18px;font-weight:700;">{_rd_level}</span><br>'
+                    f'<span style="color:#94a3b8;font-size:13px;">{_rd_desc}</span>'
+                    f'</div>'
+                    f'</div>'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+
+                # Component breakdown
+                _rd_comp = _rd.get("components", {})
+                if _rd_comp:
+                    st.markdown("**Score Components:**")
+                    _comp_items = [
+                        ("Ward Denial Rate", _rd_comp.get("ward_denial_rate", 0), "30%"),
+                        ("District Denial Rate", _rd_comp.get("district_denial_rate", 0), "25%"),
+                        ("Case Density", _rd_comp.get("case_density_score", 0), "15%"),
+                        ("Lot Size Factor", _rd_comp.get("lot_size_score", 0), "15%"),
+                        ("Zoning Restrictiveness", _rd_comp.get("zoning_restrictiveness", 0), "15%"),
+                    ]
+                    for _ci_label, _ci_val, _ci_weight in _comp_items:
+                        _ci_color = "#ef4444" if _ci_val > 0.6 else "#f59e0b" if _ci_val > 0.3 else "#10b981"
+                        _ci_display = f"{_ci_val:.0%}" if _ci_val <= 1 else f"{_ci_val:.1f}"
+                        st.markdown(
+                            f'<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;">'
+                            f'<span style="color:#e2e8f0;">{_ci_label} <span style="color:#64748b;font-size:11px;">({_ci_weight} weight)</span></span>'
+                            f'<span style="color:{_ci_color};font-weight:600;">{_ci_display}</span>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
+            elif _rs_detail.status_code == 404:
+                st.info(f"No risk score found for parcel {_rs_pid}.")
+            else:
+                st.warning(f"Risk score lookup failed: {_rs_detail.status_code}")
+        except Exception as _rs_err:
+            st.caption(f"Risk score lookup failed: {_rs_err}")
+
+
+
+# =========================
+# RESEARCH TOOLS
+# =========================
+
+st.markdown(
+    '<div style="margin:48px 0 8px 0;padding:16px 0 12px 0;border-top:2px solid #334155;">'
+    '<span style="font-size:24px;font-weight:800;color:#f1f5f9;letter-spacing:-0.5px;">Research Tools</span>'
+    '<p style="color:#94a3b8;font-size:13px;margin:4px 0 0 0;">'
+    'Deep-dive into ward data, market trends, attorney profiles, and zoning districts.</p>'
+    '</div>',
+    unsafe_allow_html=True
+)
+
 # =========================
 # WARD INSIGHTS
 # =========================
@@ -3754,127 +4370,10 @@ with st.expander("Site Selection — Where Should I Build?", expanded=False):
 
 
 # =========================
-# BATCH PREDICTIONS
-# =========================
-
-with st.expander("Batch Predictions — Compare Multiple Parcels at Once", expanded=False):
-    st.markdown(
-        "Evaluate multiple parcels simultaneously. Enter parcel IDs (one per line) "
-        "to get ML approval predictions for each."
-    )
-
-    _bp_col1, _bp_col2 = st.columns([2, 1])
-    with _bp_col1:
-        _bp_parcels = st.text_area(
-            "Parcel IDs (one per line)",
-            placeholder="0100001000\n0302951010\n1000358010\n2100394000",
-            height=150,
-            key="batch_parcel_ids"
-        )
-    with _bp_col2:
-        _bp_project = st.selectbox("Project Type", [
-            "residential", "commercial", "new_construction", "renovation",
-            "addition", "conversion", "mixed_use"
-        ], key="bp_project")
-        _bp_attorney = st.checkbox("Has Attorney", value=True, key="bp_attorney")
-        _bp_variances = st.multiselect("Common Variances", [
-            "FAR (Floor Area Ratio)", "Height", "Parking", "Lot Area",
-            "Front Setback", "Rear Setback", "Side Setback", "Conditional Use"
-        ], key="bp_variances")
-
-    if st.button("Run Batch Prediction", key="bp_go", type="primary"):
-        _bp_ids = [line.strip() for line in _bp_parcels.strip().split("\n") if line.strip()]
-        if _bp_ids:
-            _var_api_map = {
-                "FAR (Floor Area Ratio)": "far", "Height": "height", "Parking": "parking",
-                "Lot Area": "lot_area", "Front Setback": "front_setback",
-                "Rear Setback": "rear_setback", "Side Setback": "side_setback",
-                "Conditional Use": "conditional_use"
-            }
-            _bp_var_list = [_var_api_map.get(v, v.lower().replace(" ", "_")) for v in _bp_variances]
-
-            _bp_proposals = []
-            for pid in _bp_ids[:50]:
-                _bp_proposals.append({
-                    "parcel_id": pid,
-                    "project_type": _bp_project,
-                    "has_attorney": _bp_attorney,
-                    "variances": _bp_var_list if _bp_var_list else None,
-                })
-
-            try:
-                with st.spinner(f"Predicting {len(_bp_proposals)} parcels..."):
-                    _bp_res = requests.post(
-                        f"{API_URL}/batch_predict",
-                        json={"proposals": _bp_proposals},
-                        timeout=60
-                    )
-                if _bp_res.status_code == 200:
-                    _bp_data = _bp_res.json()
-                    _bp_results = _bp_data.get("results", [])
-
-                    if _bp_results:
-                        st.success(f"Predictions for {len(_bp_results)} parcels")
-
-                        # Sort by probability descending
-                        _bp_sorted = sorted(
-                            [(pid, r) for pid, r in zip(_bp_ids[:50], _bp_results)],
-                            key=lambda x: x[1].get("approval_probability") or 0,
-                            reverse=True
-                        )
-
-                        for pid, r in _bp_sorted:
-                            prob = r.get("approval_probability")
-                            err = r.get("error")
-                            if err:
-                                st.markdown(
-                                    f'<div style="padding:8px 14px;border-left:4px solid #64748b;margin:4px 0;">'
-                                    f'<span style="color:#94a3b8;">Parcel {esc(pid)}</span> — '
-                                    f'<span style="color:#ef4444;">{esc(err)}</span></div>',
-                                    unsafe_allow_html=True
-                                )
-                            elif prob is not None:
-                                _bp_color = "#10b981" if prob >= 0.7 else "#f59e0b" if prob >= 0.5 else "#ef4444"
-                                st.markdown(
-                                    f'<div style="padding:8px 14px;border-left:4px solid {_bp_color};margin:4px 0;">'
-                                    f'<span style="font-weight:700;color:{_bp_color};font-size:18px;">{prob:.0%}</span> '
-                                    f'<span style="color:#e2e8f0;margin-left:8px;">Parcel {esc(pid)}</span>'
-                                    f'</div>',
-                                    unsafe_allow_html=True
-                                )
-
-                        # Export as CSV
-                        _bp_export = []
-                        for pid, r in zip(_bp_ids[:50], _bp_results):
-                            _bp_export.append({
-                                "parcel_id": pid,
-                                "approval_probability": r.get("approval_probability"),
-                                "error": r.get("error", "")
-                            })
-                        st.download_button(
-                            "Export Results CSV",
-                            pd.DataFrame(_bp_export).to_csv(index=False),
-                            "permitiq_batch_predictions.csv",
-                            "text/csv",
-                            key="dl_batch"
-                        )
-                    else:
-                        st.info("No results returned.")
-                elif _bp_res.status_code == 503:
-                    st.warning("Model not loaded.")
-                else:
-                    st.error(f"Batch prediction error: {_bp_res.status_code}")
-            except Exception as e:
-                st.error(f"Batch prediction unavailable: {e}")
-        else:
-            st.warning("Enter at least one parcel ID.")
-
-
-# =========================
 # CASE NUMBER LOOKUP
 # =========================
 
-with st.expander("Case Lookup — Search by BOA Case Number", expanded=False):
+with st.expander("Case Number Lookup", expanded=False):
     st.markdown(
         "Look up any ZBA case directly by its Board of Appeals case number "
         "to see the full decision record, variances requested, and outcome."
@@ -4053,586 +4552,120 @@ with st.expander("Zoning District Explorer — Browse Boston's Zoning Subdistric
 
 
 # =========================
-# BOARD MEMBER ANALYSIS
+# BATCH PREDICTIONS
 # =========================
 
-with st.expander("Board Member Analysis — ZBA Voting Profiles & Tendencies", expanded=False):
+with st.expander("Batch Predictions — Compare Multiple Parcels at Once", expanded=False):
     st.markdown(
-        "Understand how individual ZBA board members vote on different variance types. "
-        "Use this to prepare targeted arguments for your hearing."
+        "Evaluate multiple parcels simultaneously. Enter parcel IDs (one per line) "
+        "to get ML approval predictions for each."
     )
 
-    try:
-        _bm_res = requests.get(f"{API_URL}/board_members", timeout=10)
-        if _bm_res.status_code == 200:
-            _bm_data = _bm_res.json()
-            _bm_list = _bm_data.get("members", [])
-            st.caption(f"{len(_bm_list)} board members on record")
+    _bp_col1, _bp_col2 = st.columns([2, 1])
+    with _bp_col1:
+        _bp_parcels = st.text_area(
+            "Parcel IDs (one per line)",
+            placeholder="0100001000\n0302951010\n1000358010\n2100394000",
+            height=150,
+            key="batch_parcel_ids"
+        )
+    with _bp_col2:
+        _bp_project = st.selectbox("Project Type", [
+            "residential", "commercial", "new_construction", "renovation",
+            "addition", "conversion", "mixed_use"
+        ], key="bp_project")
+        _bp_attorney = st.checkbox("Has Attorney", value=True, key="bp_attorney")
+        _bp_variances = st.multiselect("Common Variances", [
+            "FAR (Floor Area Ratio)", "Height", "Parking", "Lot Area",
+            "Front Setback", "Rear Setback", "Side Setback", "Conditional Use"
+        ], key="bp_variances")
 
-            # Variance type filter for hearing prep
-            _bm_vt_filter = st.text_input(
-                "Filter by variance type (e.g. height, parking, use)",
-                placeholder="Enter variance types to see member tendencies...",
-                key="bm_vt_filter"
-            )
+    if st.button("Run Batch Prediction", key="bp_go", type="primary"):
+        _bp_ids = [line.strip() for line in _bp_parcels.strip().split("\n") if line.strip()]
+        if _bp_ids:
+            _var_api_map = {
+                "FAR (Floor Area Ratio)": "far", "Height": "height", "Parking": "parking",
+                "Lot Area": "lot_area", "Front Setback": "front_setback",
+                "Rear Setback": "rear_setback", "Side Setback": "side_setback",
+                "Conditional Use": "conditional_use"
+            }
+            _bp_var_list = [_var_api_map.get(v, v.lower().replace(" ", "_")) for v in _bp_variances]
 
-            if _bm_vt_filter:
-                try:
-                    _bm_hearing_res = requests.get(
-                        f"{API_URL}/board_members/for_hearing",
-                        params={"variance_types": _bm_vt_filter},
-                        timeout=10
+            _bp_proposals = []
+            for pid in _bp_ids[:50]:
+                _bp_proposals.append({
+                    "parcel_id": pid,
+                    "project_type": _bp_project,
+                    "has_attorney": _bp_attorney,
+                    "variances": _bp_var_list if _bp_var_list else None,
+                })
+
+            try:
+                with st.spinner(f"Predicting {len(_bp_proposals)} parcels..."):
+                    _bp_res = requests.post(
+                        f"{API_URL}/batch_predict",
+                        json={"proposals": _bp_proposals},
+                        timeout=60
                     )
-                    if _bm_hearing_res.status_code == 200:
-                        _bm_hearing = _bm_hearing_res.json()
-                        _bm_filtered = _bm_hearing.get("members", [])
-                        st.markdown(f"**Board tendencies for: {esc(_bm_vt_filter)}**")
-                        for _bmf in _bm_filtered[:15]:
-                            _bmf_name = esc(_bmf.get("name", "Unknown"))
-                            _bmf_role = esc(_bmf.get("role", "Member"))
-                            _bmf_hearings = _bmf.get("hearings_attended", 0)
-                            _bmf_rate = _bmf.get("overall_approval_rate")
-                            _bmf_tendencies = _bmf.get("variance_tendencies", {})
+                if _bp_res.status_code == 200:
+                    _bp_data = _bp_res.json()
+                    _bp_results = _bp_data.get("results", [])
 
-                            _rate_str = f"{_bmf_rate:.0%}" if _bmf_rate is not None else "N/A"
-                            _rate_color = "#10b981" if _bmf_rate and _bmf_rate >= 0.7 else "#f59e0b" if _bmf_rate and _bmf_rate >= 0.5 else "#ef4444"
+                    if _bp_results:
+                        st.success(f"Predictions for {len(_bp_results)} parcels")
 
-                            _tend_parts = []
-                            for _vt_key, _vt_stats in _bmf_tendencies.items():
-                                if isinstance(_vt_stats, dict) and _vt_stats.get("approval_rate") is not None:
-                                    _vr = _vt_stats["approval_rate"]
-                                    _vc = "#10b981" if _vr >= 0.7 else "#f59e0b" if _vr >= 0.5 else "#ef4444"
-                                    _tend_parts.append(
-                                        f'<span style="color:{_vc};font-size:12px;">'
-                                        f'{esc(_vt_key)}: {_vr:.0%} ({_vt_stats.get("cases", 0)} cases)</span>'
-                                    )
+                        # Sort by probability descending
+                        _bp_sorted = sorted(
+                            [(pid, r) for pid, r in zip(_bp_ids[:50], _bp_results)],
+                            key=lambda x: x[1].get("approval_probability") or 0,
+                            reverse=True
+                        )
 
-                            _tend_html = " · ".join(_tend_parts) if _tend_parts else '<span style="color:#64748b;font-size:12px;">No specific data for these variances</span>'
-
-                            st.markdown(
-                                f'<div style="padding:8px 0;border-bottom:1px solid #333;">'
-                                f'<span style="font-weight:700;color:#e2e8f0;">{_bmf_name}</span>'
-                                f'<span style="color:#64748b;font-size:12px;margin-left:8px;">{_bmf_role} · {_bmf_hearings} hearings</span>'
-                                f'<span style="color:{_rate_color};font-weight:600;float:right;">{_rate_str}</span><br>'
-                                f'{_tend_html}'
-                                f'</div>',
-                                unsafe_allow_html=True
-                            )
-                except Exception as _bm_e:
-                    st.caption(f"Could not load hearing tendencies: {_bm_e}")
-            else:
-                # Show top members by hearings attended
-                for _bm in _bm_list[:20]:
-                    _bm_name = esc(_bm.get("name", "Unknown"))
-                    _bm_role = esc(_bm.get("role", "Member"))
-                    _bm_hearings = _bm.get("hearings_attended", 0)
-                    _bm_approval = _bm.get("approval_rate")
-                    _bm_denial = _bm.get("denial_rate")
-
-                    _apr_str = f"{_bm_approval:.0%}" if _bm_approval is not None else "N/A"
-                    _apr_color = "#10b981" if _bm_approval and _bm_approval >= 0.7 else "#f59e0b" if _bm_approval and _bm_approval >= 0.5 else "#ef4444"
-                    _dates = _bm.get("date_range", [])
-                    _date_str = f" · {_dates[0]}–{_dates[-1]}" if len(_dates) >= 2 else ""
-
-                    st.markdown(
-                        f'<div style="padding:6px 0;border-bottom:1px solid #333;">'
-                        f'<span style="font-weight:600;color:#e2e8f0;">{_bm_name}</span>'
-                        f'<span style="color:#64748b;font-size:12px;margin-left:8px;">{_bm_role} · {_bm_hearings} hearings{_date_str}</span>'
-                        f'<span style="color:{_apr_color};font-weight:600;float:right;">{_apr_str}</span>'
-                        f'</div>',
-                        unsafe_allow_html=True
-                    )
-        else:
-            st.info("Board member data not available.")
-    except Exception as _bm_err:
-        st.caption(f"Board member analysis unavailable: {_bm_err}")
-
-
-# =========================
-# NEIGHBORHOOD OPPOSITION RISK
-# =========================
-
-with st.expander("Neighborhood Opposition Risk — Community Sentiment by Area", expanded=False):
-    st.markdown(
-        "See which neighborhoods have the highest community opposition to development, "
-        "broken down by variance type. Critical for hearing prep and community outreach planning."
-    )
-
-    try:
-        _opp_res = requests.get(f"{API_URL}/opposition/by_neighborhood", timeout=10)
-        if _opp_res.status_code == 200:
-            _opp_data = _opp_res.json()
-            _opp_list = _opp_data.get("neighborhoods", [])
-            st.caption(f"{_opp_data.get('total', 0)} neighborhoods analyzed")
-
-            # Color-coded risk table
-            for _nb in _opp_list:
-                _nb_name = esc(_nb.get("neighborhood", "Unknown"))
-                _nb_ratio = _nb.get("opposition_ratio", 0)
-                _nb_level = _nb.get("risk_level", "Unknown")
-                _nb_hearings = _nb.get("hearings_analyzed", 0)
-                _nb_denial = _nb.get("denial_rate")
-                _nb_trend = _nb.get("trend", "stable")
-
-                if _nb_level in ("High", "Very High"):
-                    _nb_color = "#ef4444"
-                    _nb_bg = "rgba(239,68,68,0.1)"
-                elif _nb_level == "Medium":
-                    _nb_color = "#f59e0b"
-                    _nb_bg = "rgba(245,158,11,0.1)"
-                else:
-                    _nb_color = "#10b981"
-                    _nb_bg = "rgba(16,185,129,0.1)"
-
-                _trend_icon = "&#9650;" if _nb_trend == "increasing" else "&#9660;" if _nb_trend == "decreasing" else "&#8212;"
-                _denial_str = f" · Denial rate: {_nb_denial:.0%}" if _nb_denial is not None else ""
-
-                st.markdown(
-                    f'<div style="padding:8px 12px;margin:4px 0;border-radius:6px;background:{_nb_bg};border-left:3px solid {_nb_color};">'
-                    f'<span style="font-weight:700;color:#e2e8f0;font-size:15px;">{_nb_name}</span>'
-                    f'<span style="color:{_nb_color};font-weight:700;float:right;font-size:15px;">{_nb_ratio:.0%} opposition</span><br>'
-                    f'<span style="color:#94a3b8;font-size:12px;">'
-                    f'{_nb_level} risk · {_nb_hearings} hearings analyzed{_denial_str} · Trend: {_trend_icon}'
-                    f'</span>'
-                    f'</div>',
-                    unsafe_allow_html=True
-                )
-
-            # Specific neighborhood deep-dive
-            st.markdown("---")
-            _opp_lookup = st.text_input(
-                "Deep-dive: enter a neighborhood name",
-                placeholder="e.g. East Boston, South Boston, Roxbury...",
-                key="opp_lookup"
-            )
-            _opp_vt = st.text_input(
-                "Variance types (optional)",
-                placeholder="e.g. height, parking, use",
-                key="opp_vt"
-            )
-            if _opp_lookup:
-                try:
-                    _opp_params = {"neighborhood": _opp_lookup}
-                    if _opp_vt:
-                        _opp_params["variance_types"] = _opp_vt
-                    _opp_detail = requests.get(f"{API_URL}/opposition/score", params=_opp_params, timeout=10)
-                    if _opp_detail.status_code == 200:
-                        _od = _opp_detail.json()
-                        _od_level = _od.get("risk_level", "Unknown")
-                        _od_ratio = _od.get("opposition_ratio")
-                        _od_color = "#ef4444" if _od_level in ("High", "Very High") else "#f59e0b" if _od_level == "Medium" else "#10b981"
-
-                        st.markdown(
-                            f'<div style="padding:12px;background:#1e293b;border-radius:8px;margin:8px 0;">'
-                            f'<span style="font-size:18px;font-weight:700;color:#e2e8f0;">{esc(_od.get("neighborhood", _opp_lookup))}</span><br>'
-                            f'<span style="color:{_od_color};font-size:24px;font-weight:800;">'
-                            f'{_od_ratio:.0%} opposition</span> '
-                            f'<span style="color:{_od_color};font-size:14px;">({_od_level} risk)</span><br>'
-                            f'<span style="color:#94a3b8;font-size:13px;">'
-                            f'{_od.get("hearings_analyzed", 0)} hearings analyzed</span>'
-                            f'</div>',
-                            unsafe_allow_html=True
-                        ) if _od_ratio is not None else st.info(_od.get("note", "No data available."))
-
-                        # Variance-specific risks
-                        _vr_list = _od.get("variance_risks", [])
-                        if _vr_list:
-                            st.markdown("**Variance-specific opposition:**")
-                            for _vr in _vr_list:
-                                _vr_type = esc(_vr.get("variance_type", ""))
-                                _vr_ratio = _vr.get("opposition_ratio", 0)
-                                _vr_level = _vr.get("risk_level", "Unknown")
-                                _vr_color = "#ef4444" if _vr_level in ("High", "Very High") else "#f59e0b" if _vr_level == "Medium" else "#10b981"
+                        for pid, r in _bp_sorted:
+                            prob = r.get("approval_probability")
+                            err = r.get("error")
+                            if err:
                                 st.markdown(
-                                    f'<span style="color:{_vr_color};font-weight:600;">{_vr_type}</span>: '
-                                    f'{_vr_ratio:.0%} opposition ({_vr_level})',
+                                    f'<div style="padding:8px 14px;border-left:4px solid #64748b;margin:4px 0;">'
+                                    f'<span style="color:#94a3b8;">Parcel {esc(pid)}</span> — '
+                                    f'<span style="color:#ef4444;">{esc(err)}</span></div>',
                                     unsafe_allow_html=True
                                 )
-                except Exception as _opp_e:
-                    st.caption(f"Could not load neighborhood detail: {_opp_e}")
-        else:
-            st.info("Opposition data not available.")
-    except Exception as _opp_err:
-        st.caption(f"Neighborhood opposition data unavailable: {_opp_err}")
-
-
-# =========================
-# FILING STRATEGY
-# =========================
-
-with st.expander("Filing Strategy — Optimal Timing & Seasonal Patterns", expanded=False):
-    st.markdown(
-        "Analyze when to file for the best chance of approval. "
-        "Based on historical monthly, quarterly, and agenda-size patterns."
-    )
-
-    try:
-        _fs_res = requests.get(f"{API_URL}/filing_strategy/temporal_analysis", timeout=15)
-        if _fs_res.status_code == 200:
-            _fs_data = _fs_res.json()
-            _fs_monthly = _fs_data.get("monthly_patterns", [])
-            _fs_quarterly = _fs_data.get("quarterly_patterns", [])
-            _fs_agenda = _fs_data.get("agenda_size_effect", [])
-            _fs_yearly = _fs_data.get("yearly_trend", [])
-            _fs_best = _fs_data.get("best_month")
-            _fs_worst = _fs_data.get("worst_month")
-
-            st.caption(f"{_fs_data.get('total_cases_analyzed', 0):,} cases analyzed")
-
-            # Best/worst month callout
-            if _fs_best and _fs_worst:
-                _fs_col1, _fs_col2 = st.columns(2)
-                with _fs_col1:
-                    st.markdown(
-                        f'<div style="padding:12px;background:rgba(16,185,129,0.1);border-radius:8px;border-left:3px solid #10b981;">'
-                        f'<span style="color:#10b981;font-size:13px;font-weight:600;">BEST MONTH</span><br>'
-                        f'<span style="color:#e2e8f0;font-size:22px;font-weight:800;">{esc(_fs_best["month_name"])}</span><br>'
-                        f'<span style="color:#10b981;font-size:18px;font-weight:700;">{_fs_best["approval_rate"]:.0%} approval</span><br>'
-                        f'<span style="color:#94a3b8;font-size:12px;">{_fs_best["total_cases"]} cases</span>'
-                        f'</div>',
-                        unsafe_allow_html=True
-                    )
-                with _fs_col2:
-                    st.markdown(
-                        f'<div style="padding:12px;background:rgba(239,68,68,0.1);border-radius:8px;border-left:3px solid #ef4444;">'
-                        f'<span style="color:#ef4444;font-size:13px;font-weight:600;">WORST MONTH</span><br>'
-                        f'<span style="color:#e2e8f0;font-size:22px;font-weight:800;">{esc(_fs_worst["month_name"])}</span><br>'
-                        f'<span style="color:#ef4444;font-size:18px;font-weight:700;">{_fs_worst["approval_rate"]:.0%} approval</span><br>'
-                        f'<span style="color:#94a3b8;font-size:12px;">{_fs_worst["total_cases"]} cases</span>'
-                        f'</div>',
-                        unsafe_allow_html=True
-                    )
-
-            # Monthly chart
-            if _fs_monthly:
-                st.markdown("**Monthly Approval Rates**")
-                _fs_df = pd.DataFrame(_fs_monthly)
-                if not _fs_df.empty:
-                    st.bar_chart(_fs_df.set_index("month_name")["approval_rate"])
-
-            # Agenda size effect
-            if _fs_agenda:
-                st.markdown("**Agenda Size Effect** — Does hearing load affect outcomes?")
-                for _ag in _fs_agenda:
-                    _ag_rate = _ag.get("approval_rate", 0)
-                    _ag_color = "#10b981" if _ag_rate >= 0.7 else "#f59e0b" if _ag_rate >= 0.5 else "#ef4444"
-                    st.markdown(
-                        f'<span style="color:#e2e8f0;font-weight:600;">{esc(_ag["size_range"])}</span>: '
-                        f'<span style="color:{_ag_color};font-weight:700;">{_ag_rate:.0%}</span> '
-                        f'<span style="color:#94a3b8;font-size:12px;">({_ag["hearings"]} hearings, avg {_ag["avg_cases"]:.0f} cases)</span>',
-                        unsafe_allow_html=True
-                    )
-
-            # Personalized recommendation
-            st.markdown("---")
-            st.markdown("**Get a personalized filing recommendation:**")
-            _fs_rec_col1, _fs_rec_col2 = st.columns(2)
-            with _fs_rec_col1:
-                _fs_rec_vt = st.text_input("Variance types", placeholder="e.g. height, parking", key="fs_rec_vt")
-            with _fs_rec_col2:
-                _fs_rec_ward = st.text_input("Ward", placeholder="e.g. 7", key="fs_rec_ward")
-
-            if _fs_rec_vt or _fs_rec_ward:
-                try:
-                    _rec_params = {}
-                    if _fs_rec_vt:
-                        _rec_params["variance_types"] = _fs_rec_vt
-                    if _fs_rec_ward:
-                        _rec_params["ward"] = _fs_rec_ward
-                    _rec_res = requests.get(f"{API_URL}/filing_strategy/recommend", params=_rec_params, timeout=10)
-                    if _rec_res.status_code == 200:
-                        _rec = _rec_res.json()
-                        st.markdown(
-                            f'<div style="padding:12px;background:#1e293b;border-radius:8px;margin:8px 0;">'
-                            f'<span style="color:#3b82f6;font-size:14px;font-weight:600;">RECOMMENDATION</span><br>'
-                            f'<span style="color:#e2e8f0;font-size:14px;">{esc(_rec.get("recommendation", ""))}</span><br>'
-                            f'<span style="color:#94a3b8;font-size:12px;">'
-                            f'Based on {_rec.get("cases_analyzed", 0)} cases · '
-                            f'Overall rate: {_rec.get("overall_rate", 0):.0%}</span>'
-                            f'</div>',
-                            unsafe_allow_html=True
-                        )
-                except Exception as _rec_e:
-                    st.caption(f"Could not generate recommendation: {_rec_e}")
-        else:
-            st.info("Filing strategy data not available.")
-    except Exception as _fs_err:
-        st.caption(f"Filing strategy unavailable: {_fs_err}")
-
-
-# =========================
-# HEARING PREP REPORT
-# =========================
-
-with st.expander("Hearing Prep Report — Comprehensive Pre-Hearing Briefing", expanded=False):
-    st.markdown(
-        "Generate a comprehensive tactical report for an upcoming ZBA hearing. "
-        "Combines board member tendencies, opposition risk, attorney recommendations, "
-        "and filing strategy into one actionable briefing."
-    )
-
-    _hp_col1, _hp_col2 = st.columns(2)
-    with _hp_col1:
-        _hp_address = st.text_input("Property address", placeholder="e.g. 123 Main St", key="hp_address")
-        _hp_neighborhood = st.text_input("Neighborhood", placeholder="e.g. East Boston", key="hp_neighborhood")
-    with _hp_col2:
-        _hp_variance = st.text_input("Variance types", placeholder="e.g. height, parking, use", key="hp_variance")
-        _hp_ward = st.text_input("Ward", placeholder="e.g. 7", key="hp_ward")
-
-    _hp_attorney = st.text_input("Your attorney (optional)", placeholder="e.g. John Smith", key="hp_attorney")
-
-    if st.button("Generate Hearing Prep Report", key="hp_generate", type="primary"):
-        if not _hp_address and not _hp_neighborhood and not _hp_ward:
-            st.warning("Please provide at least an address, neighborhood, or ward.")
-        else:
-            with st.spinner("Generating comprehensive hearing prep report..."):
-                try:
-                    _hp_params = {"address": _hp_address or "Not specified"}
-                    if _hp_neighborhood:
-                        _hp_params["neighborhood"] = _hp_neighborhood
-                    if _hp_ward:
-                        _hp_params["ward"] = _hp_ward
-                    if _hp_variance:
-                        _hp_params["variance_types"] = _hp_variance
-                    if _hp_attorney:
-                        _hp_params["attorney"] = _hp_attorney
-
-                    # Use parcel_id if available from session
-                    _hp_parcel = st.session_state.get("parcel_data", {})
-                    if _hp_parcel and _hp_parcel.get("parcel_id"):
-                        _hp_params["parcel_id"] = _hp_parcel["parcel_id"]
-
-                    _hp_res = requests.get(f"{API_URL}/hearing_prep/generate", params=_hp_params, timeout=30)
-                    if _hp_res.status_code == 200:
-                        _hp = _hp_res.json()
-
-                        # Tactical advice (most important — show first)
-                        _hp_advice = _hp.get("tactical_advice", [])
-                        if _hp_advice:
-                            st.markdown("### Tactical Advice")
-                            for _adv in _hp_advice:
-                                _adv_pri = _adv.get("priority", "LOW")
-                                _adv_cat = esc(_adv.get("category", "General"))
-                                _adv_text = esc(_adv.get("text", ""))
-                                if _adv_pri == "HIGH":
-                                    _adv_color = "#ef4444"
-                                    _adv_bg = "rgba(239,68,68,0.1)"
-                                elif _adv_pri == "MEDIUM":
-                                    _adv_color = "#f59e0b"
-                                    _adv_bg = "rgba(245,158,11,0.1)"
-                                else:
-                                    _adv_color = "#10b981"
-                                    _adv_bg = "rgba(16,185,129,0.1)"
-
+                            elif prob is not None:
+                                _bp_color = "#10b981" if prob >= 0.7 else "#f59e0b" if prob >= 0.5 else "#ef4444"
                                 st.markdown(
-                                    f'<div style="padding:10px 14px;margin:6px 0;border-radius:6px;background:{_adv_bg};border-left:3px solid {_adv_color};">'
-                                    f'<span style="color:{_adv_color};font-weight:700;font-size:11px;">{_adv_pri}</span>'
-                                    f'<span style="color:#94a3b8;font-size:11px;margin-left:8px;">{_adv_cat}</span><br>'
-                                    f'<span style="color:#e2e8f0;font-size:14px;">{_adv_text}</span>'
+                                    f'<div style="padding:8px 14px;border-left:4px solid {_bp_color};margin:4px 0;">'
+                                    f'<span style="font-weight:700;color:{_bp_color};font-size:18px;">{prob:.0%}</span> '
+                                    f'<span style="color:#e2e8f0;margin-left:8px;">Parcel {esc(pid)}</span>'
                                     f'</div>',
                                     unsafe_allow_html=True
                                 )
 
-                        # Opposition risk section
-                        _hp_opp = _hp.get("opposition_risk", {})
-                        if _hp_opp and _hp_opp.get("opposition_ratio") is not None:
-                            st.markdown("### Opposition Risk")
-                            _ho_level = _hp_opp.get("risk_level", "Unknown")
-                            _ho_color = "#ef4444" if _ho_level in ("High", "Very High") else "#f59e0b" if _ho_level == "Medium" else "#10b981"
-                            st.markdown(
-                                f'<span style="color:#e2e8f0;font-weight:600;">{esc(_hp_opp.get("neighborhood", ""))}</span>: '
-                                f'<span style="color:{_ho_color};font-weight:700;">{_hp_opp["opposition_ratio"]:.0%} opposition</span> '
-                                f'<span style="color:#94a3b8;">({_ho_level} risk, {_hp_opp.get("hearings_analyzed", 0)} hearings)</span>',
-                                unsafe_allow_html=True
-                            )
-
-                        # Board analysis
-                        _hp_board = _hp.get("board_analysis", {})
-                        _hp_board_members = _hp_board.get("members", [])
-                        if _hp_board_members:
-                            st.markdown("### Board Member Analysis")
-                            for _hbm in _hp_board_members[:8]:
-                                _hbm_name = esc(_hbm.get("name", ""))
-                                _hbm_rate = _hbm.get("overall_approval_rate")
-                                _hbm_color = "#10b981" if _hbm_rate and _hbm_rate >= 0.7 else "#f59e0b" if _hbm_rate and _hbm_rate >= 0.5 else "#ef4444"
-                                _hbm_rate_str = f"{_hbm_rate:.0%}" if _hbm_rate is not None else "N/A"
-                                st.markdown(
-                                    f'<span style="font-weight:600;color:#e2e8f0;">{_hbm_name}</span> '
-                                    f'<span style="color:{_hbm_color};font-weight:600;">{_hbm_rate_str}</span> '
-                                    f'<span style="color:#94a3b8;font-size:12px;">({_hbm.get("hearings_attended", 0)} hearings)</span>',
-                                    unsafe_allow_html=True
-                                )
-
-                        # Attorney recommendations
-                        _hp_atty = _hp.get("attorney_recommendations", {})
-                        _hp_atty_list = _hp_atty.get("attorneys", [])
-                        if _hp_atty_list:
-                            st.markdown("### Recommended Attorneys")
-                            for _ha in _hp_atty_list[:5]:
-                                _ha_name = esc(_ha.get("name", ""))
-                                _ha_rate = _ha.get("approval_rate", 0)
-                                _ha_color = "#10b981" if _ha_rate >= 0.7 else "#f59e0b" if _ha_rate >= 0.5 else "#ef4444"
-                                st.markdown(
-                                    f'<span style="font-weight:600;color:#e2e8f0;">{_ha_name}</span> '
-                                    f'<span style="color:{_ha_color};font-weight:700;">{_ha_rate:.0%}</span> '
-                                    f'<span style="color:#94a3b8;font-size:12px;">'
-                                    f'({_ha.get("cases_for_filter", 0)} relevant cases, '
-                                    f'{_ha.get("overall_cases", 0)} total)</span>',
-                                    unsafe_allow_html=True
-                                )
-
-                        # Filing timing
-                        _hp_timing = _hp.get("filing_strategy", {})
-                        if _hp_timing.get("recommendation"):
-                            st.markdown("### Filing Timing")
-                            st.markdown(
-                                f'<div style="padding:10px;background:#1e293b;border-radius:6px;">'
-                                f'<span style="color:#e2e8f0;font-size:14px;">{esc(_hp_timing["recommendation"])}</span>'
-                                f'</div>',
-                                unsafe_allow_html=True
-                            )
-
-                        # Risk score
-                        _hp_risk = _hp.get("risk_score", {})
-                        if _hp_risk.get("risk_score") is not None:
-                            st.markdown("### Site Risk Score")
-                            _hr_score = _hp_risk["risk_score"]
-                            _hr_level = esc(_hp_risk.get("risk_level", ""))
-                            _hr_color = "#ef4444" if _hr_score > 75 else "#f59e0b" if _hr_score > 50 else "#10b981"
-                            st.markdown(
-                                f'<span style="color:{_hr_color};font-size:28px;font-weight:800;">{_hr_score:.0f}/100</span> '
-                                f'<span style="color:{_hr_color};font-size:16px;">{_hr_level}</span>',
-                                unsafe_allow_html=True
-                            )
-
-                    else:
-                        st.warning(f"Could not generate report: {_hp_res.status_code}")
-                except Exception as _hp_err:
-                    st.error(f"Hearing prep report failed: {_hp_err}")
-
-
-# =========================
-# PARCEL RISK SCORE
-# =========================
-
-with st.expander("Parcel Risk Score — Development Difficulty by Location", expanded=False):
-    st.markdown(
-        "Every parcel in Boston gets a 0-100 development difficulty score based on "
-        "ward denial rates, zoning district patterns, case density, and lot characteristics."
-    )
-
-    # Show summary stats
-    try:
-        _rs_res = requests.get(f"{API_URL}/risk/summary", timeout=10)
-        if _rs_res.status_code == 200:
-            _rs_data = _rs_res.json()
-            _rs_dist = _rs_data.get("distribution", {})
-
-            _rs_c1, _rs_c2, _rs_c3, _rs_c4 = st.columns(4)
-            with _rs_c1:
-                st.markdown(
-                    f'<div style="text-align:center;padding:8px;">'
-                    f'<span style="color:#10b981;font-size:24px;font-weight:800;">{_rs_dist.get("easy", 0):,}</span><br>'
-                    f'<span style="color:#94a3b8;font-size:12px;">Easy (0-25)</span></div>',
-                    unsafe_allow_html=True
-                )
-            with _rs_c2:
-                st.markdown(
-                    f'<div style="text-align:center;padding:8px;">'
-                    f'<span style="color:#f59e0b;font-size:24px;font-weight:800;">{_rs_dist.get("moderate", 0):,}</span><br>'
-                    f'<span style="color:#94a3b8;font-size:12px;">Moderate (26-50)</span></div>',
-                    unsafe_allow_html=True
-                )
-            with _rs_c3:
-                st.markdown(
-                    f'<div style="text-align:center;padding:8px;">'
-                    f'<span style="color:#f97316;font-size:24px;font-weight:800;">{_rs_dist.get("difficult", 0):,}</span><br>'
-                    f'<span style="color:#94a3b8;font-size:12px;">Difficult (51-75)</span></div>',
-                    unsafe_allow_html=True
-                )
-            with _rs_c4:
-                st.markdown(
-                    f'<div style="text-align:center;padding:8px;">'
-                    f'<span style="color:#ef4444;font-size:24px;font-weight:800;">{_rs_dist.get("very_difficult", 0):,}</span><br>'
-                    f'<span style="color:#94a3b8;font-size:12px;">Very Difficult (76+)</span></div>',
-                    unsafe_allow_html=True
-                )
-
-            st.caption(
-                f"{_rs_data.get('total_parcels', 0):,} parcels scored · "
-                f"Mean: {_rs_data.get('mean_score', 0):.1f} · "
-                f"Median: {_rs_data.get('median_score', 0):.1f} · "
-                f"Range: {_rs_data.get('min_score', 0):.0f}–{_rs_data.get('max_score', 0):.0f}"
-            )
-    except Exception:
-        pass
-
-    # Parcel-level lookup
-    st.markdown("---")
-    _rs_pid = st.text_input(
-        "Look up a specific parcel",
-        placeholder="Enter 10-digit parcel ID (e.g. 0302951010)",
-        key="rs_parcel_lookup"
-    )
-
-    # Auto-fill from session
-    if not _rs_pid and st.session_state.get("parcel_data", {}).get("parcel_id"):
-        _rs_pid = st.session_state["parcel_data"]["parcel_id"]
-        st.caption(f"Using parcel from current session: {_rs_pid}")
-
-    if _rs_pid:
-        try:
-            _rs_detail = requests.get(f"{API_URL}/risk/parcels/{_rs_pid}", timeout=10)
-            if _rs_detail.status_code == 200:
-                _rd = _rs_detail.json()
-                _rd_score = _rd.get("risk_score", 0)
-                _rd_level = esc(_rd.get("risk_level", ""))
-                _rd_desc = esc(_rd.get("description", ""))
-                _rd_color = "#ef4444" if _rd_score > 75 else "#f97316" if _rd_score > 50 else "#f59e0b" if _rd_score > 25 else "#10b981"
-
-                st.markdown(
-                    f'<div style="padding:16px;background:#1e293b;border-radius:8px;margin:8px 0;">'
-                    f'<div style="display:flex;align-items:center;gap:16px;">'
-                    f'<div>'
-                    f'<span style="color:{_rd_color};font-size:42px;font-weight:800;">{_rd_score:.0f}</span>'
-                    f'<span style="color:#94a3b8;font-size:14px;">/100</span>'
-                    f'</div>'
-                    f'<div>'
-                    f'<span style="color:{_rd_color};font-size:18px;font-weight:700;">{_rd_level}</span><br>'
-                    f'<span style="color:#94a3b8;font-size:13px;">{_rd_desc}</span>'
-                    f'</div>'
-                    f'</div>'
-                    f'</div>',
-                    unsafe_allow_html=True
-                )
-
-                # Component breakdown
-                _rd_comp = _rd.get("components", {})
-                if _rd_comp:
-                    st.markdown("**Score Components:**")
-                    _comp_items = [
-                        ("Ward Denial Rate", _rd_comp.get("ward_denial_rate", 0), "30%"),
-                        ("District Denial Rate", _rd_comp.get("district_denial_rate", 0), "25%"),
-                        ("Case Density", _rd_comp.get("case_density_score", 0), "15%"),
-                        ("Lot Size Factor", _rd_comp.get("lot_size_score", 0), "15%"),
-                        ("Zoning Restrictiveness", _rd_comp.get("zoning_restrictiveness", 0), "15%"),
-                    ]
-                    for _ci_label, _ci_val, _ci_weight in _comp_items:
-                        _ci_color = "#ef4444" if _ci_val > 0.6 else "#f59e0b" if _ci_val > 0.3 else "#10b981"
-                        _ci_display = f"{_ci_val:.0%}" if _ci_val <= 1 else f"{_ci_val:.1f}"
-                        st.markdown(
-                            f'<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;">'
-                            f'<span style="color:#e2e8f0;">{_ci_label} <span style="color:#64748b;font-size:11px;">({_ci_weight} weight)</span></span>'
-                            f'<span style="color:{_ci_color};font-weight:600;">{_ci_display}</span>'
-                            f'</div>',
-                            unsafe_allow_html=True
+                        # Export as CSV
+                        _bp_export = []
+                        for pid, r in zip(_bp_ids[:50], _bp_results):
+                            _bp_export.append({
+                                "parcel_id": pid,
+                                "approval_probability": r.get("approval_probability"),
+                                "error": r.get("error", "")
+                            })
+                        st.download_button(
+                            "Export Results CSV",
+                            pd.DataFrame(_bp_export).to_csv(index=False),
+                            "permitiq_batch_predictions.csv",
+                            "text/csv",
+                            key="dl_batch"
                         )
-            elif _rs_detail.status_code == 404:
-                st.info(f"No risk score found for parcel {_rs_pid}.")
-            else:
-                st.warning(f"Risk score lookup failed: {_rs_detail.status_code}")
-        except Exception as _rs_err:
-            st.caption(f"Risk score lookup failed: {_rs_err}")
+                    else:
+                        st.info("No results returned.")
+                elif _bp_res.status_code == 503:
+                    st.warning("Model not loaded.")
+                else:
+                    st.error(f"Batch prediction error: {_bp_res.status_code}")
+            except Exception as e:
+                st.error(f"Batch prediction unavailable: {e}")
+        else:
+            st.warning("Enter at least one parcel ID.")
 
 
 # =========================
