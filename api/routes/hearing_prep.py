@@ -6,29 +6,26 @@ attorney recommendations, and filing strategy into a single tactical report.
 """
 
 import logging
-import requests
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 
 logger = logging.getLogger("permitiq")
 router = APIRouter(prefix="/hearing_prep", tags=["Hearing Prep"])
 
 
-def _internal_get(request: Request, path: str, params: dict = None):
-    """Make an internal API call to another endpoint."""
-    base = str(request.base_url).rstrip('/')
+def _safe_call(fn, *args, **kwargs):
+    """Call a route handler directly and return its result, or None on error."""
     try:
-        resp = requests.get(f"{base}{path}", params=params, timeout=10)
-        if resp.status_code == 200:
-            return resp.json()
+        return fn(*args, **kwargs)
+    except HTTPException:
+        return None
     except Exception as e:
-        logger.warning("Internal call to %s failed: %s", path, e)
-    return None
+        logger.warning("Hearing prep sub-call failed: %s", e)
+        return None
 
 
 @router.get("/generate")
 def generate_hearing_prep(
-    request: Request,
     address: str = Query(..., description="Property address"),
     parcel_id: Optional[str] = Query(None, description="Parcel ID"),
     variance_types: Optional[str] = Query(None, description="Comma-separated variance types"),
@@ -48,77 +45,85 @@ def generate_hearing_prep(
         "variance_types": variance_types,
         "ward": ward,
         "neighborhood": neighborhood,
+        "warnings": [],
     }
 
-    # 1. Similar cases (from nearby cases if parcel_id available)
+    # 1. Risk score for parcel
     if parcel_id:
-        nearby = _internal_get(request, f"/parcels/{parcel_id}/nearby_cases", {"radius_m": 800, "limit": 15})
-        if nearby:
-            report["nearby_cases"] = {
-                "cases": nearby.get("cases", []),
-                "total": nearby.get("total", 0),
-                "approval_rate": nearby.get("approval_rate"),
-                "ward": nearby.get("ward"),
-            }
-
-        # Risk score
-        risk = _internal_get(request, f"/risk/parcels/{parcel_id}")
-        if risk:
-            report["risk_score"] = risk
+        try:
+            from api.routes.risk_score import parcel_risk_score
+            risk = _safe_call(parcel_risk_score, parcel_id)
+            if risk:
+                report["risk_score"] = risk
+        except ImportError:
+            report["warnings"].append("Risk score module not available")
 
     # 2. Board member tendencies
-    board = _internal_get(request, "/board_members/for_hearing",
-                          {"variance_types": variance_types} if variance_types else {})
-    if board:
-        report["board_analysis"] = board
+    try:
+        from api.routes.board_members import members_for_hearing
+        board = _safe_call(members_for_hearing, variance_types=variance_types)
+        if board:
+            report["board_analysis"] = board
+        else:
+            report["warnings"].append("Board member data unavailable")
+    except ImportError:
+        report["warnings"].append("Board members module not available")
 
     # 3. Opposition risk
     if neighborhood or ward:
-        opp_params = {}
-        if neighborhood:
-            opp_params["neighborhood"] = neighborhood
-        if ward:
-            opp_params["ward"] = ward
-        if variance_types:
-            opp_params["variance_types"] = variance_types
-        opposition = _internal_get(request, "/opposition/score", opp_params)
-        if opposition:
-            report["opposition_risk"] = opposition
+        try:
+            from api.routes.opposition import opposition_score
+            opposition = _safe_call(opposition_score, neighborhood=neighborhood, ward=ward, variance_types=variance_types)
+            if opposition:
+                report["opposition_risk"] = opposition
+            else:
+                report["warnings"].append("Opposition data unavailable")
+        except ImportError:
+            report["warnings"].append("Opposition module not available")
 
-    # 4. Attorney recommendation or comparison
+    # 4. Attorney recommendation
     if variance_types:
-        rec_params = {"variance_types": variance_types, "limit": 5}
-        if ward:
-            rec_params["ward"] = ward
-        attorney_rec = _internal_get(request, "/attorneys/recommend", rec_params)
-        if attorney_rec:
-            report["attorney_recommendations"] = attorney_rec
+        try:
+            from api.routes.attorneys import recommend_attorney
+            attorney_rec = _safe_call(recommend_attorney, variance_types=variance_types, ward=ward, limit=5, min_cases=3)
+            if attorney_rec:
+                report["attorney_recommendations"] = attorney_rec
+        except ImportError:
+            report["warnings"].append("Attorney module not available")
 
         # If user has an attorney, get their profile
         if attorney:
-            profile = _internal_get(request, f"/attorneys/{attorney}/profile")
-            if profile:
-                report["your_attorney"] = {
-                    "name": profile.get("name"),
-                    "win_rate": profile.get("win_rate"),
-                    "total_cases": profile.get("total_cases"),
-                    "percentile_rank": profile.get("comparison", {}).get("percentile_rank"),
-                    "variance_specialties": profile.get("variance_specialties", [])[:5],
-                }
+            try:
+                from api.routes.attorneys import attorney_profile
+                profile = _safe_call(attorney_profile, attorney)
+                if profile:
+                    report["your_attorney"] = {
+                        "name": profile.get("name"),
+                        "win_rate": profile.get("win_rate"),
+                        "total_cases": profile.get("total_cases"),
+                        "percentile_rank": profile.get("comparison", {}).get("percentile_rank"),
+                        "variance_specialties": profile.get("variance_specialties", [])[:5],
+                    }
+            except ImportError:
+                pass
 
     # 5. Filing strategy
-    strategy_params = {}
-    if variance_types:
-        strategy_params["variance_types"] = variance_types
-    if ward:
-        strategy_params["ward"] = ward
-    strategy = _internal_get(request, "/filing_strategy/recommend", strategy_params)
-    if strategy:
-        report["filing_strategy"] = strategy
+    if variance_types or ward:
+        try:
+            from api.routes.filing_strategy import recommend_timing
+            strategy = _safe_call(recommend_timing, variance_types=variance_types, ward=ward)
+            if strategy:
+                report["filing_strategy"] = strategy
+        except ImportError:
+            report["warnings"].append("Filing strategy module not available")
 
     # 6. Generate tactical advice
     advice = _generate_advice(report)
     report["tactical_advice"] = advice
+
+    # Remove empty warnings list
+    if not report["warnings"]:
+        del report["warnings"]
 
     return report
 

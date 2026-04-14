@@ -9,7 +9,6 @@ import logging
 import os
 import pandas as pd
 from fastapi import APIRouter, HTTPException
-from api import state
 
 logger = logging.getLogger("permitiq")
 router = APIRouter(prefix="/risk", tags=["Risk Score"])

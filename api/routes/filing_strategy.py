@@ -172,7 +172,7 @@ def recommend_timing(
             mask = pd.Series(False, index=decided.index)
             vt_col = decided['variance_types'].fillna('')
             for vt in vtypes:
-                mask |= vt_col.str.contains(vt, na=False, case=False)
+                mask |= vt_col.str.contains(vt, na=False, case=False, regex=False)
             decided = decided[mask]
 
     # Filter by ward if provided

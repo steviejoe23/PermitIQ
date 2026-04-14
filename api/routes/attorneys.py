@@ -231,7 +231,7 @@ def attorney_profile(attorney_name: str):
     if 'variance_types' in cases.columns:
         vt_str = cases['variance_types'].fillna('')
         for vt in _VARIANCE_TYPES:
-            mask = vt_str.str.contains(vt, na=False)
+            mask = vt_str.str.contains(vt, na=False, regex=False)
             matched = cases[mask]
             if len(matched) > 0:
                 v_approved = int((matched['decision_clean'] == 'APPROVED').sum())
@@ -363,7 +363,7 @@ def recommend_attorney(
     vt_col = df['variance_types'].fillna('')
     mask = pd.Series(False, index=df.index)
     for vt in vtypes:
-        mask |= vt_col.str.contains(vt, na=False, case=False)
+        mask |= vt_col.str.contains(vt, na=False, case=False, regex=False)
     filtered = df[mask].copy()
 
     # Filter by ward if provided
@@ -453,7 +453,7 @@ def attorney_similar_cases(
         for vt in variance_type:
             vt_clean = vt.strip().lower()
             if vt_clean:
-                filtered = filtered[filtered['variance_types'].fillna('').str.contains(vt_clean, na=False)]
+                filtered = filtered[filtered['variance_types'].fillna('').str.contains(vt_clean, na=False, regex=False)]
 
     # Filter by ward
     if ward:
