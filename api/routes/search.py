@@ -71,6 +71,10 @@ def _do_search(q_norm: str) -> list:
     matches = matches.copy()
     matches['decision_clean'] = matches['decision_clean'].fillna('').astype(str)
 
+    # Convert date column to datetime so max/min aggregation works
+    if date_col and date_col in matches.columns:
+        matches[date_col] = pd.to_datetime(matches[date_col], errors='coerce')
+
     agg_dict = {
         'address': ('address_clean', 'first'),
         'ward': ('ward', 'first'),
