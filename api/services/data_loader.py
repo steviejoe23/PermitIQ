@@ -185,7 +185,7 @@ def _log_memory(label: str):
         pass
 
 
-def load_all(market_init=None, attorney_init=None, variance_types=None, project_types=None):
+def load_all(market_init=None, attorney_init=None, filing_strategy_init=None, variance_types=None, project_types=None):
     """Load all data into state module. Called once at startup."""
     import gc
     light_mode_val = os.environ.get('PERMITIQ_LIGHT_MODE', '')
@@ -272,6 +272,10 @@ def load_all(market_init=None, attorney_init=None, variance_types=None, project_
     if attorney_init is not None and state.zba_df is not None:
         attorney_init(state.zba_df, variance_types)
         logger.info("Attorney router initialized")
+
+    if filing_strategy_init is not None and state.zba_df is not None:
+        filing_strategy_init(state.zba_df, variance_types, tracker_path=TRACKER_PATH)
+        logger.info("Filing strategy router initialized")
 
     if not light_mode:
         _build_case_coords()

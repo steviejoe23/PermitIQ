@@ -1,0 +1,5634 @@
+{
+  "members": [
+    {
+      "name": "Stembridge",
+      "aliases": [
+        "Sembridge",
+        "Stambridge",
+        "Stebridge",
+        "Steinbridge",
+        "Stemberidge",
+        "Stombridge",
+        "Stonebridge",
+        "Stumberidge",
+        "Stumbridge"
+      ],
+      "role": "Member",
+      "hearings_attended": 175,
+      "total_mentions": 4847,
+      "date_range": [
+        "2020-08-22",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 2540,
+      "approval_rate": 0.894,
+      "denial_rate": 0.106,
+      "individual_votes": {
+        "yes": 119,
+        "no": 8
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 30,
+          "approval_rate": 0.933
+        },
+        "far": {
+          "cases": 830,
+          "approval_rate": 0.967
+        },
+        "height": {
+          "cases": 990,
+          "approval_rate": 0.967
+        },
+        "parking": {
+          "cases": 1205,
+          "approval_rate": 0.963
+        },
+        "setback": {
+          "cases": 1273,
+          "approval_rate": 0.968
+        },
+        "use": {
+          "cases": 2224,
+          "approval_rate": 0.978
+        }
+      }
+    },
+    {
+      "name": "Hampton",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 140,
+      "total_mentions": 528,
+      "date_range": [
+        "2020-05-19",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 2370,
+      "approval_rate": 0.805,
+      "denial_rate": 0.195,
+      "individual_votes": {
+        "yes": 3,
+        "no": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 30,
+          "approval_rate": 0.933
+        },
+        "far": {
+          "cases": 821,
+          "approval_rate": 0.92
+        },
+        "height": {
+          "cases": 1019,
+          "approval_rate": 0.931
+        },
+        "parking": {
+          "cases": 1238,
+          "approval_rate": 0.918
+        },
+        "setback": {
+          "cases": 1210,
+          "approval_rate": 0.926
+        },
+        "use": {
+          "cases": 1967,
+          "approval_rate": 0.942
+        }
+      }
+    },
+    {
+      "name": "Valencia",
+      "aliases": [
+        "Chair Valencia",
+        "Chairman Valencia",
+        "Volencia"
+      ],
+      "role": "Chair",
+      "hearings_attended": 116,
+      "total_mentions": 2082,
+      "date_range": [
+        "2021-09-17",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 1889,
+      "approval_rate": 0.869,
+      "denial_rate": 0.131,
+      "individual_votes": {
+        "yes": 144,
+        "no": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 25,
+          "approval_rate": 0.92
+        },
+        "far": {
+          "cases": 671,
+          "approval_rate": 0.975
+        },
+        "height": {
+          "cases": 800,
+          "approval_rate": 0.968
+        },
+        "parking": {
+          "cases": 1007,
+          "approval_rate": 0.969
+        },
+        "setback": {
+          "cases": 971,
+          "approval_rate": 0.974
+        },
+        "use": {
+          "cases": 1642,
+          "approval_rate": 0.979
+        }
+      }
+    },
+    {
+      "name": "Panato",
+      "aliases": [
+        "Pannato"
+      ],
+      "role": "Member",
+      "hearings_attended": 94,
+      "total_mentions": 845,
+      "date_range": [
+        "2015-02-24",
+        "2026-04-07"
+      ],
+      "cases_during_tenure": 1904,
+      "approval_rate": 0.797,
+      "denial_rate": 0.203,
+      "individual_votes": {
+        "yes": 20
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 50,
+          "approval_rate": 0.92
+        },
+        "far": {
+          "cases": 410,
+          "approval_rate": 0.927
+        },
+        "height": {
+          "cases": 583,
+          "approval_rate": 0.925
+        },
+        "parking": {
+          "cases": 822,
+          "approval_rate": 0.914
+        },
+        "setback": {
+          "cases": 573,
+          "approval_rate": 0.941
+        },
+        "use": {
+          "cases": 1125,
+          "approval_rate": 0.942
+        }
+      }
+    },
+    {
+      "name": "Berraza",
+      "aliases": [
+        "Barraza",
+        "Beraza",
+        "Berberaza",
+        "Berrazo",
+        "Bervaza"
+      ],
+      "role": "Member",
+      "hearings_attended": 88,
+      "total_mentions": 357,
+      "date_range": [
+        "2021-07-22",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 1533,
+      "approval_rate": 0.85,
+      "denial_rate": 0.15,
+      "individual_votes": {
+        "yes": 6,
+        "no": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 15,
+          "approval_rate": 0.867
+        },
+        "far": {
+          "cases": 499,
+          "approval_rate": 0.934
+        },
+        "height": {
+          "cases": 642,
+          "approval_rate": 0.945
+        },
+        "parking": {
+          "cases": 745,
+          "approval_rate": 0.94
+        },
+        "setback": {
+          "cases": 782,
+          "approval_rate": 0.942
+        },
+        "use": {
+          "cases": 1371,
+          "approval_rate": 0.957
+        }
+      }
+    },
+    {
+      "name": "Langham",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 83,
+      "total_mentions": 1089,
+      "date_range": [
+        "2021-09-17",
+        "2026-03-10"
+      ],
+      "cases_during_tenure": 1284,
+      "approval_rate": 0.904,
+      "denial_rate": 0.096,
+      "individual_votes": {
+        "yes": 77,
+        "no": 3
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 12,
+          "approval_rate": 0.833
+        },
+        "far": {
+          "cases": 441,
+          "approval_rate": 0.989
+        },
+        "height": {
+          "cases": 542,
+          "approval_rate": 0.969
+        },
+        "parking": {
+          "cases": 673,
+          "approval_rate": 0.973
+        },
+        "setback": {
+          "cases": 653,
+          "approval_rate": 0.98
+        },
+        "use": {
+          "cases": 1120,
+          "approval_rate": 0.985
+        }
+      }
+    },
+    {
+      "name": "Collins",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 79,
+      "total_mentions": 1578,
+      "date_range": [
+        "2022-04-26",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 1287,
+      "approval_rate": 0.845,
+      "denial_rate": 0.155,
+      "individual_votes": {
+        "yes": 186,
+        "no": 3
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 24,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 448,
+          "approval_rate": 0.942
+        },
+        "height": {
+          "cases": 521,
+          "approval_rate": 0.962
+        },
+        "parking": {
+          "cases": 666,
+          "approval_rate": 0.952
+        },
+        "setback": {
+          "cases": 636,
+          "approval_rate": 0.951
+        },
+        "use": {
+          "cases": 1084,
+          "approval_rate": 0.965
+        }
+      }
+    },
+    {
+      "name": "Fortune",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 79,
+      "total_mentions": 677,
+      "date_range": [
+        "2016-06-07",
+        "2026-04-07"
+      ],
+      "cases_during_tenure": 1615,
+      "approval_rate": 0.708,
+      "denial_rate": 0.292,
+      "individual_votes": {
+        "yes": 32
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 34,
+          "approval_rate": 0.941
+        },
+        "far": {
+          "cases": 380,
+          "approval_rate": 0.866
+        },
+        "height": {
+          "cases": 542,
+          "approval_rate": 0.908
+        },
+        "parking": {
+          "cases": 673,
+          "approval_rate": 0.854
+        },
+        "setback": {
+          "cases": 557,
+          "approval_rate": 0.883
+        },
+        "use": {
+          "cases": 893,
+          "approval_rate": 0.884
+        }
+      }
+    },
+    {
+      "name": "Wewell",
+      "aliases": [
+        "Weewell"
+      ],
+      "role": "Member",
+      "hearings_attended": 79,
+      "total_mentions": 300,
+      "date_range": [
+        "2020-08-22",
+        "2026-03-10"
+      ],
+      "cases_during_tenure": 1226,
+      "approval_rate": 0.88,
+      "denial_rate": 0.12,
+      "individual_votes": {
+        "yes": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 18,
+          "approval_rate": 0.889
+        },
+        "far": {
+          "cases": 414,
+          "approval_rate": 0.99
+        },
+        "height": {
+          "cases": 510,
+          "approval_rate": 0.969
+        },
+        "parking": {
+          "cases": 647,
+          "approval_rate": 0.969
+        },
+        "setback": {
+          "cases": 642,
+          "approval_rate": 0.978
+        },
+        "use": {
+          "cases": 1090,
+          "approval_rate": 0.985
+        }
+      }
+    },
+    {
+      "name": "Domingo",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 65,
+      "total_mentions": 174,
+      "date_range": [
+        "2016-09-13",
+        "2024-07-30"
+      ],
+      "cases_during_tenure": 1405,
+      "approval_rate": 0.731,
+      "denial_rate": 0.269,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 18,
+          "approval_rate": 0.889
+        },
+        "far": {
+          "cases": 465,
+          "approval_rate": 0.886
+        },
+        "height": {
+          "cases": 599,
+          "approval_rate": 0.908
+        },
+        "parking": {
+          "cases": 694,
+          "approval_rate": 0.883
+        },
+        "setback": {
+          "cases": 666,
+          "approval_rate": 0.893
+        },
+        "use": {
+          "cases": 1042,
+          "approval_rate": 0.909
+        }
+      }
+    },
+    {
+      "name": "Newman",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 53,
+      "total_mentions": 87,
+      "date_range": [
+        "2016-09-13",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 989,
+      "approval_rate": 0.84,
+      "denial_rate": 0.16,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 18,
+          "approval_rate": 0.889
+        },
+        "far": {
+          "cases": 324,
+          "approval_rate": 0.941
+        },
+        "height": {
+          "cases": 374,
+          "approval_rate": 0.944
+        },
+        "parking": {
+          "cases": 501,
+          "approval_rate": 0.936
+        },
+        "setback": {
+          "cases": 477,
+          "approval_rate": 0.937
+        },
+        "use": {
+          "cases": 833,
+          "approval_rate": 0.958
+        }
+      }
+    },
+    {
+      "name": "Betabraza",
+      "aliases": [
+        "Betapraza"
+      ],
+      "role": "Member",
+      "hearings_attended": 52,
+      "total_mentions": 108,
+      "date_range": [
+        "2022-04-26",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 998,
+      "approval_rate": 0.875,
+      "denial_rate": 0.125,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 10,
+          "approval_rate": 0.8
+        },
+        "far": {
+          "cases": 339,
+          "approval_rate": 0.953
+        },
+        "height": {
+          "cases": 386,
+          "approval_rate": 0.953
+        },
+        "parking": {
+          "cases": 478,
+          "approval_rate": 0.952
+        },
+        "setback": {
+          "cases": 499,
+          "approval_rate": 0.952
+        },
+        "use": {
+          "cases": 931,
+          "approval_rate": 0.97
+        }
+      }
+    },
+    {
+      "name": "Seminelli",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 48,
+      "total_mentions": 88,
+      "date_range": [
+        "2021-05-04",
+        "2025-12-09"
+      ],
+      "cases_during_tenure": 823,
+      "approval_rate": 0.828,
+      "denial_rate": 0.172,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 299,
+          "approval_rate": 0.926
+        },
+        "height": {
+          "cases": 352,
+          "approval_rate": 0.935
+        },
+        "parking": {
+          "cases": 433,
+          "approval_rate": 0.924
+        },
+        "setback": {
+          "cases": 423,
+          "approval_rate": 0.929
+        },
+        "use": {
+          "cases": 721,
+          "approval_rate": 0.946
+        }
+      }
+    },
+    {
+      "name": "Ross",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 47,
+      "total_mentions": 72,
+      "date_range": [
+        "2021-02-02",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 978,
+      "approval_rate": 0.81,
+      "denial_rate": 0.19,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 9,
+          "approval_rate": 0.778
+        },
+        "far": {
+          "cases": 362,
+          "approval_rate": 0.923
+        },
+        "height": {
+          "cases": 425,
+          "approval_rate": 0.929
+        },
+        "parking": {
+          "cases": 532,
+          "approval_rate": 0.915
+        },
+        "setback": {
+          "cases": 501,
+          "approval_rate": 0.92
+        },
+        "use": {
+          "cases": 771,
+          "approval_rate": 0.94
+        }
+      }
+    },
+    {
+      "name": "Pignato",
+      "aliases": [
+        "Fignato",
+        "Pinato"
+      ],
+      "role": "Member",
+      "hearings_attended": 47,
+      "total_mentions": 148,
+      "date_range": [
+        "2022-11-01",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 767,
+      "approval_rate": 0.846,
+      "denial_rate": 0.154,
+      "individual_votes": {
+        "yes": 4
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 17,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 263,
+          "approval_rate": 0.92
+        },
+        "height": {
+          "cases": 311,
+          "approval_rate": 0.945
+        },
+        "parking": {
+          "cases": 381,
+          "approval_rate": 0.942
+        },
+        "setback": {
+          "cases": 376,
+          "approval_rate": 0.941
+        },
+        "use": {
+          "cases": 633,
+          "approval_rate": 0.954
+        }
+      }
+    },
+    {
+      "name": "Aiken",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 44,
+      "total_mentions": 1197,
+      "date_range": [
+        "2023-01-19",
+        "2025-08-21"
+      ],
+      "cases_during_tenure": 565,
+      "approval_rate": 0.875,
+      "denial_rate": 0.125,
+      "individual_votes": {
+        "yes": 22
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 11,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 212,
+          "approval_rate": 0.972
+        },
+        "height": {
+          "cases": 247,
+          "approval_rate": 0.976
+        },
+        "parking": {
+          "cases": 274,
+          "approval_rate": 0.978
+        },
+        "setback": {
+          "cases": 294,
+          "approval_rate": 0.973
+        },
+        "use": {
+          "cases": 483,
+          "approval_rate": 0.979
+        }
+      }
+    },
+    {
+      "name": "Lino",
+      "aliases": [
+        "Lin"
+      ],
+      "role": "Member",
+      "hearings_attended": 43,
+      "total_mentions": 82,
+      "date_range": [
+        "2016-09-13",
+        "2026-03-10"
+      ],
+      "cases_during_tenure": 895,
+      "approval_rate": 0.832,
+      "denial_rate": 0.168,
+      "individual_votes": {
+        "yes": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 12,
+          "approval_rate": 0.833
+        },
+        "far": {
+          "cases": 263,
+          "approval_rate": 0.97
+        },
+        "height": {
+          "cases": 366,
+          "approval_rate": 0.962
+        },
+        "parking": {
+          "cases": 450,
+          "approval_rate": 0.953
+        },
+        "setback": {
+          "cases": 384,
+          "approval_rate": 0.971
+        },
+        "use": {
+          "cases": 644,
+          "approval_rate": 0.977
+        }
+      }
+    },
+    {
+      "name": "Morancy",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 42,
+      "total_mentions": 75,
+      "date_range": [
+        "2017-04-03",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 977,
+      "approval_rate": 0.743,
+      "denial_rate": 0.257,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 15,
+          "approval_rate": 0.867
+        },
+        "far": {
+          "cases": 283,
+          "approval_rate": 0.908
+        },
+        "height": {
+          "cases": 364,
+          "approval_rate": 0.909
+        },
+        "parking": {
+          "cases": 480,
+          "approval_rate": 0.896
+        },
+        "setback": {
+          "cases": 385,
+          "approval_rate": 0.894
+        },
+        "use": {
+          "cases": 642,
+          "approval_rate": 0.919
+        }
+      }
+    },
+    {
+      "name": "Canado",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 41,
+      "total_mentions": 109,
+      "date_range": [
+        "2023-02-28",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 706,
+      "approval_rate": 0.869,
+      "denial_rate": 0.131,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 12,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 244,
+          "approval_rate": 0.959
+        },
+        "height": {
+          "cases": 280,
+          "approval_rate": 0.964
+        },
+        "parking": {
+          "cases": 342,
+          "approval_rate": 0.962
+        },
+        "setback": {
+          "cases": 338,
+          "approval_rate": 0.964
+        },
+        "use": {
+          "cases": 598,
+          "approval_rate": 0.97
+        }
+      }
+    },
+    {
+      "name": "Eakin",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 36,
+      "total_mentions": 174,
+      "date_range": [
+        "2023-01-19",
+        "2025-08-21"
+      ],
+      "cases_during_tenure": 465,
+      "approval_rate": 0.884,
+      "denial_rate": 0.116,
+      "individual_votes": {
+        "yes": 11
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 170,
+          "approval_rate": 0.982
+        },
+        "height": {
+          "cases": 197,
+          "approval_rate": 0.99
+        },
+        "parking": {
+          "cases": 215,
+          "approval_rate": 0.991
+        },
+        "setback": {
+          "cases": 237,
+          "approval_rate": 0.983
+        },
+        "use": {
+          "cases": 400,
+          "approval_rate": 0.985
+        }
+      }
+    },
+    {
+      "name": "Langem",
+      "aliases": [
+        "Lange"
+      ],
+      "role": "Member",
+      "hearings_attended": 36,
+      "total_mentions": 87,
+      "date_range": [
+        "2022-04-26",
+        "2025-12-16"
+      ],
+      "cases_during_tenure": 680,
+      "approval_rate": 0.892,
+      "denial_rate": 0.108,
+      "individual_votes": {
+        "yes": 4
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 204,
+          "approval_rate": 0.99
+        },
+        "height": {
+          "cases": 289,
+          "approval_rate": 0.972
+        },
+        "parking": {
+          "cases": 370,
+          "approval_rate": 0.973
+        },
+        "setback": {
+          "cases": 342,
+          "approval_rate": 0.985
+        },
+        "use": {
+          "cases": 594,
+          "approval_rate": 0.985
+        }
+      }
+    },
+    {
+      "name": "Bethe",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 36,
+      "total_mentions": 58,
+      "date_range": [
+        "2022-04-26",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 589,
+      "approval_rate": 0.869,
+      "denial_rate": 0.131,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 9,
+          "approval_rate": 0.778
+        },
+        "far": {
+          "cases": 192,
+          "approval_rate": 0.917
+        },
+        "height": {
+          "cases": 243,
+          "approval_rate": 0.938
+        },
+        "parking": {
+          "cases": 301,
+          "approval_rate": 0.937
+        },
+        "setback": {
+          "cases": 297,
+          "approval_rate": 0.936
+        },
+        "use": {
+          "cases": 542,
+          "approval_rate": 0.963
+        }
+      }
+    },
+    {
+      "name": "Spitz",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 36,
+      "total_mentions": 52,
+      "date_range": [
+        "2022-01-25",
+        "2025-08-26"
+      ],
+      "cases_during_tenure": 619,
+      "approval_rate": 0.802,
+      "denial_rate": 0.198,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 212,
+          "approval_rate": 0.892
+        },
+        "height": {
+          "cases": 256,
+          "approval_rate": 0.914
+        },
+        "parking": {
+          "cases": 312,
+          "approval_rate": 0.907
+        },
+        "setback": {
+          "cases": 326,
+          "approval_rate": 0.908
+        },
+        "use": {
+          "cases": 581,
+          "approval_rate": 0.928
+        }
+      }
+    },
+    {
+      "name": "Robinson",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 35,
+      "total_mentions": 650,
+      "date_range": [
+        "2021-02-02",
+        "2025-06-24"
+      ],
+      "cases_during_tenure": 655,
+      "approval_rate": 0.687,
+      "denial_rate": 0.313,
+      "individual_votes": {
+        "yes": 36
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 257,
+          "approval_rate": 0.864
+        },
+        "height": {
+          "cases": 283,
+          "approval_rate": 0.876
+        },
+        "parking": {
+          "cases": 330,
+          "approval_rate": 0.852
+        },
+        "setback": {
+          "cases": 374,
+          "approval_rate": 0.872
+        },
+        "use": {
+          "cases": 511,
+          "approval_rate": 0.877
+        }
+      }
+    },
+    {
+      "name": "Eiken",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 34,
+      "total_mentions": 176,
+      "date_range": [
+        "2023-05-23",
+        "2025-07-08"
+      ],
+      "cases_during_tenure": 430,
+      "approval_rate": 0.864,
+      "denial_rate": 0.136,
+      "individual_votes": {
+        "yes": 3
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 162,
+          "approval_rate": 0.988
+        },
+        "height": {
+          "cases": 198,
+          "approval_rate": 0.995
+        },
+        "parking": {
+          "cases": 216,
+          "approval_rate": 0.995
+        },
+        "setback": {
+          "cases": 233,
+          "approval_rate": 0.991
+        },
+        "use": {
+          "cases": 374,
+          "approval_rate": 0.989
+        }
+      }
+    },
+    {
+      "name": "Boyd",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 34,
+      "total_mentions": 40,
+      "date_range": [
+        "2016-09-27",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 703,
+      "approval_rate": 0.812,
+      "denial_rate": 0.188,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 20,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 180,
+          "approval_rate": 0.961
+        },
+        "height": {
+          "cases": 244,
+          "approval_rate": 0.959
+        },
+        "parking": {
+          "cases": 339,
+          "approval_rate": 0.944
+        },
+        "setback": {
+          "cases": 249,
+          "approval_rate": 0.968
+        },
+        "use": {
+          "cases": 533,
+          "approval_rate": 0.962
+        }
+      }
+    },
+    {
+      "name": "Langell",
+      "aliases": [
+        "Langel"
+      ],
+      "role": "Member",
+      "hearings_attended": 34,
+      "total_mentions": 51,
+      "date_range": [
+        "2022-04-26",
+        "2026-01-13"
+      ],
+      "cases_during_tenure": 600,
+      "approval_rate": 0.915,
+      "denial_rate": 0.085,
+      "individual_votes": {
+        "yes": 4,
+        "no": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 0.714
+        },
+        "far": {
+          "cases": 226,
+          "approval_rate": 0.996
+        },
+        "height": {
+          "cases": 261,
+          "approval_rate": 0.985
+        },
+        "parking": {
+          "cases": 300,
+          "approval_rate": 0.987
+        },
+        "setback": {
+          "cases": 311,
+          "approval_rate": 0.99
+        },
+        "use": {
+          "cases": 526,
+          "approval_rate": 0.996
+        }
+      }
+    },
+    {
+      "name": "Weow",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 33,
+      "total_mentions": 59,
+      "date_range": [
+        "2021-09-17",
+        "2026-03-10"
+      ],
+      "cases_during_tenure": 500,
+      "approval_rate": 0.87,
+      "denial_rate": 0.13,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 8,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 155,
+          "approval_rate": 0.987
+        },
+        "height": {
+          "cases": 205,
+          "approval_rate": 0.98
+        },
+        "parking": {
+          "cases": 282,
+          "approval_rate": 0.968
+        },
+        "setback": {
+          "cases": 246,
+          "approval_rate": 0.988
+        },
+        "use": {
+          "cases": 448,
+          "approval_rate": 0.989
+        }
+      }
+    },
+    {
+      "name": "Lano",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 33,
+      "total_mentions": 48,
+      "date_range": [
+        "2021-09-17",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 537,
+      "approval_rate": 0.894,
+      "denial_rate": 0.106,
+      "individual_votes": {
+        "yes": 5
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 179,
+          "approval_rate": 0.989
+        },
+        "height": {
+          "cases": 243,
+          "approval_rate": 0.963
+        },
+        "parking": {
+          "cases": 287,
+          "approval_rate": 0.962
+        },
+        "setback": {
+          "cases": 290,
+          "approval_rate": 0.979
+        },
+        "use": {
+          "cases": 485,
+          "approval_rate": 0.979
+        }
+      }
+    },
+    {
+      "name": "Small",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 33,
+      "total_mentions": 45,
+      "date_range": [
+        "2020-05-19",
+        "2025-07-29"
+      ],
+      "cases_during_tenure": 586,
+      "approval_rate": 0.719,
+      "denial_rate": 0.281,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 0.6
+        },
+        "far": {
+          "cases": 216,
+          "approval_rate": 0.861
+        },
+        "height": {
+          "cases": 265,
+          "approval_rate": 0.894
+        },
+        "parking": {
+          "cases": 349,
+          "approval_rate": 0.874
+        },
+        "setback": {
+          "cases": 324,
+          "approval_rate": 0.873
+        },
+        "use": {
+          "cases": 482,
+          "approval_rate": 0.905
+        }
+      }
+    },
+    {
+      "name": "Lee",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 33,
+      "total_mentions": 44,
+      "date_range": [
+        "2016-09-27",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 539,
+      "approval_rate": 0.809,
+      "denial_rate": 0.191,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 148,
+          "approval_rate": 0.98
+        },
+        "height": {
+          "cases": 203,
+          "approval_rate": 0.966
+        },
+        "parking": {
+          "cases": 272,
+          "approval_rate": 0.949
+        },
+        "setback": {
+          "cases": 225,
+          "approval_rate": 0.982
+        },
+        "use": {
+          "cases": 345,
+          "approval_rate": 0.968
+        }
+      }
+    },
+    {
+      "name": "Lawrence",
+      "aliases": [
+        "Chair Lawrence",
+        "Chairman Lawrence"
+      ],
+      "role": "Chair",
+      "hearings_attended": 32,
+      "total_mentions": 42,
+      "date_range": [
+        "2023-08-24",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 535,
+      "approval_rate": 0.857,
+      "denial_rate": 0.143,
+      "individual_votes": {
+        "yes": 6
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 178,
+          "approval_rate": 0.989
+        },
+        "height": {
+          "cases": 205,
+          "approval_rate": 0.985
+        },
+        "parking": {
+          "cases": 251,
+          "approval_rate": 0.972
+        },
+        "setback": {
+          "cases": 258,
+          "approval_rate": 0.988
+        },
+        "use": {
+          "cases": 436,
+          "approval_rate": 0.991
+        }
+      }
+    },
+    {
+      "name": "Ehrlich",
+      "aliases": [
+        "Chair Ehrlich",
+        "Chairman Ehrlich"
+      ],
+      "role": "Chair",
+      "hearings_attended": 31,
+      "total_mentions": 62,
+      "date_range": [
+        "2015-02-24",
+        "2022-09-15"
+      ],
+      "cases_during_tenure": 931,
+      "approval_rate": 0.681,
+      "denial_rate": 0.319,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 21,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 176,
+          "approval_rate": 0.847
+        },
+        "height": {
+          "cases": 280,
+          "approval_rate": 0.875
+        },
+        "parking": {
+          "cases": 404,
+          "approval_rate": 0.854
+        },
+        "setback": {
+          "cases": 225,
+          "approval_rate": 0.849
+        },
+        "use": {
+          "cases": 359,
+          "approval_rate": 0.855
+        }
+      }
+    },
+    {
+      "name": "Brasa",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 31,
+      "total_mentions": 49,
+      "date_range": [
+        "2022-10-13",
+        "2025-11-25"
+      ],
+      "cases_during_tenure": 567,
+      "approval_rate": 0.872,
+      "denial_rate": 0.128,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 205,
+          "approval_rate": 0.932
+        },
+        "height": {
+          "cases": 238,
+          "approval_rate": 0.933
+        },
+        "parking": {
+          "cases": 315,
+          "approval_rate": 0.946
+        },
+        "setback": {
+          "cases": 288,
+          "approval_rate": 0.938
+        },
+        "use": {
+          "cases": 521,
+          "approval_rate": 0.954
+        }
+      }
+    },
+    {
+      "name": "Betapuraza",
+      "aliases": [
+        "Betapurasa"
+      ],
+      "role": "Member",
+      "hearings_attended": 31,
+      "total_mentions": 44,
+      "date_range": [
+        "2022-11-17",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 564,
+      "approval_rate": 0.893,
+      "denial_rate": 0.107,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 0.6
+        },
+        "far": {
+          "cases": 202,
+          "approval_rate": 0.975
+        },
+        "height": {
+          "cases": 203,
+          "approval_rate": 0.951
+        },
+        "parking": {
+          "cases": 252,
+          "approval_rate": 0.94
+        },
+        "setback": {
+          "cases": 265,
+          "approval_rate": 0.947
+        },
+        "use": {
+          "cases": 498,
+          "approval_rate": 0.966
+        }
+      }
+    },
+    {
+      "name": "Turner",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 29,
+      "total_mentions": 529,
+      "date_range": [
+        "2025-03-04",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 527,
+      "approval_rate": 0.93,
+      "denial_rate": 0.07,
+      "individual_votes": {
+        "yes": 30,
+        "no": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 11,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 155,
+          "approval_rate": 0.929
+        },
+        "height": {
+          "cases": 183,
+          "approval_rate": 0.945
+        },
+        "parking": {
+          "cases": 225,
+          "approval_rate": 0.942
+        },
+        "setback": {
+          "cases": 234,
+          "approval_rate": 0.944
+        },
+        "use": {
+          "cases": 400,
+          "approval_rate": 0.965
+        }
+      }
+    },
+    {
+      "name": "Stauberidge",
+      "aliases": [
+        "Stubbridge"
+      ],
+      "role": "Member",
+      "hearings_attended": 28,
+      "total_mentions": 168,
+      "date_range": [
+        "2021-09-17",
+        "2026-03-10"
+      ],
+      "cases_during_tenure": 408,
+      "approval_rate": 0.866,
+      "denial_rate": 0.134,
+      "individual_votes": {
+        "yes": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 9,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 136,
+          "approval_rate": 0.897
+        },
+        "height": {
+          "cases": 157,
+          "approval_rate": 0.924
+        },
+        "parking": {
+          "cases": 188,
+          "approval_rate": 0.926
+        },
+        "setback": {
+          "cases": 194,
+          "approval_rate": 0.918
+        },
+        "use": {
+          "cases": 349,
+          "approval_rate": 0.951
+        }
+      }
+    },
+    {
+      "name": "Don",
+      "aliases": [
+        "Chair Don",
+        "Chairman Don",
+        "Dong"
+      ],
+      "role": "Chair",
+      "hearings_attended": 27,
+      "total_mentions": 149,
+      "date_range": [
+        "2022-01-25",
+        "2025-12-09"
+      ],
+      "cases_during_tenure": 416,
+      "approval_rate": 0.745,
+      "denial_rate": 0.255,
+      "individual_votes": {
+        "yes": 6
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 151,
+          "approval_rate": 0.868
+        },
+        "height": {
+          "cases": 182,
+          "approval_rate": 0.907
+        },
+        "parking": {
+          "cases": 200,
+          "approval_rate": 0.885
+        },
+        "setback": {
+          "cases": 237,
+          "approval_rate": 0.89
+        },
+        "use": {
+          "cases": 386,
+          "approval_rate": 0.902
+        }
+      }
+    },
+    {
+      "name": "Baraza",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 27,
+      "total_mentions": 91,
+      "date_range": [
+        "2021-06-16",
+        "2025-10-07"
+      ],
+      "cases_during_tenure": 457,
+      "approval_rate": 0.767,
+      "denial_rate": 0.233,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 138,
+          "approval_rate": 0.899
+        },
+        "height": {
+          "cases": 199,
+          "approval_rate": 0.915
+        },
+        "parking": {
+          "cases": 223,
+          "approval_rate": 0.883
+        },
+        "setback": {
+          "cases": 230,
+          "approval_rate": 0.913
+        },
+        "use": {
+          "cases": 394,
+          "approval_rate": 0.924
+        }
+      }
+    },
+    {
+      "name": "Smith",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 27,
+      "total_mentions": 33,
+      "date_range": [
+        "2017-10-31",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 530,
+      "approval_rate": 0.772,
+      "denial_rate": 0.228,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 170,
+          "approval_rate": 0.853
+        },
+        "height": {
+          "cases": 206,
+          "approval_rate": 0.883
+        },
+        "parking": {
+          "cases": 251,
+          "approval_rate": 0.88
+        },
+        "setback": {
+          "cases": 235,
+          "approval_rate": 0.872
+        },
+        "use": {
+          "cases": 426,
+          "approval_rate": 0.904
+        }
+      }
+    },
+    {
+      "name": "Bernardo",
+      "aliases": [
+        "Benado"
+      ],
+      "role": "Member",
+      "hearings_attended": 27,
+      "total_mentions": 41,
+      "date_range": [
+        "2022-09-27",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 520,
+      "approval_rate": 0.825,
+      "denial_rate": 0.175,
+      "individual_votes": {
+        "yes": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 8,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 185,
+          "approval_rate": 0.881
+        },
+        "height": {
+          "cases": 204,
+          "approval_rate": 0.912
+        },
+        "parking": {
+          "cases": 279,
+          "approval_rate": 0.918
+        },
+        "setback": {
+          "cases": 274,
+          "approval_rate": 0.905
+        },
+        "use": {
+          "cases": 440,
+          "approval_rate": 0.93
+        }
+      }
+    },
+    {
+      "name": "Williams",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 26,
+      "total_mentions": 62,
+      "date_range": [
+        "2021-05-18",
+        "2025-10-28"
+      ],
+      "cases_during_tenure": 445,
+      "approval_rate": 0.863,
+      "denial_rate": 0.137,
+      "individual_votes": {
+        "no": 1,
+        "yes": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 0.714
+        },
+        "far": {
+          "cases": 172,
+          "approval_rate": 0.983
+        },
+        "height": {
+          "cases": 215,
+          "approval_rate": 0.977
+        },
+        "parking": {
+          "cases": 255,
+          "approval_rate": 0.976
+        },
+        "setback": {
+          "cases": 227,
+          "approval_rate": 0.982
+        },
+        "use": {
+          "cases": 397,
+          "approval_rate": 0.995
+        }
+      }
+    },
+    {
+      "name": "Stemberg",
+      "aliases": [
+        "Semberg"
+      ],
+      "role": "Member",
+      "hearings_attended": 26,
+      "total_mentions": 45,
+      "date_range": [
+        "2023-01-31",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 537,
+      "approval_rate": 0.838,
+      "denial_rate": 0.162,
+      "individual_votes": {
+        "no": 2,
+        "yes": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 0.6
+        },
+        "far": {
+          "cases": 186,
+          "approval_rate": 0.962
+        },
+        "height": {
+          "cases": 251,
+          "approval_rate": 0.96
+        },
+        "parking": {
+          "cases": 304,
+          "approval_rate": 0.967
+        },
+        "setback": {
+          "cases": 315,
+          "approval_rate": 0.971
+        },
+        "use": {
+          "cases": 507,
+          "approval_rate": 0.976
+        }
+      }
+    },
+    {
+      "name": "Mayor",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 25,
+      "total_mentions": 120,
+      "date_range": [
+        "2016-08-23",
+        "2026-01-27"
+      ],
+      "cases_during_tenure": 426,
+      "approval_rate": 0.829,
+      "denial_rate": 0.171,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 12,
+          "approval_rate": 0.833
+        },
+        "far": {
+          "cases": 112,
+          "approval_rate": 0.938
+        },
+        "height": {
+          "cases": 155,
+          "approval_rate": 0.968
+        },
+        "parking": {
+          "cases": 212,
+          "approval_rate": 0.929
+        },
+        "setback": {
+          "cases": 156,
+          "approval_rate": 0.949
+        },
+        "use": {
+          "cases": 297,
+          "approval_rate": 0.953
+        }
+      }
+    },
+    {
+      "name": "Ruggiero",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 25,
+      "total_mentions": 103,
+      "date_range": [
+        "2022-01-11",
+        "2023-11-14"
+      ],
+      "cases_during_tenure": 485,
+      "approval_rate": 0.676,
+      "denial_rate": 0.324,
+      "individual_votes": {
+        "yes": 4
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 164,
+          "approval_rate": 0.829
+        },
+        "height": {
+          "cases": 210,
+          "approval_rate": 0.857
+        },
+        "parking": {
+          "cases": 245,
+          "approval_rate": 0.853
+        },
+        "setback": {
+          "cases": 249,
+          "approval_rate": 0.855
+        },
+        "use": {
+          "cases": 462,
+          "approval_rate": 0.883
+        }
+      }
+    },
+    {
+      "name": "Lins",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 24,
+      "total_mentions": 35,
+      "date_range": [
+        "2019-12-17",
+        "2026-01-27"
+      ],
+      "cases_during_tenure": 518,
+      "approval_rate": 0.802,
+      "denial_rate": 0.198,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 0.667
+        },
+        "far": {
+          "cases": 197,
+          "approval_rate": 0.939
+        },
+        "height": {
+          "cases": 224,
+          "approval_rate": 0.929
+        },
+        "parking": {
+          "cases": 294,
+          "approval_rate": 0.932
+        },
+        "setback": {
+          "cases": 254,
+          "approval_rate": 0.933
+        },
+        "use": {
+          "cases": 407,
+          "approval_rate": 0.948
+        }
+      }
+    },
+    {
+      "name": "Shephard",
+      "aliases": [
+        "Shepherd"
+      ],
+      "role": "Member",
+      "hearings_attended": 22,
+      "total_mentions": 336,
+      "date_range": [
+        "2023-01-31",
+        "2023-07-25"
+      ],
+      "cases_during_tenure": 478,
+      "approval_rate": 0.818,
+      "denial_rate": 0.182,
+      "individual_votes": {
+        "yes": 59
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 0.714
+        },
+        "far": {
+          "cases": 184,
+          "approval_rate": 0.924
+        },
+        "height": {
+          "cases": 224,
+          "approval_rate": 0.906
+        },
+        "parking": {
+          "cases": 297,
+          "approval_rate": 0.926
+        },
+        "setback": {
+          "cases": 261,
+          "approval_rate": 0.92
+        },
+        "use": {
+          "cases": 456,
+          "approval_rate": 0.939
+        }
+      }
+    },
+    {
+      "name": "Wielow",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 22,
+      "total_mentions": 30,
+      "date_range": [
+        "2022-04-26",
+        "2025-12-09"
+      ],
+      "cases_during_tenure": 284,
+      "approval_rate": 0.841,
+      "denial_rate": 0.159,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 100,
+          "approval_rate": 0.99
+        },
+        "height": {
+          "cases": 128,
+          "approval_rate": 0.984
+        },
+        "parking": {
+          "cases": 154,
+          "approval_rate": 0.981
+        },
+        "setback": {
+          "cases": 158,
+          "approval_rate": 0.987
+        },
+        "use": {
+          "cases": 254,
+          "approval_rate": 0.988
+        }
+      }
+    },
+    {
+      "name": "Pazani",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 21,
+      "total_mentions": 129,
+      "date_range": [
+        "2015-02-24",
+        "2026-04-07"
+      ],
+      "cases_during_tenure": 619,
+      "approval_rate": 0.651,
+      "denial_rate": 0.349,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 26,
+          "approval_rate": 0.846
+        },
+        "far": {
+          "cases": 5,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 94,
+          "approval_rate": 0.798
+        },
+        "parking": {
+          "cases": 201,
+          "approval_rate": 0.826
+        },
+        "setback": {
+          "cases": 8,
+          "approval_rate": 0.875
+        },
+        "use": {
+          "cases": 138,
+          "approval_rate": 0.855
+        }
+      }
+    },
+    {
+      "name": "Lennon",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 21,
+      "total_mentions": 33,
+      "date_range": [
+        "2022-04-26",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 356,
+      "approval_rate": 0.904,
+      "denial_rate": 0.096,
+      "individual_votes": {
+        "yes": 8
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 8,
+          "approval_rate": 0.75
+        },
+        "far": {
+          "cases": 124,
+          "approval_rate": 0.992
+        },
+        "height": {
+          "cases": 162,
+          "approval_rate": 0.975
+        },
+        "parking": {
+          "cases": 179,
+          "approval_rate": 0.972
+        },
+        "setback": {
+          "cases": 187,
+          "approval_rate": 0.979
+        },
+        "use": {
+          "cases": 300,
+          "approval_rate": 0.99
+        }
+      }
+    },
+    {
+      "name": "Beter",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 21,
+      "total_mentions": 31,
+      "date_range": [
+        "2022-04-26",
+        "2026-01-27"
+      ],
+      "cases_during_tenure": 398,
+      "approval_rate": 0.742,
+      "denial_rate": 0.258,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 0.667
+        },
+        "far": {
+          "cases": 142,
+          "approval_rate": 0.908
+        },
+        "height": {
+          "cases": 180,
+          "approval_rate": 0.889
+        },
+        "parking": {
+          "cases": 231,
+          "approval_rate": 0.909
+        },
+        "setback": {
+          "cases": 209,
+          "approval_rate": 0.904
+        },
+        "use": {
+          "cases": 366,
+          "approval_rate": 0.918
+        }
+      }
+    },
+    {
+      "name": "Conato",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 21,
+      "total_mentions": 29,
+      "date_range": [
+        "2023-05-23",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 402,
+      "approval_rate": 0.86,
+      "denial_rate": 0.14,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 8,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 140,
+          "approval_rate": 0.893
+        },
+        "height": {
+          "cases": 189,
+          "approval_rate": 0.942
+        },
+        "parking": {
+          "cases": 210,
+          "approval_rate": 0.943
+        },
+        "setback": {
+          "cases": 223,
+          "approval_rate": 0.933
+        },
+        "use": {
+          "cases": 367,
+          "approval_rate": 0.946
+        }
+      }
+    },
+    {
+      "name": "Lens",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 19,
+      "total_mentions": 25,
+      "date_range": [
+        "2020-09-29",
+        "2026-01-27"
+      ],
+      "cases_during_tenure": 429,
+      "approval_rate": 0.706,
+      "denial_rate": 0.294,
+      "individual_votes": {
+        "no": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 146,
+          "approval_rate": 0.89
+        },
+        "height": {
+          "cases": 193,
+          "approval_rate": 0.907
+        },
+        "parking": {
+          "cases": 225,
+          "approval_rate": 0.907
+        },
+        "setback": {
+          "cases": 178,
+          "approval_rate": 0.91
+        },
+        "use": {
+          "cases": 316,
+          "approval_rate": 0.918
+        }
+      }
+    },
+    {
+      "name": "Lowe",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 17,
+      "total_mentions": 174,
+      "date_range": [
+        "2022-10-25",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 200,
+      "approval_rate": 0.782,
+      "denial_rate": 0.218,
+      "individual_votes": {
+        "yes": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 69,
+          "approval_rate": 0.957
+        },
+        "height": {
+          "cases": 96,
+          "approval_rate": 0.958
+        },
+        "parking": {
+          "cases": 104,
+          "approval_rate": 0.952
+        },
+        "setback": {
+          "cases": 117,
+          "approval_rate": 0.966
+        },
+        "use": {
+          "cases": 173,
+          "approval_rate": 0.971
+        }
+      }
+    },
+    {
+      "name": "Logan",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 17,
+      "total_mentions": 61,
+      "date_range": [
+        "2022-10-25",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 200,
+      "approval_rate": 0.782,
+      "denial_rate": 0.218,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 69,
+          "approval_rate": 0.957
+        },
+        "height": {
+          "cases": 96,
+          "approval_rate": 0.958
+        },
+        "parking": {
+          "cases": 104,
+          "approval_rate": 0.952
+        },
+        "setback": {
+          "cases": 117,
+          "approval_rate": 0.966
+        },
+        "use": {
+          "cases": 173,
+          "approval_rate": 0.971
+        }
+      }
+    },
+    {
+      "name": "Johnson",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 17,
+      "total_mentions": 33,
+      "date_range": [
+        "2015-06-23",
+        "2025-12-09"
+      ],
+      "cases_during_tenure": 303,
+      "approval_rate": 0.798,
+      "denial_rate": 0.202,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 7,
+          "approval_rate": 0.429
+        },
+        "far": {
+          "cases": 92,
+          "approval_rate": 0.924
+        },
+        "height": {
+          "cases": 129,
+          "approval_rate": 0.899
+        },
+        "parking": {
+          "cases": 158,
+          "approval_rate": 0.905
+        },
+        "setback": {
+          "cases": 120,
+          "approval_rate": 0.933
+        },
+        "use": {
+          "cases": 219,
+          "approval_rate": 0.95
+        }
+      }
+    },
+    {
+      "name": "Langen",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 17,
+      "total_mentions": 28,
+      "date_range": [
+        "2022-04-26",
+        "2026-03-10"
+      ],
+      "cases_during_tenure": 362,
+      "approval_rate": 0.852,
+      "denial_rate": 0.148,
+      "individual_votes": {
+        "yes": 3
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 126,
+          "approval_rate": 0.96
+        },
+        "height": {
+          "cases": 144,
+          "approval_rate": 0.91
+        },
+        "parking": {
+          "cases": 196,
+          "approval_rate": 0.934
+        },
+        "setback": {
+          "cases": 168,
+          "approval_rate": 0.94
+        },
+        "use": {
+          "cases": 315,
+          "approval_rate": 0.949
+        }
+      }
+    },
+    {
+      "name": "Ben",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 17,
+      "total_mentions": 26,
+      "date_range": [
+        "2022-10-04",
+        "2026-04-07"
+      ],
+      "cases_during_tenure": 299,
+      "approval_rate": 0.81,
+      "denial_rate": 0.19,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 0.667
+        },
+        "far": {
+          "cases": 92,
+          "approval_rate": 0.957
+        },
+        "height": {
+          "cases": 115,
+          "approval_rate": 0.913
+        },
+        "parking": {
+          "cases": 141,
+          "approval_rate": 0.936
+        },
+        "setback": {
+          "cases": 143,
+          "approval_rate": 0.937
+        },
+        "use": {
+          "cases": 246,
+          "approval_rate": 0.939
+        }
+      }
+    },
+    {
+      "name": "Lionel",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 17,
+      "total_mentions": 21,
+      "date_range": [
+        "2023-01-31",
+        "2026-03-10"
+      ],
+      "cases_during_tenure": 292,
+      "approval_rate": 0.878,
+      "denial_rate": 0.122,
+      "individual_votes": {
+        "no": 2,
+        "yes": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 0.6
+        },
+        "far": {
+          "cases": 109,
+          "approval_rate": 0.991
+        },
+        "height": {
+          "cases": 141,
+          "approval_rate": 0.965
+        },
+        "parking": {
+          "cases": 151,
+          "approval_rate": 0.974
+        },
+        "setback": {
+          "cases": 159,
+          "approval_rate": 0.981
+        },
+        "use": {
+          "cases": 258,
+          "approval_rate": 0.992
+        }
+      }
+    },
+    {
+      "name": "Thomas",
+      "aliases": [
+        "Chair Thomas",
+        "Chairman Thomas"
+      ],
+      "role": "Chair",
+      "hearings_attended": 17,
+      "total_mentions": 20,
+      "date_range": [
+        "2019-05-07",
+        "2025-02-25"
+      ],
+      "cases_during_tenure": 456,
+      "approval_rate": 0.798,
+      "denial_rate": 0.202,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 144,
+          "approval_rate": 0.951
+        },
+        "height": {
+          "cases": 186,
+          "approval_rate": 0.968
+        },
+        "parking": {
+          "cases": 241,
+          "approval_rate": 0.934
+        },
+        "setback": {
+          "cases": 202,
+          "approval_rate": 0.96
+        },
+        "use": {
+          "cases": 269,
+          "approval_rate": 0.963
+        }
+      }
+    },
+    {
+      "name": "Lang",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 17,
+      "total_mentions": 19,
+      "date_range": [
+        "2022-04-26",
+        "2025-09-23"
+      ],
+      "cases_during_tenure": 236,
+      "approval_rate": 0.861,
+      "denial_rate": 0.139,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 77,
+          "approval_rate": 0.987
+        },
+        "height": {
+          "cases": 115,
+          "approval_rate": 0.983
+        },
+        "parking": {
+          "cases": 137,
+          "approval_rate": 0.978
+        },
+        "setback": {
+          "cases": 131,
+          "approval_rate": 0.985
+        },
+        "use": {
+          "cases": 218,
+          "approval_rate": 0.986
+        }
+      }
+    },
+    {
+      "name": "Lannam",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 17,
+      "total_mentions": 17,
+      "date_range": [
+        "2023-01-31",
+        "2026-01-13"
+      ],
+      "cases_during_tenure": 315,
+      "approval_rate": 0.93,
+      "denial_rate": 0.07,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 0.0
+        },
+        "far": {
+          "cases": 109,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 116,
+          "approval_rate": 0.974
+        },
+        "parking": {
+          "cases": 179,
+          "approval_rate": 0.983
+        },
+        "setback": {
+          "cases": 144,
+          "approval_rate": 0.979
+        },
+        "use": {
+          "cases": 288,
+          "approval_rate": 0.997
+        }
+      }
+    },
+    {
+      "name": "Schupper",
+      "aliases": [
+        "Shupper"
+      ],
+      "role": "Member",
+      "hearings_attended": 16,
+      "total_mentions": 755,
+      "date_range": [
+        "2023-01-31",
+        "2023-07-25"
+      ],
+      "cases_during_tenure": 342,
+      "approval_rate": 0.825,
+      "denial_rate": 0.175,
+      "individual_votes": {
+        "no": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 0.333
+        },
+        "far": {
+          "cases": 123,
+          "approval_rate": 0.951
+        },
+        "height": {
+          "cases": 159,
+          "approval_rate": 0.912
+        },
+        "parking": {
+          "cases": 213,
+          "approval_rate": 0.939
+        },
+        "setback": {
+          "cases": 187,
+          "approval_rate": 0.936
+        },
+        "use": {
+          "cases": 334,
+          "approval_rate": 0.946
+        }
+      }
+    },
+    {
+      "name": "Raza",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 16,
+      "total_mentions": 47,
+      "date_range": [
+        "2021-06-16",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 248,
+      "approval_rate": 0.842,
+      "denial_rate": 0.158,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 80,
+          "approval_rate": 0.938
+        },
+        "height": {
+          "cases": 96,
+          "approval_rate": 0.958
+        },
+        "parking": {
+          "cases": 122,
+          "approval_rate": 0.934
+        },
+        "setback": {
+          "cases": 111,
+          "approval_rate": 0.946
+        },
+        "use": {
+          "cases": 230,
+          "approval_rate": 0.957
+        }
+      }
+    },
+    {
+      "name": "Dung",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 16,
+      "total_mentions": 37,
+      "date_range": [
+        "2021-05-18",
+        "2024-07-16"
+      ],
+      "cases_during_tenure": 289,
+      "approval_rate": 0.734,
+      "denial_rate": 0.266,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 5,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 105,
+          "approval_rate": 0.857
+        },
+        "height": {
+          "cases": 132,
+          "approval_rate": 0.894
+        },
+        "parking": {
+          "cases": 149,
+          "approval_rate": 0.899
+        },
+        "setback": {
+          "cases": 156,
+          "approval_rate": 0.891
+        },
+        "use": {
+          "cases": 249,
+          "approval_rate": 0.9
+        }
+      }
+    },
+    {
+      "name": "Moran",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 16,
+      "total_mentions": 25,
+      "date_range": [
+        "2021-01-12",
+        "2025-11-18"
+      ],
+      "cases_during_tenure": 309,
+      "approval_rate": 0.784,
+      "denial_rate": 0.216,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 104,
+          "approval_rate": 0.885
+        },
+        "height": {
+          "cases": 137,
+          "approval_rate": 0.934
+        },
+        "parking": {
+          "cases": 154,
+          "approval_rate": 0.89
+        },
+        "setback": {
+          "cases": 146,
+          "approval_rate": 0.897
+        },
+        "use": {
+          "cases": 226,
+          "approval_rate": 0.92
+        }
+      }
+    },
+    {
+      "name": "Betaprasa",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 16,
+      "total_mentions": 22,
+      "date_range": [
+        "2023-01-31",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 236,
+      "approval_rate": 0.907,
+      "denial_rate": 0.093,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 0.0
+        },
+        "far": {
+          "cases": 77,
+          "approval_rate": 0.987
+        },
+        "height": {
+          "cases": 94,
+          "approval_rate": 0.957
+        },
+        "parking": {
+          "cases": 107,
+          "approval_rate": 0.963
+        },
+        "setback": {
+          "cases": 121,
+          "approval_rate": 0.967
+        },
+        "use": {
+          "cases": 207,
+          "approval_rate": 0.986
+        }
+      }
+    },
+    {
+      "name": "Wiewel",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 16,
+      "total_mentions": 20,
+      "date_range": [
+        "2021-09-17",
+        "2025-12-09"
+      ],
+      "cases_during_tenure": 287,
+      "approval_rate": 0.872,
+      "denial_rate": 0.128,
+      "individual_votes": {
+        "yes": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 92,
+          "approval_rate": 0.989
+        },
+        "height": {
+          "cases": 120,
+          "approval_rate": 0.95
+        },
+        "parking": {
+          "cases": 170,
+          "approval_rate": 0.965
+        },
+        "setback": {
+          "cases": 153,
+          "approval_rate": 0.974
+        },
+        "use": {
+          "cases": 263,
+          "approval_rate": 0.973
+        }
+      }
+    },
+    {
+      "name": "Nato",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 16,
+      "total_mentions": 19,
+      "date_range": [
+        "2022-09-27",
+        "2025-12-16"
+      ],
+      "cases_during_tenure": 317,
+      "approval_rate": 0.848,
+      "denial_rate": 0.152,
+      "individual_votes": {
+        "yes": 5
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 119,
+          "approval_rate": 0.908
+        },
+        "height": {
+          "cases": 138,
+          "approval_rate": 0.935
+        },
+        "parking": {
+          "cases": 152,
+          "approval_rate": 0.921
+        },
+        "setback": {
+          "cases": 156,
+          "approval_rate": 0.923
+        },
+        "use": {
+          "cases": 272,
+          "approval_rate": 0.938
+        }
+      }
+    },
+    {
+      "name": "Berberazo",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 16,
+      "total_mentions": 19,
+      "date_range": [
+        "2021-09-17",
+        "2025-11-18"
+      ],
+      "cases_during_tenure": 301,
+      "approval_rate": 0.87,
+      "denial_rate": 0.13,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 92,
+          "approval_rate": 0.989
+        },
+        "height": {
+          "cases": 125,
+          "approval_rate": 0.984
+        },
+        "parking": {
+          "cases": 152,
+          "approval_rate": 0.987
+        },
+        "setback": {
+          "cases": 152,
+          "approval_rate": 0.993
+        },
+        "use": {
+          "cases": 279,
+          "approval_rate": 0.993
+        }
+      }
+    },
+    {
+      "name": "Logue",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 15,
+      "total_mentions": 32,
+      "date_range": [
+        "2022-12-06",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 164,
+      "approval_rate": 0.797,
+      "denial_rate": 0.203,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 51,
+          "approval_rate": 0.961
+        },
+        "height": {
+          "cases": 77,
+          "approval_rate": 0.987
+        },
+        "parking": {
+          "cases": 87,
+          "approval_rate": 0.954
+        },
+        "setback": {
+          "cases": 93,
+          "approval_rate": 0.968
+        },
+        "use": {
+          "cases": 140,
+          "approval_rate": 0.971
+        }
+      }
+    },
+    {
+      "name": "Steinberg",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 15,
+      "total_mentions": 26,
+      "date_range": [
+        "2023-05-23",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 265,
+      "approval_rate": 0.858,
+      "denial_rate": 0.142,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 91,
+          "approval_rate": 0.978
+        },
+        "height": {
+          "cases": 103,
+          "approval_rate": 0.99
+        },
+        "parking": {
+          "cases": 125,
+          "approval_rate": 0.992
+        },
+        "setback": {
+          "cases": 126,
+          "approval_rate": 0.984
+        },
+        "use": {
+          "cases": 202,
+          "approval_rate": 0.97
+        }
+      }
+    },
+    {
+      "name": "Arleck",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 15,
+      "total_mentions": 25,
+      "date_range": [
+        "2015-02-24",
+        "2022-07-12"
+      ],
+      "cases_during_tenure": 461,
+      "approval_rate": 0.684,
+      "denial_rate": 0.316,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 8,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 76,
+          "approval_rate": 0.868
+        },
+        "height": {
+          "cases": 140,
+          "approval_rate": 0.886
+        },
+        "parking": {
+          "cases": 189,
+          "approval_rate": 0.841
+        },
+        "setback": {
+          "cases": 96,
+          "approval_rate": 0.885
+        },
+        "use": {
+          "cases": 154,
+          "approval_rate": 0.883
+        }
+      }
+    },
+    {
+      "name": "Stone",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 15,
+      "total_mentions": 20,
+      "date_range": [
+        "2019-09-17",
+        "2024-12-03"
+      ],
+      "cases_during_tenure": 250,
+      "approval_rate": 0.741,
+      "denial_rate": 0.259,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 68,
+          "approval_rate": 0.868
+        },
+        "height": {
+          "cases": 83,
+          "approval_rate": 0.904
+        },
+        "parking": {
+          "cases": 116,
+          "approval_rate": 0.879
+        },
+        "setback": {
+          "cases": 103,
+          "approval_rate": 0.883
+        },
+        "use": {
+          "cases": 182,
+          "approval_rate": 0.89
+        }
+      }
+    },
+    {
+      "name": "Brown",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 15,
+      "total_mentions": 19,
+      "date_range": [
+        "2016-08-23",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 285,
+      "approval_rate": 0.731,
+      "denial_rate": 0.269,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 8,
+          "approval_rate": 0.75
+        },
+        "far": {
+          "cases": 80,
+          "approval_rate": 0.875
+        },
+        "height": {
+          "cases": 112,
+          "approval_rate": 0.92
+        },
+        "parking": {
+          "cases": 135,
+          "approval_rate": 0.867
+        },
+        "setback": {
+          "cases": 139,
+          "approval_rate": 0.906
+        },
+        "use": {
+          "cases": 227,
+          "approval_rate": 0.899
+        }
+      }
+    },
+    {
+      "name": "Bette",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 15,
+      "total_mentions": 19,
+      "date_range": [
+        "2023-02-07",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 269,
+      "approval_rate": 0.87,
+      "denial_rate": 0.13,
+      "individual_votes": null,
+      "variance_stats": {
+        "far": {
+          "cases": 90,
+          "approval_rate": 0.933
+        },
+        "height": {
+          "cases": 120,
+          "approval_rate": 0.942
+        },
+        "parking": {
+          "cases": 119,
+          "approval_rate": 0.941
+        },
+        "setback": {
+          "cases": 139,
+          "approval_rate": 0.95
+        },
+        "use": {
+          "cases": 250,
+          "approval_rate": 0.968
+        }
+      }
+    },
+    {
+      "name": "Peter",
+      "aliases": [
+        "Chair Peter",
+        "Chairman Peter"
+      ],
+      "role": "Chair",
+      "hearings_attended": 15,
+      "total_mentions": 17,
+      "date_range": [
+        "2018-05-22",
+        "2026-04-07"
+      ],
+      "cases_during_tenure": 334,
+      "approval_rate": 0.74,
+      "denial_rate": 0.26,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 0.5
+        },
+        "far": {
+          "cases": 109,
+          "approval_rate": 0.982
+        },
+        "height": {
+          "cases": 136,
+          "approval_rate": 0.912
+        },
+        "parking": {
+          "cases": 169,
+          "approval_rate": 0.905
+        },
+        "setback": {
+          "cases": 162,
+          "approval_rate": 0.932
+        },
+        "use": {
+          "cases": 256,
+          "approval_rate": 0.938
+        }
+      }
+    },
+    {
+      "name": "Willow",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 15,
+      "total_mentions": 16,
+      "date_range": [
+        "2021-09-17",
+        "2025-05-06"
+      ],
+      "cases_during_tenure": 228,
+      "approval_rate": 0.873,
+      "denial_rate": 0.127,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 74,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 99,
+          "approval_rate": 0.99
+        },
+        "parking": {
+          "cases": 120,
+          "approval_rate": 0.992
+        },
+        "setback": {
+          "cases": 128,
+          "approval_rate": 0.992
+        },
+        "use": {
+          "cases": 200,
+          "approval_rate": 0.995
+        }
+      }
+    },
+    {
+      "name": "Hinton",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 15,
+      "total_mentions": 15,
+      "date_range": [
+        "2022-07-12",
+        "2025-10-07"
+      ],
+      "cases_during_tenure": 309,
+      "approval_rate": 0.777,
+      "denial_rate": 0.223,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 0.5
+        },
+        "far": {
+          "cases": 125,
+          "approval_rate": 0.904
+        },
+        "height": {
+          "cases": 148,
+          "approval_rate": 0.899
+        },
+        "parking": {
+          "cases": 176,
+          "approval_rate": 0.92
+        },
+        "setback": {
+          "cases": 178,
+          "approval_rate": 0.91
+        },
+        "use": {
+          "cases": 292,
+          "approval_rate": 0.921
+        }
+      }
+    },
+    {
+      "name": "Jero",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 14,
+      "total_mentions": 32,
+      "date_range": [
+        "2019-12-17",
+        "2023-11-14"
+      ],
+      "cases_during_tenure": 247,
+      "approval_rate": 0.75,
+      "denial_rate": 0.25,
+      "individual_votes": {
+        "yes": 2
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 69,
+          "approval_rate": 0.87
+        },
+        "height": {
+          "cases": 103,
+          "approval_rate": 0.893
+        },
+        "parking": {
+          "cases": 121,
+          "approval_rate": 0.942
+        },
+        "setback": {
+          "cases": 93,
+          "approval_rate": 0.925
+        },
+        "use": {
+          "cases": 166,
+          "approval_rate": 0.91
+        }
+      }
+    },
+    {
+      "name": "Drago",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 14,
+      "total_mentions": 24,
+      "date_range": [
+        "2021-01-12",
+        "2024-01-09"
+      ],
+      "cases_during_tenure": 346,
+      "approval_rate": 0.74,
+      "denial_rate": 0.26,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 0.667
+        },
+        "far": {
+          "cases": 143,
+          "approval_rate": 0.951
+        },
+        "height": {
+          "cases": 166,
+          "approval_rate": 0.946
+        },
+        "parking": {
+          "cases": 209,
+          "approval_rate": 0.943
+        },
+        "setback": {
+          "cases": 188,
+          "approval_rate": 0.952
+        },
+        "use": {
+          "cases": 251,
+          "approval_rate": 0.952
+        }
+      }
+    },
+    {
+      "name": "Lina",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 14,
+      "total_mentions": 21,
+      "date_range": [
+        "2024-06-04",
+        "2025-11-18"
+      ],
+      "cases_during_tenure": 224,
+      "approval_rate": 0.925,
+      "denial_rate": 0.075,
+      "individual_votes": {
+        "yes": 2
+      },
+      "variance_stats": {
+        "far": {
+          "cases": 65,
+          "approval_rate": 0.985
+        },
+        "height": {
+          "cases": 75,
+          "approval_rate": 0.96
+        },
+        "parking": {
+          "cases": 98,
+          "approval_rate": 0.959
+        },
+        "setback": {
+          "cases": 119,
+          "approval_rate": 0.983
+        },
+        "use": {
+          "cases": 193,
+          "approval_rate": 0.984
+        }
+      }
+    },
+    {
+      "name": "Bada",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 14,
+      "total_mentions": 20,
+      "date_range": [
+        "2021-09-17",
+        "2025-11-25"
+      ],
+      "cases_during_tenure": 252,
+      "approval_rate": 0.905,
+      "denial_rate": 0.095,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 0.333
+        },
+        "far": {
+          "cases": 94,
+          "approval_rate": 0.968
+        },
+        "height": {
+          "cases": 120,
+          "approval_rate": 0.958
+        },
+        "parking": {
+          "cases": 114,
+          "approval_rate": 0.965
+        },
+        "setback": {
+          "cases": 129,
+          "approval_rate": 0.961
+        },
+        "use": {
+          "cases": 227,
+          "approval_rate": 0.982
+        }
+      }
+    },
+    {
+      "name": "Maraza",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 13,
+      "total_mentions": 27,
+      "date_range": [
+        "2021-06-16",
+        "2023-11-14"
+      ],
+      "cases_during_tenure": 235,
+      "approval_rate": 0.671,
+      "denial_rate": 0.329,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 70,
+          "approval_rate": 0.843
+        },
+        "height": {
+          "cases": 107,
+          "approval_rate": 0.916
+        },
+        "parking": {
+          "cases": 102,
+          "approval_rate": 0.863
+        },
+        "setback": {
+          "cases": 111,
+          "approval_rate": 0.874
+        },
+        "use": {
+          "cases": 184,
+          "approval_rate": 0.875
+        }
+      }
+    },
+    {
+      "name": "Betar",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 13,
+      "total_mentions": 18,
+      "date_range": [
+        "2022-04-26",
+        "2024-09-19"
+      ],
+      "cases_during_tenure": 208,
+      "approval_rate": 0.844,
+      "denial_rate": 0.156,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 0.5
+        },
+        "far": {
+          "cases": 61,
+          "approval_rate": 0.967
+        },
+        "height": {
+          "cases": 77,
+          "approval_rate": 0.948
+        },
+        "parking": {
+          "cases": 93,
+          "approval_rate": 0.903
+        },
+        "setback": {
+          "cases": 105,
+          "approval_rate": 0.933
+        },
+        "use": {
+          "cases": 193,
+          "approval_rate": 0.964
+        }
+      }
+    },
+    {
+      "name": "Henry",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 13,
+      "total_mentions": 16,
+      "date_range": [
+        "2019-09-17",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 268,
+      "approval_rate": 0.881,
+      "denial_rate": 0.119,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 73,
+          "approval_rate": 0.904
+        },
+        "height": {
+          "cases": 99,
+          "approval_rate": 0.939
+        },
+        "parking": {
+          "cases": 125,
+          "approval_rate": 0.912
+        },
+        "setback": {
+          "cases": 101,
+          "approval_rate": 0.95
+        },
+        "use": {
+          "cases": 174,
+          "approval_rate": 0.966
+        }
+      }
+    },
+    {
+      "name": "Moore",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 13,
+      "total_mentions": 15,
+      "date_range": [
+        "2016-09-13",
+        "2026-01-27"
+      ],
+      "cases_during_tenure": 280,
+      "approval_rate": 0.747,
+      "denial_rate": 0.253,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 8,
+          "approval_rate": 0.75
+        },
+        "far": {
+          "cases": 86,
+          "approval_rate": 0.919
+        },
+        "height": {
+          "cases": 116,
+          "approval_rate": 0.931
+        },
+        "parking": {
+          "cases": 152,
+          "approval_rate": 0.921
+        },
+        "setback": {
+          "cases": 98,
+          "approval_rate": 0.929
+        },
+        "use": {
+          "cases": 179,
+          "approval_rate": 0.939
+        }
+      }
+    },
+    {
+      "name": "Drego",
+      "aliases": [
+        "Durego"
+      ],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 426,
+      "date_range": [
+        "2021-01-12",
+        "2023-06-06"
+      ],
+      "cases_during_tenure": 348,
+      "approval_rate": 0.733,
+      "denial_rate": 0.267,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 129,
+          "approval_rate": 0.899
+        },
+        "height": {
+          "cases": 158,
+          "approval_rate": 0.899
+        },
+        "parking": {
+          "cases": 210,
+          "approval_rate": 0.914
+        },
+        "setback": {
+          "cases": 176,
+          "approval_rate": 0.915
+        },
+        "use": {
+          "cases": 271,
+          "approval_rate": 0.911
+        }
+      }
+    },
+    {
+      "name": "Betta",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 25,
+      "date_range": [
+        "2022-08-18",
+        "2025-10-07"
+      ],
+      "cases_during_tenure": 226,
+      "approval_rate": 0.838,
+      "denial_rate": 0.163,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 0.0
+        },
+        "far": {
+          "cases": 70,
+          "approval_rate": 0.971
+        },
+        "height": {
+          "cases": 90,
+          "approval_rate": 0.944
+        },
+        "parking": {
+          "cases": 116,
+          "approval_rate": 0.931
+        },
+        "setback": {
+          "cases": 110,
+          "approval_rate": 0.927
+        },
+        "use": {
+          "cases": 213,
+          "approval_rate": 0.958
+        }
+      }
+    },
+    {
+      "name": "Frazier",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 20,
+      "date_range": [
+        "2020-09-29",
+        "2025-01-28"
+      ],
+      "cases_during_tenure": 267,
+      "approval_rate": 0.768,
+      "denial_rate": 0.232,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 80,
+          "approval_rate": 0.963
+        },
+        "height": {
+          "cases": 112,
+          "approval_rate": 0.946
+        },
+        "parking": {
+          "cases": 151,
+          "approval_rate": 0.921
+        },
+        "setback": {
+          "cases": 105,
+          "approval_rate": 0.933
+        },
+        "use": {
+          "cases": 155,
+          "approval_rate": 0.981
+        }
+      }
+    },
+    {
+      "name": "Barrazo",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 20,
+      "date_range": [
+        "2023-05-09",
+        "2025-11-25"
+      ],
+      "cases_during_tenure": 216,
+      "approval_rate": 0.928,
+      "denial_rate": 0.072,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 64,
+          "approval_rate": 0.969
+        },
+        "height": {
+          "cases": 87,
+          "approval_rate": 0.966
+        },
+        "parking": {
+          "cases": 119,
+          "approval_rate": 0.975
+        },
+        "setback": {
+          "cases": 105,
+          "approval_rate": 0.981
+        },
+        "use": {
+          "cases": 198,
+          "approval_rate": 0.975
+        }
+      }
+    },
+    {
+      "name": "Lynch",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 18,
+      "date_range": [
+        "2016-12-13",
+        "2025-03-25"
+      ],
+      "cases_during_tenure": 290,
+      "approval_rate": 0.857,
+      "denial_rate": 0.143,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 8,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 83,
+          "approval_rate": 0.916
+        },
+        "height": {
+          "cases": 112,
+          "approval_rate": 0.955
+        },
+        "parking": {
+          "cases": 151,
+          "approval_rate": 0.94
+        },
+        "setback": {
+          "cases": 110,
+          "approval_rate": 0.936
+        },
+        "use": {
+          "cases": 180,
+          "approval_rate": 0.956
+        }
+      }
+    },
+    {
+      "name": "Bedar",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 18,
+      "date_range": [
+        "2022-10-04",
+        "2025-09-18"
+      ],
+      "cases_during_tenure": 208,
+      "approval_rate": 0.786,
+      "denial_rate": 0.214,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 62,
+          "approval_rate": 0.919
+        },
+        "height": {
+          "cases": 74,
+          "approval_rate": 0.946
+        },
+        "parking": {
+          "cases": 93,
+          "approval_rate": 0.935
+        },
+        "setback": {
+          "cases": 97,
+          "approval_rate": 0.918
+        },
+        "use": {
+          "cases": 197,
+          "approval_rate": 0.929
+        }
+      }
+    },
+    {
+      "name": "Lainon",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 17,
+      "date_range": [
+        "2022-04-26",
+        "2025-10-07"
+      ],
+      "cases_during_tenure": 173,
+      "approval_rate": 0.892,
+      "denial_rate": 0.108,
+      "individual_votes": {
+        "yes": 3
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 41,
+          "approval_rate": 0.951
+        },
+        "height": {
+          "cases": 68,
+          "approval_rate": 0.956
+        },
+        "parking": {
+          "cases": 93,
+          "approval_rate": 0.957
+        },
+        "setback": {
+          "cases": 81,
+          "approval_rate": 0.963
+        },
+        "use": {
+          "cases": 162,
+          "approval_rate": 0.969
+        }
+      }
+    },
+    {
+      "name": "Haken",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 17,
+      "date_range": [
+        "2023-01-19",
+        "2025-06-24"
+      ],
+      "cases_during_tenure": 100,
+      "approval_rate": 0.912,
+      "denial_rate": 0.088,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 34,
+          "approval_rate": 0.941
+        },
+        "height": {
+          "cases": 26,
+          "approval_rate": 0.923
+        },
+        "parking": {
+          "cases": 37,
+          "approval_rate": 0.946
+        },
+        "setback": {
+          "cases": 39,
+          "approval_rate": 0.923
+        },
+        "use": {
+          "cases": 79,
+          "approval_rate": 0.962
+        }
+      }
+    },
+    {
+      "name": "Bessani",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 16,
+      "date_range": [
+        "2015-06-23",
+        "2026-04-07"
+      ],
+      "cases_during_tenure": 338,
+      "approval_rate": 0.604,
+      "denial_rate": 0.396,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 14,
+          "approval_rate": 0.857
+        },
+        "far": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 52,
+          "approval_rate": 0.769
+        },
+        "parking": {
+          "cases": 99,
+          "approval_rate": 0.818
+        },
+        "setback": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 84,
+          "approval_rate": 0.857
+        }
+      }
+    },
+    {
+      "name": "Buraza",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 16,
+      "date_range": [
+        "2021-06-16",
+        "2023-11-14"
+      ],
+      "cases_during_tenure": 127,
+      "approval_rate": 0.774,
+      "denial_rate": 0.226,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 32,
+          "approval_rate": 0.938
+        },
+        "height": {
+          "cases": 55,
+          "approval_rate": 0.964
+        },
+        "parking": {
+          "cases": 38,
+          "approval_rate": 0.842
+        },
+        "setback": {
+          "cases": 65,
+          "approval_rate": 0.938
+        },
+        "use": {
+          "cases": 96,
+          "approval_rate": 0.917
+        }
+      }
+    },
+    {
+      "name": "Seminole",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 12,
+      "total_mentions": 16,
+      "date_range": [
+        "2022-01-25",
+        "2025-08-12"
+      ],
+      "cases_during_tenure": 187,
+      "approval_rate": 0.825,
+      "denial_rate": 0.175,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 67,
+          "approval_rate": 0.821
+        },
+        "height": {
+          "cases": 83,
+          "approval_rate": 0.892
+        },
+        "parking": {
+          "cases": 108,
+          "approval_rate": 0.907
+        },
+        "setback": {
+          "cases": 95,
+          "approval_rate": 0.863
+        },
+        "use": {
+          "cases": 174,
+          "approval_rate": 0.925
+        }
+      }
+    },
+    {
+      "name": "Legress",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 11,
+      "total_mentions": 38,
+      "date_range": [
+        "2021-01-12",
+        "2022-07-12"
+      ],
+      "cases_during_tenure": 314,
+      "approval_rate": 0.574,
+      "denial_rate": 0.426,
+      "individual_votes": null,
+      "variance_stats": {
+        "far": {
+          "cases": 137,
+          "approval_rate": 0.883
+        },
+        "height": {
+          "cases": 151,
+          "approval_rate": 0.901
+        },
+        "parking": {
+          "cases": 182,
+          "approval_rate": 0.852
+        },
+        "setback": {
+          "cases": 174,
+          "approval_rate": 0.845
+        },
+        "use": {
+          "cases": 174,
+          "approval_rate": 0.851
+        }
+      }
+    },
+    {
+      "name": "Cambridge",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 11,
+      "total_mentions": 15,
+      "date_range": [
+        "2021-09-17",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 211,
+      "approval_rate": 0.828,
+      "denial_rate": 0.172,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 62,
+          "approval_rate": 0.984
+        },
+        "height": {
+          "cases": 92,
+          "approval_rate": 0.989
+        },
+        "parking": {
+          "cases": 101,
+          "approval_rate": 0.97
+        },
+        "setback": {
+          "cases": 108,
+          "approval_rate": 0.991
+        },
+        "use": {
+          "cases": 158,
+          "approval_rate": 0.981
+        }
+      }
+    },
+    {
+      "name": "Wiel",
+      "aliases": [
+        "Chair Wiel",
+        "Chairman Wiel"
+      ],
+      "role": "Chair",
+      "hearings_attended": 11,
+      "total_mentions": 15,
+      "date_range": [
+        "2023-09-26",
+        "2025-11-18"
+      ],
+      "cases_during_tenure": 186,
+      "approval_rate": 0.866,
+      "denial_rate": 0.134,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 57,
+          "approval_rate": 0.982
+        },
+        "height": {
+          "cases": 74,
+          "approval_rate": 0.973
+        },
+        "parking": {
+          "cases": 103,
+          "approval_rate": 0.981
+        },
+        "setback": {
+          "cases": 89,
+          "approval_rate": 0.978
+        },
+        "use": {
+          "cases": 163,
+          "approval_rate": 0.982
+        }
+      }
+    },
+    {
+      "name": "Faraza",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 10,
+      "total_mentions": 25,
+      "date_range": [
+        "2021-07-22",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 149,
+      "approval_rate": 0.776,
+      "denial_rate": 0.224,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 55,
+          "approval_rate": 0.891
+        },
+        "height": {
+          "cases": 77,
+          "approval_rate": 0.961
+        },
+        "parking": {
+          "cases": 68,
+          "approval_rate": 0.882
+        },
+        "setback": {
+          "cases": 84,
+          "approval_rate": 0.929
+        },
+        "use": {
+          "cases": 93,
+          "approval_rate": 0.935
+        }
+      }
+    },
+    {
+      "name": "Lanzia",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 10,
+      "total_mentions": 20,
+      "date_range": [
+        "2023-08-24",
+        "2025-12-16"
+      ],
+      "cases_during_tenure": 201,
+      "approval_rate": 0.898,
+      "denial_rate": 0.102,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "far": {
+          "cases": 61,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 82,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 90,
+          "approval_rate": 0.978
+        },
+        "setback": {
+          "cases": 98,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 155,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Murphy",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 10,
+      "total_mentions": 16,
+      "date_range": [
+        "2016-12-13",
+        "2026-04-16"
+      ],
+      "cases_during_tenure": 136,
+      "approval_rate": 0.791,
+      "denial_rate": 0.209,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 6,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 22,
+          "approval_rate": 0.545
+        },
+        "height": {
+          "cases": 38,
+          "approval_rate": 0.842
+        },
+        "parking": {
+          "cases": 54,
+          "approval_rate": 0.833
+        },
+        "setback": {
+          "cases": 39,
+          "approval_rate": 0.744
+        },
+        "use": {
+          "cases": 75,
+          "approval_rate": 0.853
+        }
+      }
+    },
+    {
+      "name": "Niano",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 9,
+      "total_mentions": 31,
+      "date_range": [
+        "2022-10-25",
+        "2023-11-14"
+      ],
+      "cases_during_tenure": 124,
+      "approval_rate": 0.758,
+      "denial_rate": 0.242,
+      "individual_votes": {
+        "yes": 8
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 49,
+          "approval_rate": 0.939
+        },
+        "height": {
+          "cases": 58,
+          "approval_rate": 0.931
+        },
+        "parking": {
+          "cases": 63,
+          "approval_rate": 0.952
+        },
+        "setback": {
+          "cases": 63,
+          "approval_rate": 0.968
+        },
+        "use": {
+          "cases": 111,
+          "approval_rate": 0.973
+        }
+      }
+    },
+    {
+      "name": "Stammerich",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 9,
+      "total_mentions": 15,
+      "date_range": [
+        "2023-10-31",
+        "2025-08-12"
+      ],
+      "cases_during_tenure": 148,
+      "approval_rate": 0.86,
+      "denial_rate": 0.14,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 51,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 61,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 75,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 75,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 135,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Stappridge",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 8,
+      "total_mentions": 36,
+      "date_range": [
+        "2021-09-17",
+        "2025-07-29"
+      ],
+      "cases_during_tenure": 156,
+      "approval_rate": 0.824,
+      "denial_rate": 0.176,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 52,
+          "approval_rate": 0.808
+        },
+        "height": {
+          "cases": 67,
+          "approval_rate": 0.896
+        },
+        "parking": {
+          "cases": 73,
+          "approval_rate": 0.877
+        },
+        "setback": {
+          "cases": 90,
+          "approval_rate": 0.878
+        },
+        "use": {
+          "cases": 137,
+          "approval_rate": 0.92
+        }
+      }
+    },
+    {
+      "name": "Pisani",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 8,
+      "total_mentions": 20,
+      "date_range": [
+        "2015-02-24",
+        "2026-04-07"
+      ],
+      "cases_during_tenure": 187,
+      "approval_rate": 0.662,
+      "denial_rate": 0.338,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 31,
+          "approval_rate": 0.774
+        },
+        "parking": {
+          "cases": 46,
+          "approval_rate": 0.783
+        },
+        "setback": {
+          "cases": 2,
+          "approval_rate": 0.5
+        },
+        "use": {
+          "cases": 38,
+          "approval_rate": 0.895
+        }
+      }
+    },
+    {
+      "name": "Sheen",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 8,
+      "total_mentions": 15,
+      "date_range": [
+        "2021-07-22",
+        "2026-03-10"
+      ],
+      "cases_during_tenure": 138,
+      "approval_rate": 0.714,
+      "denial_rate": 0.286,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 50,
+          "approval_rate": 0.92
+        },
+        "height": {
+          "cases": 56,
+          "approval_rate": 0.911
+        },
+        "parking": {
+          "cases": 48,
+          "approval_rate": 0.896
+        },
+        "setback": {
+          "cases": 63,
+          "approval_rate": 0.921
+        },
+        "use": {
+          "cases": 95,
+          "approval_rate": 0.905
+        }
+      }
+    },
+    {
+      "name": "Miller",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 8,
+      "total_mentions": 15,
+      "date_range": [
+        "2021-08-10",
+        "2024-03-21"
+      ],
+      "cases_during_tenure": 185,
+      "approval_rate": 0.737,
+      "denial_rate": 0.263,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 0.333
+        },
+        "far": {
+          "cases": 88,
+          "approval_rate": 0.92
+        },
+        "height": {
+          "cases": 92,
+          "approval_rate": 0.902
+        },
+        "parking": {
+          "cases": 100,
+          "approval_rate": 0.88
+        },
+        "setback": {
+          "cases": 118,
+          "approval_rate": 0.881
+        },
+        "use": {
+          "cases": 152,
+          "approval_rate": 0.934
+        }
+      }
+    },
+    {
+      "name": "Paredo",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 8,
+      "total_mentions": 15,
+      "date_range": [
+        "2024-06-25",
+        "2025-12-16"
+      ],
+      "cases_during_tenure": 113,
+      "approval_rate": 0.92,
+      "denial_rate": 0.08,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 32,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 34,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 53,
+          "approval_rate": 0.962
+        },
+        "setback": {
+          "cases": 43,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 77,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Gerro",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 7,
+      "total_mentions": 47,
+      "date_range": [
+        "2022-10-04",
+        "2023-11-14"
+      ],
+      "cases_during_tenure": 95,
+      "approval_rate": 0.686,
+      "denial_rate": 0.314,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 31,
+          "approval_rate": 0.806
+        },
+        "height": {
+          "cases": 43,
+          "approval_rate": 0.884
+        },
+        "parking": {
+          "cases": 50,
+          "approval_rate": 0.9
+        },
+        "setback": {
+          "cases": 40,
+          "approval_rate": 0.875
+        },
+        "use": {
+          "cases": 95,
+          "approval_rate": 0.874
+        }
+      }
+    },
+    {
+      "name": "Bernal",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 7,
+      "total_mentions": 44,
+      "date_range": [
+        "2026-01-22",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 69,
+      "approval_rate": 1.0,
+      "denial_rate": 0.0,
+      "individual_votes": null,
+      "variance_stats": {
+        "far": {
+          "cases": 10,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 9,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 8,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 8,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 21,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Kendell",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 7,
+      "total_mentions": 27,
+      "date_range": [
+        "2019-12-17",
+        "2021-02-02"
+      ],
+      "cases_during_tenure": 215,
+      "approval_rate": 0.677,
+      "denial_rate": 0.323,
+      "individual_votes": null,
+      "variance_stats": {
+        "far": {
+          "cases": 61,
+          "approval_rate": 0.934
+        },
+        "height": {
+          "cases": 95,
+          "approval_rate": 0.947
+        },
+        "parking": {
+          "cases": 103,
+          "approval_rate": 0.893
+        },
+        "setback": {
+          "cases": 65,
+          "approval_rate": 0.954
+        },
+        "use": {
+          "cases": 33,
+          "approval_rate": 0.879
+        }
+      }
+    },
+    {
+      "name": "Mukahal",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 7,
+      "total_mentions": 26,
+      "date_range": [
+        "2023-12-12",
+        "2024-04-30"
+      ],
+      "cases_during_tenure": 139,
+      "approval_rate": 0.844,
+      "denial_rate": 0.156,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 46,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 57,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 68,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 77,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 131,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Lengom",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 7,
+      "total_mentions": 21,
+      "date_range": [
+        "2023-05-09",
+        "2025-12-09"
+      ],
+      "cases_during_tenure": 105,
+      "approval_rate": 0.875,
+      "denial_rate": 0.125,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 43,
+          "approval_rate": 0.977
+        },
+        "height": {
+          "cases": 48,
+          "approval_rate": 0.958
+        },
+        "parking": {
+          "cases": 59,
+          "approval_rate": 0.966
+        },
+        "setback": {
+          "cases": 57,
+          "approval_rate": 0.982
+        },
+        "use": {
+          "cases": 97,
+          "approval_rate": 0.979
+        }
+      }
+    },
+    {
+      "name": "Riewell",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 7,
+      "total_mentions": 17,
+      "date_range": [
+        "2022-04-26",
+        "2025-10-07"
+      ],
+      "cases_during_tenure": 107,
+      "approval_rate": 0.898,
+      "denial_rate": 0.102,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 25,
+          "approval_rate": 0.92
+        },
+        "height": {
+          "cases": 45,
+          "approval_rate": 0.933
+        },
+        "parking": {
+          "cases": 50,
+          "approval_rate": 0.92
+        },
+        "setback": {
+          "cases": 58,
+          "approval_rate": 0.948
+        },
+        "use": {
+          "cases": 100,
+          "approval_rate": 0.95
+        }
+      }
+    },
+    {
+      "name": "Prado",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 7,
+      "total_mentions": 15,
+      "date_range": [
+        "2023-12-12",
+        "2026-01-27"
+      ],
+      "cases_during_tenure": 135,
+      "approval_rate": 0.835,
+      "denial_rate": 0.165,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 43,
+          "approval_rate": 0.767
+        },
+        "height": {
+          "cases": 44,
+          "approval_rate": 0.841
+        },
+        "parking": {
+          "cases": 71,
+          "approval_rate": 0.887
+        },
+        "setback": {
+          "cases": 72,
+          "approval_rate": 0.861
+        },
+        "use": {
+          "cases": 102,
+          "approval_rate": 0.902
+        }
+      }
+    },
+    {
+      "name": "Hicken",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 7,
+      "total_mentions": 15,
+      "date_range": [
+        "2024-07-16",
+        "2025-06-24"
+      ],
+      "cases_during_tenure": 133,
+      "approval_rate": 0.867,
+      "denial_rate": 0.133,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 3,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 47,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 60,
+          "approval_rate": 0.983
+        },
+        "parking": {
+          "cases": 58,
+          "approval_rate": 0.983
+        },
+        "setback": {
+          "cases": 74,
+          "approval_rate": 0.986
+        },
+        "use": {
+          "cases": 114,
+          "approval_rate": 0.991
+        }
+      }
+    },
+    {
+      "name": "Rujero",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 6,
+      "total_mentions": 20,
+      "date_range": [
+        "2022-10-04",
+        "2023-11-14"
+      ],
+      "cases_during_tenure": 89,
+      "approval_rate": 0.69,
+      "denial_rate": 0.31,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 4,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 20,
+          "approval_rate": 0.8
+        },
+        "height": {
+          "cases": 38,
+          "approval_rate": 0.895
+        },
+        "parking": {
+          "cases": 48,
+          "approval_rate": 0.938
+        },
+        "setback": {
+          "cases": 38,
+          "approval_rate": 0.895
+        },
+        "use": {
+          "cases": 79,
+          "approval_rate": 0.873
+        }
+      }
+    },
+    {
+      "name": "Lengon",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 6,
+      "total_mentions": 20,
+      "date_range": [
+        "2024-06-25",
+        "2026-02-03"
+      ],
+      "cases_during_tenure": 54,
+      "approval_rate": 0.929,
+      "denial_rate": 0.071,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 20,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 30,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 31,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 28,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 47,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Lynn",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 6,
+      "total_mentions": 16,
+      "date_range": [
+        "2022-08-09",
+        "2025-05-20"
+      ],
+      "cases_during_tenure": 118,
+      "approval_rate": 0.833,
+      "denial_rate": 0.167,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 35,
+          "approval_rate": 0.914
+        },
+        "height": {
+          "cases": 54,
+          "approval_rate": 0.963
+        },
+        "parking": {
+          "cases": 62,
+          "approval_rate": 0.952
+        },
+        "setback": {
+          "cases": 51,
+          "approval_rate": 0.961
+        },
+        "use": {
+          "cases": 116,
+          "approval_rate": 0.974
+        }
+      }
+    },
+    {
+      "name": "Ronser",
+      "aliases": [
+        "Chair Ronser",
+        "Chairman Ronser"
+      ],
+      "role": "Chair",
+      "hearings_attended": 5,
+      "total_mentions": 99,
+      "date_range": [
+        "2023-08-24",
+        "2025-09-23"
+      ],
+      "cases_during_tenure": 68,
+      "approval_rate": 0.976,
+      "denial_rate": 0.024,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 16,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 26,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 36,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 27,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 56,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Martinez",
+      "aliases": [
+        "Chair Martinez",
+        "Chairman Martinez"
+      ],
+      "role": "Chair",
+      "hearings_attended": 5,
+      "total_mentions": 36,
+      "date_range": [
+        "2021-02-02",
+        "2023-09-12"
+      ],
+      "cases_during_tenure": 93,
+      "approval_rate": 0.789,
+      "denial_rate": 0.211,
+      "individual_votes": null,
+      "variance_stats": {
+        "far": {
+          "cases": 36,
+          "approval_rate": 0.944
+        },
+        "height": {
+          "cases": 48,
+          "approval_rate": 0.979
+        },
+        "parking": {
+          "cases": 44,
+          "approval_rate": 0.932
+        },
+        "setback": {
+          "cases": 59,
+          "approval_rate": 0.966
+        },
+        "use": {
+          "cases": 53,
+          "approval_rate": 0.981
+        }
+      }
+    },
+    {
+      "name": "Higgins",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 5,
+      "total_mentions": 17,
+      "date_range": [
+        "2021-07-22",
+        "2023-12-07"
+      ],
+      "cases_during_tenure": 58,
+      "approval_rate": 0.889,
+      "denial_rate": 0.111,
+      "individual_votes": null,
+      "variance_stats": {
+        "far": {
+          "cases": 21,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 24,
+          "approval_rate": 0.958
+        },
+        "parking": {
+          "cases": 15,
+          "approval_rate": 0.933
+        },
+        "setback": {
+          "cases": 36,
+          "approval_rate": 0.972
+        },
+        "use": {
+          "cases": 33,
+          "approval_rate": 0.97
+        }
+      }
+    },
+    {
+      "name": "Barry",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 5,
+      "total_mentions": 15,
+      "date_range": [
+        "2021-02-02",
+        "2023-12-12"
+      ],
+      "cases_during_tenure": 100,
+      "approval_rate": 0.613,
+      "denial_rate": 0.387,
+      "individual_votes": null,
+      "variance_stats": {
+        "far": {
+          "cases": 49,
+          "approval_rate": 0.918
+        },
+        "height": {
+          "cases": 57,
+          "approval_rate": 0.947
+        },
+        "parking": {
+          "cases": 63,
+          "approval_rate": 0.921
+        },
+        "setback": {
+          "cases": 70,
+          "approval_rate": 0.957
+        },
+        "use": {
+          "cases": 40,
+          "approval_rate": 0.925
+        }
+      }
+    },
+    {
+      "name": "Stammering",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 5,
+      "total_mentions": 15,
+      "date_range": [
+        "2024-09-10",
+        "2025-12-09"
+      ],
+      "cases_during_tenure": 58,
+      "approval_rate": 0.949,
+      "denial_rate": 0.051,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "far": {
+          "cases": 24,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 28,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 27,
+          "approval_rate": 0.926
+        },
+        "setback": {
+          "cases": 33,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 47,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Caron",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 4,
+      "total_mentions": 23,
+      "date_range": [
+        "2025-03-04",
+        "2026-02-24"
+      ],
+      "cases_during_tenure": 67,
+      "approval_rate": 0.921,
+      "denial_rate": 0.079,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 24,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 30,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 32,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 31,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 61,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Chan",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 4,
+      "total_mentions": 16,
+      "date_range": [
+        "2023-11-14",
+        "2025-04-29"
+      ],
+      "cases_during_tenure": 43,
+      "approval_rate": 0.867,
+      "denial_rate": 0.133,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 12,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 20,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 18,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 20,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 40,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Brunel",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 3,
+      "total_mentions": 47,
+      "date_range": [
+        "2022-03-08",
+        "2026-03-24"
+      ],
+      "cases_during_tenure": 84,
+      "approval_rate": 0.8,
+      "denial_rate": 0.2,
+      "individual_votes": {
+        "yes": 1
+      },
+      "variance_stats": {
+        "far": {
+          "cases": 18,
+          "approval_rate": 0.889
+        },
+        "height": {
+          "cases": 25,
+          "approval_rate": 0.88
+        },
+        "parking": {
+          "cases": 30,
+          "approval_rate": 0.867
+        },
+        "setback": {
+          "cases": 23,
+          "approval_rate": 0.87
+        },
+        "use": {
+          "cases": 44,
+          "approval_rate": 0.909
+        }
+      }
+    },
+    {
+      "name": "Falunz",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 2,
+      "total_mentions": 20,
+      "date_range": [
+        "2024-12-10",
+        "2024-12-10"
+      ],
+      "cases_during_tenure": 22,
+      "approval_rate": 1.0,
+      "denial_rate": 0.0,
+      "individual_votes": null,
+      "variance_stats": {
+        "far": {
+          "cases": 6,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 5,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 10,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 9,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 16,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Cunato",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 2,
+      "total_mentions": 18,
+      "date_range": [
+        "2025-07-29",
+        "2025-07-29"
+      ],
+      "cases_during_tenure": 42,
+      "approval_rate": 0.677,
+      "denial_rate": 0.323,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 16,
+          "approval_rate": 0.375
+        },
+        "height": {
+          "cases": 18,
+          "approval_rate": 0.667
+        },
+        "parking": {
+          "cases": 28,
+          "approval_rate": 0.714
+        },
+        "setback": {
+          "cases": 28,
+          "approval_rate": 0.643
+        },
+        "use": {
+          "cases": 38,
+          "approval_rate": 0.737
+        }
+      }
+    },
+    {
+      "name": "Vardy",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 1,
+      "total_mentions": 37,
+      "date_range": [
+        "2024-03-26",
+        "2024-03-26"
+      ],
+      "cases_during_tenure": 30,
+      "approval_rate": 0.733,
+      "denial_rate": 0.267,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 1,
+          "approval_rate": 1.0
+        },
+        "far": {
+          "cases": 12,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 15,
+          "approval_rate": 1.0
+        },
+        "parking": {
+          "cases": 20,
+          "approval_rate": 1.0
+        },
+        "setback": {
+          "cases": 19,
+          "approval_rate": 1.0
+        },
+        "use": {
+          "cases": 30,
+          "approval_rate": 1.0
+        }
+      }
+    },
+    {
+      "name": "Scherger",
+      "aliases": [],
+      "role": "Member",
+      "hearings_attended": 1,
+      "total_mentions": 26,
+      "date_range": [
+        "2023-01-31",
+        "2023-01-31"
+      ],
+      "cases_during_tenure": 38,
+      "approval_rate": 0.667,
+      "denial_rate": 0.333,
+      "individual_votes": null,
+      "variance_stats": {
+        "density": {
+          "cases": 2,
+          "approval_rate": 0.0
+        },
+        "far": {
+          "cases": 22,
+          "approval_rate": 1.0
+        },
+        "height": {
+          "cases": 26,
+          "approval_rate": 0.923
+        },
+        "parking": {
+          "cases": 27,
+          "approval_rate": 0.926
+        },
+        "setback": {
+          "cases": 25,
+          "approval_rate": 0.92
+        },
+        "use": {
+          "cases": 34,
+          "approval_rate": 1.0
+        }
+      }
+    }
+  ],
+  "generated": "2026-04-14",
+  "total_transcripts_analyzed": 346,
+  "extraction_notes": "Names extracted via regex from Whisper-transcribed audio. Spelling variations merged with fuzzy matching (ratio >= 0.85). Vote counts are approximate due to transcription noise."
+}

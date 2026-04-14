@@ -166,6 +166,50 @@ try:
 except Exception as e:
     logger.warning("Attorney router not loaded: %s", e)
 
+# Filing strategy routes
+filing_strategy_init = None
+try:
+    from api.routes.filing_strategy import router as filing_router, init as filing_strategy_init
+    app.include_router(filing_router)
+    logger.info("Filing strategy router included")
+except Exception as e:
+    logger.warning("Filing strategy router not loaded: %s", e)
+
+# Board member routes
+try:
+    from api.routes.board_members import router as board_router, init as board_init
+    app.include_router(board_router)
+    board_init()
+    logger.info("Board members router included")
+except Exception as e:
+    logger.warning("Board members router not loaded: %s", e)
+
+# Opposition risk routes
+try:
+    from api.routes.opposition import router as opposition_router, init as opposition_init
+    app.include_router(opposition_router)
+    opposition_init()
+    logger.info("Opposition router included")
+except Exception as e:
+    logger.warning("Opposition router not loaded: %s", e)
+
+# Parcel risk score routes
+try:
+    from api.routes.risk_score import router as risk_router, init as risk_init
+    app.include_router(risk_router)
+    risk_init()
+    logger.info("Risk score router included")
+except Exception as e:
+    logger.warning("Risk score router not loaded: %s", e)
+
+# Hearing prep report routes
+try:
+    from api.routes.hearing_prep import router as hearing_prep_router
+    app.include_router(hearing_prep_router)
+    logger.info("Hearing prep router included")
+except Exception as e:
+    logger.warning("Hearing prep router not loaded: %s", e)
+
 
 # =========================
 # STARTUP EVENT
@@ -178,6 +222,7 @@ def load_data():
     load_all(
         market_init=market_init,
         attorney_init=attorney_init,
+        filing_strategy_init=filing_strategy_init,
         variance_types=VARIANCE_TYPES,
         project_types=PROJECT_TYPES,
     )

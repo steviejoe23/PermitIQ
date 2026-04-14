@@ -24,6 +24,11 @@ COPY boston_parcels_zoning.geojson .
 COPY property_assessment_fy2026.csv .
 COPY zba_tracker.csv .
 
+# New feature data files
+COPY data/opposition_index.json data/opposition_index.json
+COPY data/board_member_profiles.json data/board_member_profiles.json
+COPY data/parcel_risk_scores.csv data/parcel_risk_scores.csv
+
 # Model pkl is gzipped to fit under GitHub's 100MB limit — decompress it
 COPY api/zba_model.pkl.gz api/zba_model.pkl.gz
 RUN gunzip api/zba_model.pkl.gz

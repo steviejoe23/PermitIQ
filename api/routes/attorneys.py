@@ -341,6 +341,93 @@ def attorney_profile(attorney_name: str):
     }
 
 
+@router.get("/recommend")
+def recommend_attorney(
+    variance_types: str = Query(..., description="Comma-separated variance types (e.g. height,parking)"),
+    ward: Optional[str] = Query(None, description="Ward number"),
+    limit: int = Query(5, ge=1, le=20),
+    min_cases: int = Query(3, ge=1, le=20),
+):
+    """Recommend top attorneys for a given variance type and ward combination.
+
+    Returns attorneys ranked by win rate for the specified filters,
+    with minimum case threshold to ensure statistical significance.
+    """
+    df = _get_decided_df()
+
+    vtypes = [v.strip().lower() for v in variance_types.split(',') if v.strip()]
+    if not vtypes:
+        raise HTTPException(status_code=400, detail="At least one variance type required")
+
+    # Filter to cases matching any of the requested variance types
+    vt_col = df['variance_types'].fillna('')
+    mask = pd.Series(False, index=df.index)
+    for vt in vtypes:
+        mask |= vt_col.str.contains(vt, na=False, case=False)
+    filtered = df[mask].copy()
+
+    # Filter by ward if provided
+    if ward:
+        try:
+            ward_num = float(ward)
+            filtered = filtered[filtered['ward'] == ward_num]
+        except (ValueError, TypeError):
+            pass
+
+    if len(filtered) == 0:
+        return {"variance_types": vtypes, "ward": ward, "attorneys": [], "note": "No cases found for this combination."}
+
+    # Only include cases with a named contact (attorney)
+    with_attorney = filtered[filtered['contact'].notna() & (filtered['contact'].str.len() > 2)]
+
+    # Group by attorney
+    attorney_stats = with_attorney.groupby('contact').agg(
+        total=('decision_clean', 'count'),
+        approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+    ).reset_index()
+    attorney_stats = attorney_stats[attorney_stats['total'] >= min_cases]
+    attorney_stats['approval_rate'] = (attorney_stats['approved'] / attorney_stats['total']).round(3)
+
+    # Also compute each attorney's overall stats for context
+    all_stats = df[df['contact'].notna()].groupby('contact').agg(
+        overall_total=('decision_clean', 'count'),
+        overall_approved=('decision_clean', lambda x: (x == 'APPROVED').sum()),
+    ).reset_index()
+    all_stats['overall_rate'] = (all_stats['overall_approved'] / all_stats['overall_total']).round(3)
+
+    merged = attorney_stats.merge(all_stats, on='contact', how='left')
+
+    # Specialist score: what fraction of this attorney's cases involve these variance types
+    merged['specialist_pct'] = (merged['total'] / merged['overall_total']).round(3)
+
+    # Sort by approval rate, then by case count
+    merged = merged.sort_values(['approval_rate', 'total'], ascending=[False, False])
+
+    attorneys = []
+    for _, row in merged.head(limit).iterrows():
+        attorneys.append({
+            "name": row['contact'],
+            "cases_for_filter": int(row['total']),
+            "approved_for_filter": int(row['approved']),
+            "approval_rate": float(row['approval_rate']),
+            "overall_cases": int(row['overall_total']),
+            "overall_rate": float(row['overall_rate']),
+            "specialist_pct": float(row['specialist_pct']),
+        })
+
+    # Overall baseline for comparison
+    baseline_rate = float((filtered['decision_clean'] == 'APPROVED').mean()) if len(filtered) > 0 else 0
+
+    return {
+        "variance_types": vtypes,
+        "ward": ward,
+        "baseline_approval_rate": round(baseline_rate, 3),
+        "min_cases_threshold": min_cases,
+        "attorneys": attorneys,
+        "total_matching_cases": len(filtered),
+    }
+
+
 @router.get("/{attorney_name}/similar_cases")
 def attorney_similar_cases(
     attorney_name: str,

@@ -48,6 +48,11 @@ data/zba_transcripts/raw_srt/
 !data/zba_transcripts/transcript_summary.json
 !data/youtube_download_list.txt
 
+# Allow new feature data files (needed for Railway Docker build)
+!data/opposition_index.json
+!data/board_member_profiles.json
+!data/parcel_risk_scores.csv
+
 # Zip archives
 *.zip
 

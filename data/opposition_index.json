@@ -1,0 +1,2002 @@
+{
+  "neighborhoods": {
+    "Allston": {
+      "avg_opposition_ratio": 0.4549,
+      "max_opposition_ratio": 0.5764,
+      "hearings_analyzed": 26,
+      "risk_level": "Medium",
+      "denial_rate": null,
+      "trend": "increasing",
+      "variance_opposition": {
+        "density": {
+          "opposition_ratio": 0.4725,
+          "hearings": 19,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4675,
+          "hearings": 17,
+          "risk_level": "Medium"
+        },
+        "lot coverage": {
+          "opposition_ratio": 0.4624,
+          "hearings": 9,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.461,
+          "hearings": 24,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4549,
+          "hearings": 26,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4549,
+          "hearings": 26,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4549,
+          "hearings": 26,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4549,
+          "hearings": 26,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4549,
+          "hearings": 26,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4549,
+          "hearings": 26,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.454,
+          "hearings": 25,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4504,
+          "hearings": 24,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4503,
+          "hearings": 25,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4503,
+          "hearings": 25,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4486,
+          "hearings": 22,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4419,
+          "hearings": 16,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4406,
+          "hearings": 17,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Back Bay": {
+      "avg_opposition_ratio": 0.4994,
+      "max_opposition_ratio": 0.7391,
+      "hearings_analyzed": 147,
+      "risk_level": "Medium",
+      "denial_rate": 0.0539,
+      "trend": "increasing",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5132,
+          "hearings": 37,
+          "risk_level": "High"
+        },
+        "frontage": {
+          "opposition_ratio": 0.5116,
+          "hearings": 99,
+          "risk_level": "High"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.5075,
+          "hearings": 100,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.5043,
+          "hearings": 121,
+          "risk_level": "High"
+        },
+        "lot area": {
+          "opposition_ratio": 0.5011,
+          "hearings": 104,
+          "risk_level": "High"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.501,
+          "hearings": 126,
+          "risk_level": "High"
+        },
+        "far": {
+          "opposition_ratio": 0.4995,
+          "hearings": 145,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4994,
+          "hearings": 147,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4994,
+          "hearings": 147,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4994,
+          "hearings": 140,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4985,
+          "hearings": 145,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4983,
+          "hearings": 135,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4973,
+          "hearings": 144,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4972,
+          "hearings": 142,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4961,
+          "hearings": 139,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.495,
+          "hearings": 120,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4932,
+          "hearings": 132,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Beacon Hill": {
+      "avg_opposition_ratio": 0.4848,
+      "max_opposition_ratio": 0.7083,
+      "hearings_analyzed": 75,
+      "risk_level": "Medium",
+      "denial_rate": null,
+      "trend": "increasing",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5204,
+          "hearings": 8,
+          "risk_level": "High"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4872,
+          "hearings": 47,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4859,
+          "hearings": 48,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4854,
+          "hearings": 74,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4848,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4848,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4836,
+          "hearings": 71,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4823,
+          "hearings": 72,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.481,
+          "hearings": 54,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4805,
+          "hearings": 69,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4804,
+          "hearings": 71,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4799,
+          "hearings": 65,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4777,
+          "hearings": 67,
+          "risk_level": "Medium"
+        },
+        "density": {
+          "opposition_ratio": 0.4771,
+          "hearings": 52,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4719,
+          "hearings": 60,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4712,
+          "hearings": 63,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4697,
+          "hearings": 64,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Brighton": {
+      "avg_opposition_ratio": 0.4871,
+      "max_opposition_ratio": 0.75,
+      "hearings_analyzed": 217,
+      "risk_level": "Medium",
+      "denial_rate": 0.0902,
+      "trend": "increasing",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5206,
+          "hearings": 48,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4993,
+          "hearings": 173,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4971,
+          "hearings": 143,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4933,
+          "hearings": 141,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4888,
+          "hearings": 212,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.488,
+          "hearings": 209,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4878,
+          "hearings": 179,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4876,
+          "hearings": 163,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4871,
+          "hearings": 217,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4864,
+          "hearings": 209,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4852,
+          "hearings": 211,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4841,
+          "hearings": 214,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4828,
+          "hearings": 209,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4827,
+          "hearings": 181,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4823,
+          "hearings": 203,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4818,
+          "hearings": 195,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4794,
+          "hearings": 194,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Charlestown": {
+      "avg_opposition_ratio": 0.4828,
+      "max_opposition_ratio": 0.8333,
+      "hearings_analyzed": 171,
+      "risk_level": "Medium",
+      "denial_rate": 0.0703,
+      "trend": "increasing",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.524,
+          "hearings": 35,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4971,
+          "hearings": 120,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4859,
+          "hearings": 107,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4859,
+          "hearings": 130,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4847,
+          "hearings": 169,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4842,
+          "hearings": 166,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4841,
+          "hearings": 111,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.484,
+          "hearings": 160,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4828,
+          "hearings": 171,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4827,
+          "hearings": 169,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4816,
+          "hearings": 159,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4813,
+          "hearings": 100,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4812,
+          "hearings": 133,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4809,
+          "hearings": 162,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4792,
+          "hearings": 155,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.479,
+          "hearings": 166,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4778,
+          "hearings": 147,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Chinatown": {
+      "avg_opposition_ratio": 0.4871,
+      "max_opposition_ratio": 0.6941,
+      "hearings_analyzed": 39,
+      "risk_level": "Medium",
+      "denial_rate": null,
+      "trend": "increasing",
+      "variance_opposition": {
+        "density": {
+          "opposition_ratio": 0.4981,
+          "hearings": 34,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4973,
+          "hearings": 30,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4903,
+          "hearings": 35,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4883,
+          "hearings": 38,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4871,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4871,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4871,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4871,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4871,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4871,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4858,
+          "hearings": 38,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4836,
+          "hearings": 33,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4818,
+          "hearings": 36,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4816,
+          "hearings": 34,
+          "risk_level": "Medium"
+        },
+        "lot coverage": {
+          "opposition_ratio": 0.4788,
+          "hearings": 13,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4773,
+          "hearings": 26,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4759,
+          "hearings": 36,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Dorchester": {
+      "avg_opposition_ratio": 0.4894,
+      "max_opposition_ratio": 0.8194,
+      "hearings_analyzed": 288,
+      "risk_level": "Medium",
+      "denial_rate": 0.0991,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5173,
+          "hearings": 64,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.5001,
+          "hearings": 224,
+          "risk_level": "High"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4972,
+          "hearings": 183,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4947,
+          "hearings": 231,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4926,
+          "hearings": 282,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4923,
+          "hearings": 279,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4909,
+          "hearings": 282,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4901,
+          "hearings": 270,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.49,
+          "hearings": 182,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4898,
+          "hearings": 279,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4897,
+          "hearings": 207,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4894,
+          "hearings": 288,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4882,
+          "hearings": 268,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4882,
+          "hearings": 255,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.485,
+          "hearings": 272,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4849,
+          "hearings": 256,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4823,
+          "hearings": 235,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Downtown": {
+      "avg_opposition_ratio": 0.5011,
+      "max_opposition_ratio": 0.8,
+      "hearings_analyzed": 135,
+      "risk_level": "High",
+      "denial_rate": 0.0946,
+      "trend": "increasing",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5241,
+          "hearings": 32,
+          "risk_level": "High"
+        },
+        "frontage": {
+          "opposition_ratio": 0.5136,
+          "hearings": 91,
+          "risk_level": "High"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.5096,
+          "hearings": 81,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.5081,
+          "hearings": 110,
+          "risk_level": "High"
+        },
+        "front yard": {
+          "opposition_ratio": 0.5019,
+          "hearings": 116,
+          "risk_level": "High"
+        },
+        "lot area": {
+          "opposition_ratio": 0.5015,
+          "hearings": 104,
+          "risk_level": "High"
+        },
+        "use": {
+          "opposition_ratio": 0.5011,
+          "hearings": 135,
+          "risk_level": "High"
+        },
+        "parking": {
+          "opposition_ratio": 0.5011,
+          "hearings": 135,
+          "risk_level": "High"
+        },
+        "far": {
+          "opposition_ratio": 0.5004,
+          "hearings": 132,
+          "risk_level": "High"
+        },
+        "open space": {
+          "opposition_ratio": 0.5002,
+          "hearings": 128,
+          "risk_level": "High"
+        },
+        "height": {
+          "opposition_ratio": 0.4993,
+          "hearings": 133,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4989,
+          "hearings": 129,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4987,
+          "hearings": 105,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4973,
+          "hearings": 133,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4948,
+          "hearings": 131,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4923,
+          "hearings": 113,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.488,
+          "hearings": 114,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "East Boston": {
+      "avg_opposition_ratio": 0.4919,
+      "max_opposition_ratio": 0.75,
+      "hearings_analyzed": 255,
+      "risk_level": "Medium",
+      "denial_rate": 0.0939,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5216,
+          "hearings": 72,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4996,
+          "hearings": 215,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4934,
+          "hearings": 178,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4932,
+          "hearings": 250,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.493,
+          "hearings": 251,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4929,
+          "hearings": 249,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4919,
+          "hearings": 255,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4912,
+          "hearings": 254,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.491,
+          "hearings": 233,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4909,
+          "hearings": 254,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4909,
+          "hearings": 248,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4908,
+          "hearings": 209,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4904,
+          "hearings": 244,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4898,
+          "hearings": 187,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4889,
+          "hearings": 169,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.488,
+          "hearings": 233,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4862,
+          "hearings": 214,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Fenway": {
+      "avg_opposition_ratio": 0.5056,
+      "max_opposition_ratio": 0.7143,
+      "hearings_analyzed": 68,
+      "risk_level": "High",
+      "denial_rate": 0.102,
+      "trend": "stable",
+      "variance_opposition": {
+        "floor area ratio": {
+          "opposition_ratio": 0.5122,
+          "hearings": 45,
+          "risk_level": "High"
+        },
+        "lot area": {
+          "opposition_ratio": 0.5105,
+          "hearings": 55,
+          "risk_level": "High"
+        },
+        "lot coverage": {
+          "opposition_ratio": 0.5089,
+          "hearings": 13,
+          "risk_level": "High"
+        },
+        "far": {
+          "opposition_ratio": 0.5073,
+          "hearings": 66,
+          "risk_level": "High"
+        },
+        "setback": {
+          "opposition_ratio": 0.5061,
+          "hearings": 66,
+          "risk_level": "High"
+        },
+        "front yard": {
+          "opposition_ratio": 0.5057,
+          "hearings": 67,
+          "risk_level": "High"
+        },
+        "use": {
+          "opposition_ratio": 0.5056,
+          "hearings": 68,
+          "risk_level": "High"
+        },
+        "height": {
+          "opposition_ratio": 0.5056,
+          "hearings": 68,
+          "risk_level": "High"
+        },
+        "parking": {
+          "opposition_ratio": 0.5056,
+          "hearings": 68,
+          "risk_level": "High"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.5056,
+          "hearings": 68,
+          "risk_level": "High"
+        },
+        "stories": {
+          "opposition_ratio": 0.5041,
+          "hearings": 63,
+          "risk_level": "High"
+        },
+        "frontage": {
+          "opposition_ratio": 0.5037,
+          "hearings": 51,
+          "risk_level": "High"
+        },
+        "open space": {
+          "opposition_ratio": 0.5024,
+          "hearings": 67,
+          "risk_level": "High"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.5017,
+          "hearings": 59,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.5014,
+          "hearings": 61,
+          "risk_level": "High"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4994,
+          "hearings": 59,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4977,
+          "hearings": 56,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Hyde Park": {
+      "avg_opposition_ratio": 0.464,
+      "max_opposition_ratio": 0.7073,
+      "hearings_analyzed": 103,
+      "risk_level": "Medium",
+      "denial_rate": 0.1169,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5017,
+          "hearings": 21,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4779,
+          "hearings": 80,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4744,
+          "hearings": 72,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4725,
+          "hearings": 83,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4706,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.467,
+          "hearings": 96,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4664,
+          "hearings": 100,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4653,
+          "hearings": 102,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4648,
+          "hearings": 102,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.464,
+          "hearings": 103,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.464,
+          "hearings": 103,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.464,
+          "hearings": 103,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.464,
+          "hearings": 103,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4631,
+          "hearings": 97,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.463,
+          "hearings": 64,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.463,
+          "hearings": 101,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4619,
+          "hearings": 87,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Jamaica Plain": {
+      "avg_opposition_ratio": 0.4588,
+      "max_opposition_ratio": 0.7,
+      "hearings_analyzed": 170,
+      "risk_level": "Medium",
+      "denial_rate": 0.0916,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.51,
+          "hearings": 31,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4764,
+          "hearings": 116,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4719,
+          "hearings": 101,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4654,
+          "hearings": 101,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4626,
+          "hearings": 164,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.462,
+          "hearings": 155,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4618,
+          "hearings": 164,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4612,
+          "hearings": 154,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4609,
+          "hearings": 163,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4607,
+          "hearings": 154,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4603,
+          "hearings": 104,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4598,
+          "hearings": 119,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4588,
+          "hearings": 170,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4585,
+          "hearings": 151,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4573,
+          "hearings": 163,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4555,
+          "hearings": 153,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4552,
+          "hearings": 128,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Mattapan": {
+      "avg_opposition_ratio": 0.4846,
+      "max_opposition_ratio": 0.6882,
+      "hearings_analyzed": 47,
+      "risk_level": "Medium",
+      "denial_rate": 0.1129,
+      "trend": "increasing",
+      "variance_opposition": {
+        "open space": {
+          "opposition_ratio": 0.4866,
+          "hearings": 46,
+          "risk_level": "Medium"
+        },
+        "density": {
+          "opposition_ratio": 0.4858,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4852,
+          "hearings": 33,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4846,
+          "hearings": 47,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4846,
+          "hearings": 47,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4846,
+          "hearings": 47,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4846,
+          "hearings": 47,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4846,
+          "hearings": 47,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4846,
+          "hearings": 47,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4846,
+          "hearings": 47,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4846,
+          "hearings": 46,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4829,
+          "hearings": 46,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.48,
+          "hearings": 42,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4796,
+          "hearings": 37,
+          "risk_level": "Medium"
+        },
+        "lot coverage": {
+          "opposition_ratio": 0.4781,
+          "hearings": 7,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4774,
+          "hearings": 38,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4702,
+          "hearings": 27,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Mission Hill": {
+      "avg_opposition_ratio": 0.4855,
+      "max_opposition_ratio": 0.7152,
+      "hearings_analyzed": 75,
+      "risk_level": "Medium",
+      "denial_rate": null,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5222,
+          "hearings": 19,
+          "risk_level": "High"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4925,
+          "hearings": 56,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4908,
+          "hearings": 55,
+          "risk_level": "Medium"
+        },
+        "density": {
+          "opposition_ratio": 0.4902,
+          "hearings": 70,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4895,
+          "hearings": 72,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4857,
+          "hearings": 73,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4855,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4855,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4855,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4855,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4855,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4855,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4855,
+          "hearings": 75,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.484,
+          "hearings": 61,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4839,
+          "hearings": 68,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.483,
+          "hearings": 74,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4786,
+          "hearings": 69,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "North End": {
+      "avg_opposition_ratio": 0.4744,
+      "max_opposition_ratio": 0.6685,
+      "hearings_analyzed": 93,
+      "risk_level": "Medium",
+      "denial_rate": null,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5094,
+          "hearings": 27,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4811,
+          "hearings": 74,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4806,
+          "hearings": 72,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4801,
+          "hearings": 68,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4801,
+          "hearings": 82,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4799,
+          "hearings": 83,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4765,
+          "hearings": 91,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4764,
+          "hearings": 87,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4756,
+          "hearings": 89,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4745,
+          "hearings": 88,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4744,
+          "hearings": 93,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4744,
+          "hearings": 93,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4744,
+          "hearings": 91,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4741,
+          "hearings": 91,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4738,
+          "hearings": 92,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4712,
+          "hearings": 59,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4706,
+          "hearings": 85,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Roslindale": {
+      "avg_opposition_ratio": 0.4363,
+      "max_opposition_ratio": 0.6219,
+      "hearings_analyzed": 49,
+      "risk_level": "Medium",
+      "denial_rate": 0.1017,
+      "trend": "insufficient_data",
+      "variance_opposition": {
+        "parking": {
+          "opposition_ratio": 0.4375,
+          "hearings": 48,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4363,
+          "hearings": 49,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4363,
+          "hearings": 49,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4363,
+          "hearings": 49,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4363,
+          "hearings": 49,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4363,
+          "hearings": 49,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4363,
+          "hearings": 49,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4363,
+          "hearings": 49,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4363,
+          "hearings": 49,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.436,
+          "hearings": 48,
+          "risk_level": "Medium"
+        },
+        "density": {
+          "opposition_ratio": 0.4358,
+          "hearings": 34,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4358,
+          "hearings": 44,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4329,
+          "hearings": 40,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.429,
+          "hearings": 42,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4283,
+          "hearings": 36,
+          "risk_level": "Medium"
+        },
+        "lot coverage": {
+          "opposition_ratio": 0.4274,
+          "hearings": 6,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4185,
+          "hearings": 35,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "Roxbury": {
+      "avg_opposition_ratio": 0.4839,
+      "max_opposition_ratio": 0.7959,
+      "hearings_analyzed": 290,
+      "risk_level": "Medium",
+      "denial_rate": 0.0935,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.516,
+          "hearings": 54,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4987,
+          "hearings": 205,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4951,
+          "hearings": 179,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4908,
+          "hearings": 194,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4896,
+          "hearings": 220,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4877,
+          "hearings": 284,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4867,
+          "hearings": 282,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4865,
+          "hearings": 278,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.486,
+          "hearings": 267,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4855,
+          "hearings": 283,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4853,
+          "hearings": 178,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4848,
+          "hearings": 261,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4839,
+          "hearings": 290,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.483,
+          "hearings": 278,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4829,
+          "hearings": 263,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4813,
+          "hearings": 256,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4776,
+          "hearings": 221,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "South Boston": {
+      "avg_opposition_ratio": 0.4979,
+      "max_opposition_ratio": 0.8333,
+      "hearings_analyzed": 344,
+      "risk_level": "Medium",
+      "denial_rate": 0.1314,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5158,
+          "hearings": 75,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.5047,
+          "hearings": 264,
+          "risk_level": "High"
+        },
+        "frontage": {
+          "opposition_ratio": 0.5004,
+          "hearings": 215,
+          "risk_level": "High"
+        },
+        "parking": {
+          "opposition_ratio": 0.4999,
+          "hearings": 338,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4979,
+          "hearings": 344,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4975,
+          "hearings": 328,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4967,
+          "hearings": 330,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4949,
+          "hearings": 336,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4942,
+          "hearings": 314,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.494,
+          "hearings": 316,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4936,
+          "hearings": 242,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4933,
+          "hearings": 298,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4932,
+          "hearings": 269,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4915,
+          "hearings": 212,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4914,
+          "hearings": 322,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4888,
+          "hearings": 292,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4875,
+          "hearings": 275,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "South End": {
+      "avg_opposition_ratio": 0.4827,
+      "max_opposition_ratio": 0.7391,
+      "hearings_analyzed": 151,
+      "risk_level": "Medium",
+      "denial_rate": null,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5206,
+          "hearings": 34,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4995,
+          "hearings": 125,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4942,
+          "hearings": 110,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4931,
+          "hearings": 114,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.49,
+          "hearings": 109,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4867,
+          "hearings": 121,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.486,
+          "hearings": 148,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4859,
+          "hearings": 143,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4856,
+          "hearings": 148,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4844,
+          "hearings": 147,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4827,
+          "hearings": 151,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4827,
+          "hearings": 151,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4826,
+          "hearings": 144,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4817,
+          "hearings": 150,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4815,
+          "hearings": 133,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4792,
+          "hearings": 144,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4782,
+          "hearings": 134,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "West End": {
+      "avg_opposition_ratio": 0.4828,
+      "max_opposition_ratio": 0.7083,
+      "hearings_analyzed": 39,
+      "risk_level": "Medium",
+      "denial_rate": null,
+      "trend": "increasing",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.4969,
+          "hearings": 6,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4958,
+          "hearings": 25,
+          "risk_level": "Medium"
+        },
+        "density": {
+          "opposition_ratio": 0.4936,
+          "hearings": 25,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.4854,
+          "hearings": 26,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.484,
+          "hearings": 33,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4839,
+          "hearings": 38,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4828,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4828,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4828,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4828,
+          "hearings": 39,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4806,
+          "hearings": 36,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4801,
+          "hearings": 35,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4769,
+          "hearings": 38,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4765,
+          "hearings": 36,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4749,
+          "hearings": 23,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.474,
+          "hearings": 34,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4718,
+          "hearings": 32,
+          "risk_level": "Medium"
+        }
+      }
+    },
+    "West Roxbury": {
+      "avg_opposition_ratio": 0.4706,
+      "max_opposition_ratio": 0.7959,
+      "hearings_analyzed": 152,
+      "risk_level": "Medium",
+      "denial_rate": 0.0612,
+      "trend": "stable",
+      "variance_opposition": {
+        "lot coverage": {
+          "opposition_ratio": 0.5117,
+          "hearings": 23,
+          "risk_level": "High"
+        },
+        "density": {
+          "opposition_ratio": 0.4875,
+          "hearings": 95,
+          "risk_level": "Medium"
+        },
+        "lot area": {
+          "opposition_ratio": 0.479,
+          "hearings": 89,
+          "risk_level": "Medium"
+        },
+        "building height": {
+          "opposition_ratio": 0.4777,
+          "hearings": 101,
+          "risk_level": "Medium"
+        },
+        "parking": {
+          "opposition_ratio": 0.4775,
+          "hearings": 146,
+          "risk_level": "Medium"
+        },
+        "setback": {
+          "opposition_ratio": 0.4751,
+          "hearings": 149,
+          "risk_level": "Medium"
+        },
+        "height": {
+          "opposition_ratio": 0.4746,
+          "hearings": 148,
+          "risk_level": "Medium"
+        },
+        "frontage": {
+          "opposition_ratio": 0.4743,
+          "hearings": 85,
+          "risk_level": "Medium"
+        },
+        "far": {
+          "opposition_ratio": 0.4735,
+          "hearings": 148,
+          "risk_level": "Medium"
+        },
+        "floor area ratio": {
+          "opposition_ratio": 0.4727,
+          "hearings": 88,
+          "risk_level": "Medium"
+        },
+        "open space": {
+          "opposition_ratio": 0.4725,
+          "hearings": 137,
+          "risk_level": "Medium"
+        },
+        "rear yard": {
+          "opposition_ratio": 0.4718,
+          "hearings": 145,
+          "risk_level": "Medium"
+        },
+        "use": {
+          "opposition_ratio": 0.4706,
+          "hearings": 152,
+          "risk_level": "Medium"
+        },
+        "front yard": {
+          "opposition_ratio": 0.4683,
+          "hearings": 132,
+          "risk_level": "Medium"
+        },
+        "conditional use": {
+          "opposition_ratio": 0.4683,
+          "hearings": 107,
+          "risk_level": "Medium"
+        },
+        "side yard": {
+          "opposition_ratio": 0.4682,
+          "hearings": 132,
+          "risk_level": "Medium"
+        },
+        "stories": {
+          "opposition_ratio": 0.4661,
+          "hearings": 134,
+          "risk_level": "Medium"
+        }
+      }
+    }
+  },
+  "generated": "2026-04-14",
+  "total_hearings_analyzed": 444,
+  "recent_cutoff_year": 2025
+}

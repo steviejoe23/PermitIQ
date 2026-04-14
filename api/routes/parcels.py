@@ -95,7 +95,7 @@ def get_parcel(parcel_id: str):
 
 
 @router.get("/parcels/{parcel_id}/nearby_cases", tags=["Parcels"])
-def nearby_cases(parcel_id: str, radius_m: int = 800, limit: int = 20, ward_only: bool = False):
+def nearby_cases(parcel_id: str, radius_m: int = 800, limit: int = 20, ward_only: bool = False, recent_months: int = 0):
     """
     Find ZBA cases near a parcel using real geographic distance.
     """
@@ -149,6 +149,12 @@ def nearby_cases(parcel_id: str, radius_m: int = 800, limit: int = 20, ward_only
     if has_geo and df is not None and not df.empty:
         if ward_only and parcel_ward:
             df = df[df['ward'] == parcel_ward]
+
+        # Filter by recency if requested
+        if recent_months > 0:
+            cutoff = pd.Timestamp.now() - pd.DateOffset(months=recent_months)
+            df['_date_parsed'] = pd.to_datetime(df['date'], errors='coerce')
+            df = df[df['_date_parsed'].notna() & (df['_date_parsed'] >= cutoff)]
 
         seen = set()
         for _, c in df.head(limit * 2).iterrows():
