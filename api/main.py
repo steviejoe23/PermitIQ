@@ -72,19 +72,19 @@ Consult a qualified zoning attorney before making financial decisions.
     redoc_url="/redoc",
 )
 
-_allowed_origins = os.environ.get("PERMITIQ_CORS_ORIGINS", "").split(",")
-_allowed_origins = [o.strip() for o in _allowed_origins if o.strip()]
-if not _allowed_origins:
-    _allowed_origins = [
-        "http://localhost:8501",
-        "http://127.0.0.1:8501",
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://permitiq-boston.streamlit.app",
-        "https://permitiq.dev",
-        "https://www.permitiq.dev",
-        "https://permitiq-web.vercel.app",
-    ]
+_default_origins = [
+    "http://localhost:8501",
+    "http://127.0.0.1:8501",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://permitiq-boston.streamlit.app",
+    "https://permitiq.dev",
+    "https://www.permitiq.dev",
+    "https://permitiq-web.vercel.app",
+]
+_extra_origins = os.environ.get("PERMITIQ_CORS_ORIGINS", "").split(",")
+_extra_origins = [o.strip() for o in _extra_origins if o.strip()]
+_allowed_origins = list(set(_default_origins + _extra_origins))
 
 app.add_middleware(
     CORSMiddleware,
