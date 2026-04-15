@@ -156,8 +156,11 @@ def search_address(q: str):
         raise HTTPException(status_code=500, detail="ZBA data not loaded")
 
     q_norm = normalize_address(q)
-    if len(q_norm) < 2:
+    # Strip non-alphanumeric chars (except spaces/dashes) to avoid garbage matches
+    q_clean = re.sub(r'[^a-zA-Z0-9\s\-]', '', q_norm).strip()
+    if len(q_clean) < 2:
         return {"query": q, "results": [], "total_results": 0}
+    q_norm = q_clean
 
     try:
         results = _cached_search(q_norm)

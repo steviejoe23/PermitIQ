@@ -59,6 +59,11 @@ def recommend_parcels(
             ward_parcel_strs = set(str(int(p)).zfill(10) for p in ward_parcels if not np.isnan(p))
             candidates = candidates[candidates.index.isin(ward_parcel_strs)]
 
+    # Pre-filter: only keep parcels that have a known address (skip geocoder gaps)
+    if state.parcel_addr_df is not None:
+        known_parcels = set(state.parcel_addr_df['parcel_id'].astype(str))
+        candidates = candidates[candidates.index.isin(known_parcels)]
+
     if len(candidates) > 500:
         candidates = candidates.sample(500, random_state=42)
 
@@ -132,6 +137,8 @@ def recommend_parcels(
                 result["lon"] = round(centroid.x, 6)
             results.append(result)
 
+    # Remove results with no resolved address (geocoder gaps)
+    results = [r for r in results if r.get("address")]
     results.sort(key=lambda x: -x['approval_probability'])
 
     full_response = {

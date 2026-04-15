@@ -35,9 +35,20 @@ def _auto_detect_ward(district: str) -> str:
     """Auto-detect ward from zoning district using ZBA case history."""
     if not district or state.zba_df is None or 'zoning_district' not in state.zba_df.columns:
         return None
+    # Try exact match first
     ward_lookup = state.zba_df[
         (state.zba_df['zoning_district'] == district) & state.zba_df['ward'].notna()
     ]['ward']
+    # Fallback: substring match for multi-value district fields like "Boston Proper, South Boston"
+    if ward_lookup.empty:
+        parts = [p.strip() for p in district.split(",") if p.strip()]
+        for part in parts:
+            ward_lookup = state.zba_df[
+                state.zba_df['zoning_district'].str.contains(part, case=False, na=False)
+                & state.zba_df['ward'].notna()
+            ]['ward']
+            if not ward_lookup.empty:
+                break
     if not ward_lookup.empty:
         mode_result = ward_lookup.mode()
         if not mode_result.empty and pd.notna(mode_result.iloc[0]):
@@ -597,6 +608,13 @@ def analyze_proposal(payload: dict):
         has_attorney = payload.get("has_attorney", False)
         proposed_units = safe_int(payload.get("proposed_units", 0))
         proposed_stories = safe_int(payload.get("proposed_stories", 0))
+
+    # Reject truly empty requests — no parcel, no use, no variances
+    if not parcel_id and not proposed_use and not variances:
+        raise HTTPException(
+            status_code=422,
+            detail="At least one of parcel_id, proposed_use, or variances is required to generate a prediction.",
+        )
 
     # Clamp negative values to 0
     proposed_units = max(0, proposed_units)
