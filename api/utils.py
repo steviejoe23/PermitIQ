@@ -36,7 +36,11 @@ def safe_str(val, default=""):
     """Convert to string, replacing NaN/None with default."""
     if val is None or (isinstance(val, float) and np.isnan(val)):
         return default
-    return str(val)
+    # Strip trailing .0 from float-like values (e.g. ward "21.0" → "21")
+    s = str(val)
+    if isinstance(val, float) and s.endswith('.0') and val == int(val):
+        return str(int(val))
+    return s
 
 
 def _format_date(val) -> str:

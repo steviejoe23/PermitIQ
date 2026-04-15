@@ -244,11 +244,15 @@ def get_case(case_number: str):
     if state.zba_df is None:
         raise HTTPException(status_code=503, detail="Dataset not loaded")
 
-    # Normalize case number format (handle BOA-1234567 or just 1234567)
+    # Normalize case number format (handle BOA-1234567, BOA1234567, or just 1234567)
     q = case_number.strip().upper()
+    # Also try without dashes (BOA-685504 → BOA685504)
+    q_no_dash = q.replace("-", "")
     mask = state.zba_df['case_number'].astype(str).str.upper().str.strip() == q
-    if mask.sum() == 0 and not q.startswith('BOA-'):
-        mask = state.zba_df['case_number'].astype(str).str.upper().str.strip() == f"BOA-{q}"
+    if mask.sum() == 0:
+        mask = state.zba_df['case_number'].astype(str).str.upper().str.strip() == q_no_dash
+    if mask.sum() == 0 and not q_no_dash.startswith('BOA'):
+        mask = state.zba_df['case_number'].astype(str).str.upper().str.strip() == f"BOA{q_no_dash}"
     if mask.sum() == 0:
         # Try partial match
         q_escaped = re.escape(q)
